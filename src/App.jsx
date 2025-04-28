@@ -1,5 +1,5 @@
-import React from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import {useState ,React} from "react";
+import { BrowserRouter as Router, Navigate,Routes, Route } from "react-router-dom";
 import TopMenu from "./components/TopMenu";
 
 import AboutUs from "./pages/AboutUs";
@@ -7,18 +7,45 @@ import Donate from "./pages/Donate";
 import Employees from "./pages/Employees";
 import Spaces from "./pages/Spaces";
 import Events from "./pages/Events";
+import Login from "./components/Login";
+import './App.css'; // Add necessary CSS for layout
+
 
 const App = () => {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+
   return (
     <Router>
-      <TopMenu />
+      {isAuthenticated && <TopMenu className="top-menu" />}
       <div className="p-6">
         <Routes>
+           {/* Public Route */}
+        {!isAuthenticated && (
+          <Route
+            path="/login"
+            element={<Login onLoginSuccess={() => setIsAuthenticated(true)} />}
+          />
+        )}
+        {/* Protected Routes */}
+        {isAuthenticated && (
+          <>
+            <Route path="/" element={<Home />} />
+
           <Route path="/about-us" element={<AboutUs />} />
           <Route path="/donate" element={<Donate />} />
           <Route path="/employees" element={<Employees />} />
           <Route path="/spaces" element={<Spaces />} />
           <Route path="/events" element={<Events />} />
+                       {/* You can add more authenticated routes here */}
+          </>
+        )} 
+        {/* You can add more authenticated routes here */}
+            {/* Redirect any unknown path */}
+        <Route
+          path="*"
+          element={<Navigate to={isAuthenticated ? "/" : "/login"} />}
+        />     
         </Routes>
       </div>
     </Router>
@@ -26,7 +53,18 @@ const App = () => {
 };
 
 export default App;
+// Ensure the TopMenu component is styled to always stay at the top of the page
 
+// Example CSS to include in App.css:
+// .top-menu {
+//   position: fixed;
+//   top: 0;
+//   width: 100%;
+//   z-index: 1000;
+// }
+// .content {
+//   margin-top: 60px; // Adjust based on the height of TopMenu
+// }
 
 
 

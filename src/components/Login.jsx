@@ -9,7 +9,7 @@ import {
 } from "firebase/auth";
 import {auth} from "../firebase";
 
-const Login = () => {
+const Login = (onLoginSuccess) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -28,6 +28,7 @@ const Login = () => {
     setError("");
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      onLoginSuccess() ;
       console.log("Signed in:", userCredential.user);
     } catch (err) {
       console.error(err);
@@ -59,7 +60,7 @@ const Login = () => {
       </div>
     );
   }
-
+ else
   return (
     <div className="max-w-md mx-auto mt-10 p-6 shadow-lg rounded-2xl bg-white relative">
       <h2 className="text-2xl font-bold mb-4">Login</h2>

@@ -40,3 +40,18 @@
 .read-the-docs {
   color: #888;
 }
+ /*he TopMenu component is styled to always stay at the top of the page
+
+Example CSS to include in App.css: */
+.top-menu {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background-color: #fff; /* Optional: Add a background color */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Optional: Add a shadow for better visibility */
+  z-index: 1000;
+}
+.content {
+  margin-top: 60px; /* Adjust this value to match the height of the .top-menu */
+}
