@@ -2,11 +2,12 @@ import React from "react";
 import { Link, NavLink } from "react-router-dom";
 
 const navLinks = [
-  { path: "/about-us", label: "About Us" },
-  { path: "/donate", label: "Donate" },
-  { path: "/employees", label: "Employees" },
-  { path: "/spaces", label: "Spaces" },
-  { path: "/events", label: "Events" },
+  { path: "/addComment", label: "AddComment" },
+  { path: "/hallReservation", label: "HallReservation" },
+  { path: "/halls", label: "Halls" },
+  { path: "/fileSystem", label: "FileSystem" },
+  { path: "/home", label: "Home" },
+
 ];
 const headerStyle = {
   position: "fixed",
@@ -21,10 +22,9 @@ const TopMenu = () => {
   return (
     <header>
       <nav>
-        <Link to="/" style={{ textDecoration: "none", color: "inherit" }}>
+        <Link to="/" >
           {/* Replace this with an <img src="/logo.png" alt="Logo" /> if you have a logo */}
-          <h1 style={{ margin: 0, padding: "16px", fontSize: "24px" }}>MyLogo</h1>
-        </Link>
+           </Link>
         <div>
           {navLinks.map(({ path, label }) => (
             <Link

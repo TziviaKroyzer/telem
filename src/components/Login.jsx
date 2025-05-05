@@ -9,7 +9,7 @@ import {
 } from "firebase/auth";
 import {auth} from "../firebase";
 
-const Login = (onLoginSuccess) => {
+const Login = ({onLoginSuccess}) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
