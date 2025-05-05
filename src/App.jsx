@@ -2,12 +2,15 @@ import {useState ,React} from "react";
 import { BrowserRouter as Router, Navigate,Routes, Route } from "react-router-dom";
 import TopMenu from "./components/TopMenu";
 
-import AboutUs from "./pages/AboutUs";
-import Donate from "./pages/Donate";
-import Employees from "./pages/Employees";
-import Spaces from "./pages/Spaces";
-import Events from "./pages/Events";
+import Authentication from "./pages/Authentication";
+import Home from "./pages/Home";
+import AddComment from "./pages/AddComment";
+import Halls from "./pages/Halls";
 import Login from "./components/Login";
+import HallReservation from "./pages/HallReservation";
+import FileSystem from "./pages/FileSystem";
+
+
 import './App.css'; // Add necessary CSS for layout
 
 
@@ -30,13 +33,11 @@ const App = () => {
         {/* Protected Routes */}
         {isAuthenticated && (
           <>
-            <Route path="/" element={<Home />} />
-
-          <Route path="/about-us" element={<AboutUs />} />
-          <Route path="/donate" element={<Donate />} />
-          <Route path="/employees" element={<Employees />} />
-          <Route path="/spaces" element={<Spaces />} />
-          <Route path="/events" element={<Events />} />
+              <Route path="/" element={<Home />} />
+              <Route path="/addComment" element={<AddComment />} />
+              <Route path="/halls" element={<Halls />} />
+              <Route path="/hallReservation" element={<HallReservation />} />
+              <Route path="/fileSystem" element={<FileSystem />} />
                        {/* You can add more authenticated routes here */}
           </>
         )} 
