@@ -9,6 +9,7 @@ import Halls from "./pages/Halls";
 import Login from "./components/Login";
 import HallReservation from "./pages/HallReservation";
 import FileSystem from "./pages/FileSystem";
+import SearchPage from "./pages/SearchPage";
 
 
 import './App.css'; // Add necessary CSS for layout
@@ -38,6 +39,7 @@ const App = () => {
               <Route path="/halls" element={<Halls />} />
               <Route path="/hallReservation" element={<HallReservation />} />
               <Route path="/fileSystem" element={<FileSystem />} />
+              <Route path="/searchPage" element={<SearchPage />} />
                        {/* You can add more authenticated routes here */}
           </>
         )} 

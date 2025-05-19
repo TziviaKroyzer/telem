@@ -7,6 +7,7 @@ const navLinks = [
   { path: "/halls", label: "Halls" },
   { path: "/fileSystem", label: "FileSystem" },
   { path: "/home", label: "Home" },
+  { path: "/searchPage", label: "SearchPage" },
 
 ];
 const headerStyle = {
