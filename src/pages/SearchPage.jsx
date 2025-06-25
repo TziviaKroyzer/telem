@@ -1,4 +1,3 @@
-// src/pages/SearchPage.jsx
 import { useEffect, useState } from "react";
 import { db } from "../firebase";
 import {
@@ -10,6 +9,8 @@ import {
 
 export default function SearchPage() {
   const [comments, setComments] = useState([]);
+  const [selectedComment, setSelectedComment] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false); // מצב חלון קופץ
 
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
@@ -27,7 +28,18 @@ export default function SearchPage() {
   const [selectedCampus, setSelectedCampus] = useState("");
 
   const [searchText, setSearchText] = useState("");
-  const [selectedComment, setSelectedComment] = useState(null);
+
+  // פונקציה לפתיחת המודל
+  const openModal = (comment) => {
+    setSelectedComment(comment);
+    setIsModalOpen(true);
+  };
+
+  // פונקציה לסגירת המודל
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setSelectedComment(null);
+  };
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -188,51 +200,87 @@ export default function SearchPage() {
           <div
             className="comment-preview"
             key={comment.id}
-            onClick={() => setSelectedComment(comment)}
+            onClick={() => openModal(comment)} // פותח את המודל
           >
             <p>{comment.noteText?.substring(0, 50)}...</p>
           </div>
         ))}
       </div>
 
-      {selectedComment && (
-        <div className="comment-details">
-          <h3>פרטי ההערה</h3>
-          <p><strong>תאריך:</strong> {selectedComment.date}</p>
-          <p><strong>משתמש:</strong> {userMap[selectedComment.createdBy]}</p>
-          <p><strong>סוג:</strong> {noteTypeMap[selectedComment.noteType]}</p>
-          <p><strong>קמפוס:</strong> {campusMap[selectedComment.campus]}</p>
-          <p><strong>תוכן:</strong> {selectedComment.noteText}</p>
+      {/* מודל עם פרטי ההערה */}
+      {isModalOpen && (
+        <>
+          <div className="overlay" onClick={closeModal}></div> {/* רקע המודל */}
+          <div className="comment-details">
+            <h3>פרטי ההערה</h3>
+            <p><strong>תאריך:</strong> {selectedComment.date}</p>
+            <p><strong>משתמש:</strong> {userMap[selectedComment.createdBy]}</p>
+            <p><strong>סוג:</strong> {noteTypeMap[selectedComment.noteType]}</p>
+            <p><strong>קמפוס:</strong> {campusMap[selectedComment.campus]}</p>
+            <p><strong>תוכן:</strong> {selectedComment.noteText}</p>
 
-          {selectedComment.fileName && (
-            <p>
-              <strong>קובץ מצורף:</strong>{" "}
-              <a href={selectedComment.fileUrl} target="_blank" rel="noopener noreferrer">
-                פתח קובץ
-              </a>
-            </p>
-          )}
+            {selectedComment.fileName && (
+              <p>
+                <strong>קובץ מצורף:</strong>{" "}
+                <a href={selectedComment.fileUrl} target="_blank" rel="noopener noreferrer">
+                  פתח קובץ
+                </a>
+              </p>
+            )}
 
-          {selectedComment.attachments && selectedComment.attachments.length > 0 && (
-            <div>
-              <strong>קבצים מצורפים:</strong>
-              <ul>
-                {selectedComment.attachments.map((file, idx) => (
-                  <li key={idx}>
-                    <a href={file} target="_blank" rel="noopener noreferrer">
-                      קובץ {idx + 1}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
+            {selectedComment.attachments && selectedComment.attachments.length > 0 && (
+              <div>
+                <strong>קבצים מצורפים:</strong>
+                <ul>
+                  {selectedComment.attachments.map((file, idx) => (
+                    <li key={idx}>
+                      <a href={file} target="_blank" rel="noopener noreferrer">
+                        קובץ {idx + 1}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
 
-          <button onClick={() => setSelectedComment(null)}>סגור</button>
-        </div>
+            <button onClick={closeModal}>סגור</button>
+          </div>
+        </>
       )}
 
-      
+      <style jsx>{`
+        .comment-details {
+          position: fixed;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          background-color: white;
+          padding: 20px;
+          border-radius: 8px;
+          box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+          z-index: 1000;
+          max-width: 80%;
+          max-height: 80%;
+          overflow-y: auto;
+          display: flex;
+          flex-direction: column;
+          align-items: flex-start;
+        }
+
+        .comment-details button {
+          margin-top: 20px;
+        }
+
+        .overlay {
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: rgba(0, 0, 0, 0.5);
+          z-index: 999;
+        }
+      `}</style>
     </div>
   );
 }
