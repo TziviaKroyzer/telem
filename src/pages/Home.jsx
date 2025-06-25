@@ -1,5 +1,6 @@
 import React from "react";
 import HomeButton from "../components/HomeButton";
+import logo from "../assets/logo.webp";
 
 const Home = () => {
   return (
@@ -11,9 +12,8 @@ const Home = () => {
         <HomeButton text="halls" to="/halls" />
         <HomeButton text="fileSystem" to="/fileSystem" />
         <HomeButton text="SearchPage" to="/searchPage" />
-
       </div>
-
+      <img src={logo} alt="לוגו" className="logo-image" />
       <style>
         {`
           .home-page {
@@ -23,7 +23,7 @@ const Home = () => {
             align-items: center;
             justify-content: flex-start;
             padding-top: 100px;
-            background-color: #f9fafb;
+           
             text-align: center;
           }
 

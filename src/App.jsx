@@ -1,5 +1,10 @@
-import {useState, React} from "react";
-import { BrowserRouter as Router, Navigate, Routes, Route } from "react-router-dom";
+import { useState, React } from "react";
+import {
+  BrowserRouter as Router,
+  Navigate,
+  Routes,
+  Route,
+} from "react-router-dom";
 import TopMenu from "./components/TopMenu";
 
 import Authentication from "./pages/Authentication";
@@ -12,12 +17,11 @@ import FileSystem from "./pages/FileSystem";
 import SearchPage from "./pages/SearchPage";
 import AdminPanel from "./pages/AdminPanel";
 
-
-import './App.css'; // Add necessary CSS for layout
+import "./App.css"; // Add necessary CSS for layout
 
 const App = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  
+
   return (
     <Router>
       {isAuthenticated && <TopMenu className="top-menu" />}
@@ -27,10 +31,12 @@ const App = () => {
           {!isAuthenticated && (
             <Route
               path="/login"
-              element={<Login onLoginSuccess={() => setIsAuthenticated(true)} />}
+              element={
+                <Login onLoginSuccess={() => setIsAuthenticated(true)} />
+              }
             />
           )}
-          
+
           {/* Protected Routes */}
           {isAuthenticated && (
             <>
@@ -40,12 +46,12 @@ const App = () => {
               <Route path="/hallReservation" element={<HallReservation />} />
               <Route path="/fileSystem" element={<FileSystem />} />
               <Route path="/searchPage" element={<SearchPage />} />
-              <Route path="/admin" element={<AdminPanel />} /> 
-              
+              <Route path="/admin" element={<AdminPanel />} />
+
               {/* You can add more authenticated routes here */}
             </>
           )}
-          
+
           {/* Redirect any unknown path */}
           <Route
             path="*"
