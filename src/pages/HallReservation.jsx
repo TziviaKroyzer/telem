@@ -385,7 +385,7 @@ const HallReservation = () => {
               אישור שריון
             </button>
             <button className="reserve-month-button" onClick={reserveFullMonth}>
-              שריין את החודש הקרוב
+              שריין עד סוף החודש
             </button>
             <button
               className="close-button"
