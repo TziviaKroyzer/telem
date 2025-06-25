@@ -8,6 +8,8 @@ const navLinks = [
   { path: "/fileSystem", label: "FileSystem" },
   { path: "/home", label: "Home" },
   { path: "/searchPage", label: "SearchPage" },
+  { path: "/admin", label: "ניהול מערכת" },
+ 
 
 ];
 const headerStyle = {

@@ -1,18 +1,19 @@
 import React, { useState, useEffect } from "react";
 import Calendar from "../components/Calendar";
-import DatePickerInput from "../components/DatePickerInput";
 import SelectInput from "../components/SelectInput";
 import TextAreaInput from "../components/TextAreaInput";
 import ConfirmationModal from "../components/ConfirmationModal";
 import FileUploadInput from "../components/FileUploadInput";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
-import { collection, getDocs } from "firebase/firestore";
+import { collection, getDocs, addDoc } from "firebase/firestore";
 import { db } from "../firebase";
+import { getAuth } from "firebase/auth";
 
 const AddComment = () => {
-  const [date, setDate] = useState(null); // עדכון מ-""
+  const [date, setDate] = useState(new Date());
   const [campus, setCampus] = useState("");
-  const [updateType, setUpdateType] = useState("");
+  const [selectedUser, setSelectedUser] = useState("");
   const [noteType, setNoteType] = useState("");
   const [noteText, setNoteText] = useState("");
   const [showModal, setShowModal] = useState(false);
@@ -20,20 +21,22 @@ const AddComment = () => {
 
   const [usersList, setUsersList] = useState([]);
   const [campusOptions, setCampusOptions] = useState([]);
-  const [commentType, setCmmentType] = useState([]);
-  const [loadingCampuses, setLoadingCampuses] = useState(true);
+  const [commentType, setCommentType] = useState([]);
+  const [selectedItems, setSelectedItems] = useState([]);
+  const [notifyUsers, setNotifyUsers] = useState([]);
 
   useEffect(() => {
     const fetchCampuses = async () => {
       try {
         const campusCollection = collection(db, "campuses");
         const snapshot = await getDocs(campusCollection);
-        const campusList = snapshot.docs.map((doc) => doc.data().name);
+        const campusList = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          name: doc.data().name,
+        }));
         setCampusOptions(campusList);
       } catch (error) {
         console.error("שגיאה בשליפת הקמפוסים:", error);
-      } finally {
-        setLoadingCampuses(false);
       }
     };
     fetchCampuses();
@@ -44,8 +47,11 @@ const AddComment = () => {
       try {
         const commentTypeCollection = collection(db, "commentType");
         const snapshot = await getDocs(commentTypeCollection);
-        const typesList = snapshot.docs.map((doc) => doc.data().name);
-        setCmmentType(typesList);
+        const typesList = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          name: doc.data().name,
+        }));
+        setCommentType(typesList);
       } catch (error) {
         console.error("שגיאה בשליפת סוגי ההערות:", error);
       }
@@ -60,7 +66,7 @@ const AddComment = () => {
         const snapshot = await getDocs(usersRef);
         const list = snapshot.docs.map((doc) => ({
           id: doc.id,
-          name: doc.data().displayName || doc.data().email,
+          name: doc.data().firstName || doc.data().email,
         }));
         setUsersList(list);
       } catch (error) {
@@ -70,22 +76,74 @@ const AddComment = () => {
     fetchUsers();
   }, []);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!selectedUser || !campus || !noteType || !noteText || !date) {
+      alert("נא למלא את כל השדות החובה לפני שמירה.");
+      return;
+    }
+
     setShowModal(true);
+
+    try {
+      const auth = getAuth();
+      const currentUser = auth.currentUser;
+
+      if (!currentUser) {
+        alert("אין משתמש מחובר. התחבר כדי להוסיף הערה.");
+        setShowModal(false);
+        return;
+      }
+
+      let fileUrl = null;
+
+      if (file) {
+        const storage = getStorage();
+        const storageRef = ref(
+          storage,
+          `commentsFiles/${Date.now()}_${file.name}`
+        );
+        // מעלה את הקובץ
+        await uploadBytes(storageRef, file);
+        // מקבל את ה-URL של הקובץ לאחר ההעלאה
+        fileUrl = await getDownloadURL(storageRef);
+      }
+
+      const commentData = {
+        createdBy: `/users/${currentUser?.email || "unknown"}`,
+        user: selectedUser,
+        campus: `/campuses/${campus}`,
+        noteType: `/commentType/${noteType}`,
+        noteText: noteText.slice(0, 500),
+        selectedItems,
+        notifyUsers: notifyUsers?.length ? notifyUsers : [],
+        fileName: file ? file.name : null,
+        fileUrl, // כאן שומרים את ה-URL של הקובץ שהועלה
+        date: date.toISOString().split("T")[0], // רק תאריך בלי שעה
+      };
+
+      // שמירה עם מפתח אוטומטי שנוצר ע"י Firebase
+      await addDoc(collection(db, "comments"), commentData);
+
+      console.log("ההערה נשמרה בהצלחה!");
+
+      // איפוס טופס
+      setDate(new Date());
+      setCampus("");
+      setSelectedUser("");
+      setNoteType("");
+      setNoteText("");
+      setSelectedItems([]);
+      setNotifyUsers([]);
+      setFile(null);
+    } catch (error) {
+      console.error("שגיאה בשמירת ההערה:", error);
+    }
+
     setTimeout(() => {
       setShowModal(false);
     }, 1500);
-    console.log("תאריך:", date);
-    console.log("קמפוס:", campus);
-    console.log("עדכון:", updateType);
-    console.log("סוג הערה:", noteType);
-    console.log("טקסט חופשי:", noteText);
-    if (file) {
-      console.log("קובץ שנבחר:", file.name);
-    } else {
-      console.log("לא נבחר קובץ");
-    }
   };
 
   const closeModal = () => {
@@ -98,26 +156,35 @@ const AddComment = () => {
       <form onSubmit={handleSubmit} className="form">
         <div>
           <h3 className="calendar-label">בחר תאריך ביומן:</h3>
-          <Calendar value={date} onChange={setDate} /> {/* Calendar */}
+          <Calendar value={date} onChange={setDate} />
         </div>
 
         <SelectInput
           label="קמפוס"
-          options={campusOptions}
+          options={campusOptions.map((campus) => ({
+            label: campus.name,
+            value: campus.id,
+          }))}
           value={campus}
           onChange={setCampus}
         />
 
         <SelectInput
           label="עדכון עבור משתמש"
-          options={usersList.map((user) => user.name)}
-          value={updateType}
-          onChange={setUpdateType}
+          options={usersList.map((user) => ({
+            label: user.name,
+            value: user.id,
+          }))}
+          value={selectedUser}
+          onChange={setSelectedUser}
         />
 
         <SelectInput
           label="סוג הערה"
-          options={commentType}
+          options={commentType.map((type) => ({
+            label: type.name,
+            value: type.id,
+          }))}
           value={noteType}
           onChange={setNoteType}
         />
@@ -169,32 +236,6 @@ const AddComment = () => {
 
         .submit-button:hover {
           background-color: #1d4ed8;
-        }
-
-        .modal-overlay {
-          position: fixed;
-          inset: 0;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          background-color: rgba(0, 0, 0, 0.5);
-          z-index: 50;
-        }
-
-        .modal-content {
-          background-color: white;
-          border-radius: 1rem;
-          padding: 1.5rem;
-          box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
-          max-width: 24rem;
-          width: 100%;
-          text-align: center;
-        }
-
-        .modal-title {
-          font-size: 1.125rem;
-          font-weight: bold;
-          margin-bottom: 1rem;
         }
       `}</style>
     </div>

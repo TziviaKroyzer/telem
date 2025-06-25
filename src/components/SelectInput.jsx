@@ -1,5 +1,3 @@
-import React from "react";
-
 const SelectInput = ({ label, options, value, onChange }) => (
   <div>
     <label className="block text-sm font-medium text-gray-700">{label}</label>
@@ -12,8 +10,8 @@ const SelectInput = ({ label, options, value, onChange }) => (
         בחר...
       </option>
       {options.map((opt) => (
-        <option key={opt} value={opt}>
-          {opt}
+        <option key={opt.value} value={opt.value}>
+          {opt.label}
         </option>
       ))}
     </select>
@@ -34,5 +32,4 @@ const SelectInput = ({ label, options, value, onChange }) => (
     `}</style>
   </div>
 );
-
 export default SelectInput;

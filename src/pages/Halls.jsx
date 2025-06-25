@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
-import { collection, getDocs } from 'firebase/firestore';
-import { useNavigate } from 'react-router-dom';
-import { db } from '../firebase';
+import React, { useEffect, useState } from "react";
+import { collection, getDocs } from "firebase/firestore";
+import { useNavigate } from "react-router-dom";
+import { db } from "../firebase";
 
 const Halls = () => {
   const [halls, setHalls] = useState([]);
@@ -10,8 +10,8 @@ const Halls = () => {
   useEffect(() => {
     const fetchHalls = async () => {
       try {
-        const querySnapshot = await getDocs(collection(db, 'halls'));
-        const hallList = querySnapshot.docs.map(doc => ({
+        const querySnapshot = await getDocs(collection(db, "halls"));
+        const hallList = querySnapshot.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),
         }));
@@ -24,8 +24,8 @@ const Halls = () => {
     fetchHalls();
   }, []);
 
-  const goToReservation = (hallId) => {
-    navigate('/hallReservation', { state: { hallId } });
+  const goToReservation = (hallId, hallName) => {
+    navigate("/hallReservation", { state: { hallId, hallName } });
   };
 
   return (
@@ -33,10 +33,10 @@ const Halls = () => {
       <div className="hall-page">
         <h1 className="hall-title">בחר אולם</h1>
         <div className="hall-buttons">
-          {halls.map(hall => (
+          {halls.map((hall) => (
             <button
               key={hall.id}
-              onClick={() => goToReservation(hall.id)}
+              onClick={() => goToReservation(hall.id, hall.name)}
               className="hall-button"
             >
               {hall.name}
