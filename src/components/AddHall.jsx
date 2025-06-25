@@ -95,34 +95,7 @@ function AddHall() {
         <button type="submit">הוסף</button>
       </form>
 
-      <style>{`
-        .add-hall {
-          max-width: 400px;
-          margin: auto;
-          padding: 20px;
-        }
-
-        .add-hall form {
-          display: flex;
-          flex-direction: column;
-        }
-
-        .add-hall input,
-        .add-hall select {
-          margin-bottom: 10px;
-          padding: 8px;
-          font-size: 16px;
-        }
-
-        .add-hall button {
-          padding: 10px;
-          background-color: #007bff;
-          color: white;
-          font-weight: bold;
-          border: none;
-          cursor: pointer;
-        }
-      `}</style>
+     
     </div>
   );
 }

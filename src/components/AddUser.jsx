@@ -88,34 +88,7 @@ function AddUser() {
         <button type="submit">הוסף</button>
       </form>
 
-      <style>{`
-        .add-user {
-          max-width: 400px;
-          margin: auto;
-          padding: 20px;
-        }
-
-        .add-user form {
-          display: flex;
-          flex-direction: column;
-        }
-
-        .add-user input,
-        .add-user select {
-          margin-bottom: 10px;
-          padding: 8px;
-          font-size: 16px;
-        }
-
-        .add-user button {
-          padding: 10px;
-          background-color: darkgreen;
-          color: white;
-          font-weight: bold;
-          border: none;
-          cursor: pointer;
-        }
-      `}</style>
+     
     </div>
   );
 }

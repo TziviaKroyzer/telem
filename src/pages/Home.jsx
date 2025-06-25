@@ -14,41 +14,7 @@ const Home = () => {
         <HomeButton text="SearchPage" to="/searchPage" />
       </div>
       <img src={logo} alt="לוגו" className="logo-image" />
-      <style>
-        {`
-          .home-page {
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-start;
-            padding-top: 100px;
-           
-            text-align: center;
-          }
-
-          .home-title {
-            font-size: 2.5rem;
-            margin-bottom: 2rem;
-            color: #1e293b;
-          }
-
-          .buttons-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-          }
-
-          @media (min-width: 768px) {
-            .buttons-container {
-              flex-direction: row;
-              justify-content: center;
-              flex-wrap: wrap;
-              gap: 1rem;
-            }
-          }
-        `}
-      </style>
+     
     </div>
   );
 };

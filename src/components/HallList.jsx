@@ -79,45 +79,7 @@ function HallList() {
         ))}
       </ul>
 
-      <style>{`
-        .hall-list {
-          margin-top: 30px;
-          max-width: 500px;
-          margin-inline: auto;
-          text-align: right;
-        }
-
-        .hall-list ul {
-          list-style: none;
-          padding: 0;
-        }
-
-        .hall-list li {
-          background: #f9f9f9;
-          padding: 10px;
-          margin-bottom: 10px;
-          border: 1px solid #ddd;
-          border-radius: 6px;
-        }
-
-        .hall-list button {
-          margin-right: 10px;
-          background-color: darkorange;
-          color: white;
-          border: none;
-          padding: 5px 10px;
-          cursor: pointer;
-        }
-
-        .hall-list button:hover {
-          background-color: orangered;
-        }
-
-        .hall-list input {
-          margin-left: 5px;
-          padding: 5px;
-        }
-      `}</style>
+      
     </div>
   );
 }

@@ -9,16 +9,7 @@ const FileUploadInput = ({ onChange }) => (
       className="file-upload-input"
     />
     
-    <style>{`
-      .file-upload-input {
-        margin-top: 0.25rem;
-      }
-      
-      .file-upload-input:focus {
-        outline: none;
-        border-color: #3B82F6;
-      }
-    `}</style>
+    
   </div>
 );
 

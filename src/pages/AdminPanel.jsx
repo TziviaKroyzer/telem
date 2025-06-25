@@ -42,35 +42,7 @@ function AdminPanel() {
 
       </div>
 
-      <style>{`
-        .admin-panel {
-          text-align: center;
-          padding: 30px;
-        }
-
-        .tabs {
-          margin-bottom: 20px;
-        }
-
-        .tabs button {
-          margin: 0 10px;
-          padding: 10px 20px;
-          font-size: 16px;
-          background-color: #007b8f;
-          color: white;
-          border: none;
-          cursor: pointer;
-          border-radius: 8px;
-        }
-
-        .tabs button:hover {
-          background-color: #005f6b;
-        }
-
-        .form-container {
-          margin-top: 20px;
-        }
-      `}</style>
+     
     </div>
   );
 }

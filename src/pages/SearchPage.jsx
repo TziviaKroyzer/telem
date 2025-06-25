@@ -232,69 +232,7 @@ export default function SearchPage() {
         </div>
       )}
 
-      <style>
-        {`
-        .search-container {
-          padding: 20px;
-          direction: rtl;
-          font-family: Arial, sans-serif;
-        }
-        .filters {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 20px;
-          margin-bottom: 20px;
-        }
-        .filters label {
-          display: flex;
-          flex-direction: column;
-          font-size: 14px;
-        }
-        .filters input,
-        .filters select {
-          padding: 5px;
-          font-size: 14px;
-          margin-top: 5px;
-          min-width: 150px;
-        }
-        .results {
-          display: flex;
-          flex-direction: column;
-          gap: 10px;
-        }
-        .comment-preview {
-          border: 1px solid #ccc;
-          padding: 10px;
-          border-radius: 8px;
-          background: #f9f9f9;
-          cursor: pointer;
-          transition: background 0.2s ease;
-        }
-        .comment-preview:hover {
-          background: #e6f7ff;
-        }
-        .comment-details {
-          border: 2px solid #007acc;
-          padding: 15px;
-          border-radius: 8px;
-          background-color: #f0faff;
-          margin-top: 20px;
-          line-height: 1.6;
-        }
-        .comment-details h3 {
-          margin-top: 0;
-        }
-        .comment-details ul {
-          padding-right: 20px;
-        }
-        .comment-details button {
-          margin-top: 10px;
-          padding: 6px 12px;
-          font-size: 14px;
-          cursor: pointer;
-        }
-      `}
-      </style>
+      
     </div>
   );
 }

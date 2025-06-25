@@ -119,46 +119,7 @@ function UserList() {
         ))}
       </ul>
 
-      <style>{`
-        .user-list {
-          margin-top: 30px;
-          max-width: 600px;
-          margin-inline: auto;
-          text-align: right;
-        }
-
-        .user-list ul {
-          list-style: none;
-          padding: 0;
-        }
-
-        .user-list li {
-          background: #f9f9f9;
-          padding: 10px;
-          margin-bottom: 10px;
-          border: 1px solid #ddd;
-          border-radius: 6px;
-        }
-
-        .user-list button {
-          margin-right: 10px;
-          background-color: #333;
-          color: white;
-          border: none;
-          padding: 5px 10px;
-          cursor: pointer;
-        }
-
-        .user-list button:hover {
-          background-color: black;
-        }
-
-        .user-list input,
-        .user-list select {
-          margin-left: 5px;
-          padding: 5px;
-        }
-      `}</style>
+    
     </div>
   );
 }

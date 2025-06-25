@@ -199,45 +199,7 @@ const AddComment = () => {
 
       {showModal && <ConfirmationModal onClose={closeModal} />}
 
-      <style>{`
-        .add-comment-page {
-          max-width: 36rem;
-          margin: 2.5rem auto;
-          padding: 1.5rem;
-          background-color: white;
-          box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
-          border-radius: 1rem;
-        }
-
-        .page-title {
-          font-size: 1.5rem;
-          font-weight: bold;
-          margin-bottom: 1rem;
-        }
-
-        .form {
-          display: flex;
-          flex-direction: column;
-          gap: 1rem;
-        }
-
-        .calendar-label {
-          font-weight: 600;
-        }
-
-        .submit-button {
-          width: 100%;
-          background-color: #2563eb;
-          color: white;
-          padding-top: 0.5rem;
-          padding-bottom: 0.5rem;
-          border-radius: 0.375rem;
-        }
-
-        .submit-button:hover {
-          background-color: #1d4ed8;
-        }
-      `}</style>
+     
     </div>
   );
 };

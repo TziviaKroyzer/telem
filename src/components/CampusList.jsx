@@ -79,45 +79,7 @@ function CampusList() {
         ))}
       </ul>
 
-      <style>{`
-        .campus-list {
-          margin-top: 30px;
-          max-width: 500px;
-          margin-inline: auto;
-          text-align: right;
-        }
-
-        .campus-list ul {
-          list-style: none;
-          padding: 0;
-        }
-
-        .campus-list li {
-          background: #f9f9f9;
-          padding: 10px;
-          margin-bottom: 10px;
-          border: 1px solid #ddd;
-          border-radius: 6px;
-        }
-
-        .campus-list button {
-          margin-right: 10px;
-          background-color: teal;
-          color: white;
-          border: none;
-          padding: 5px 10px;
-          cursor: pointer;
-        }
-
-        .campus-list button:hover {
-          background-color: #004c4c;
-        }
-
-        .campus-list input {
-          margin-left: 5px;
-          padding: 5px;
-        }
-      `}</style>
+      
     </div>
   );
 }

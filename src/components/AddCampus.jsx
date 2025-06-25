@@ -73,34 +73,7 @@ function AddCampus() {
         <button type="submit">הוסף</button>
       </form>
 
-      <style>{`
-        .add-campus {
-          max-width: 400px;
-          margin: auto;
-          padding: 20px;
-        }
-
-        .add-campus form {
-          display: flex;
-          flex-direction: column;
-        }
-
-        .add-campus input,
-        .add-campus select {
-          margin-bottom: 10px;
-          padding: 8px;
-          font-size: 16px;
-        }
-
-        .add-campus button {
-          padding: 10px;
-          background-color: teal;
-          color: white;
-          font-weight: bold;
-          border: none;
-          cursor: pointer;
-        }
-      `}</style>
+     
     </div>
   );
 }
