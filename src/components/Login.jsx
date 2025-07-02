@@ -6,6 +6,7 @@ import {
 } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
 import { auth, db } from "../firebase";
+import logo from "../assets/logo.webp"; // ודא שהנתיב נכון
 
 const Login = ({ onLoginSuccess }) => {
   const [email, setEmail] = useState("");
@@ -17,24 +18,18 @@ const Login = ({ onLoginSuccess }) => {
     setError("");
 
     try {
-      // שלב 1: התחברות ל-Auth
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
 
-      // שלב 2: בדיקה אם המשתמש קיים במסד הנתונים (Firestore)
       const userDoc = await getDoc(doc(db, "users", email));
 
       if (!userDoc.exists()) {
-        // המשתמש התחבר ל-Auth אבל לא קיים ב-DB → מוחק את עצמו
         await deleteUser(user);
         setError("הגישה שלך הוסרה מהמערכת. פנה למנהל.");
         return;
       }
 
-      // שלב 3: המשתמש קיים גם ב-Auth וגם ב-DB
       onLoginSuccess();
-      console.log("Signed in:", user);
-
     } catch (err) {
       console.error(err);
 
@@ -55,7 +50,6 @@ const Login = ({ onLoginSuccess }) => {
 
     try {
       const userDoc = await getDoc(doc(db, "users", email));
-
       if (!userDoc.exists()) {
         setError("המשתמש לא קיים במערכת. פנה למנהל.");
         return;
@@ -70,42 +64,131 @@ const Login = ({ onLoginSuccess }) => {
   };
 
   return (
-    <div className="max-w-md mx-auto mt-10 p-6 shadow-lg rounded-2xl bg-white relative">
-      <h2 className="text-2xl font-bold mb-4 text-center">התחברות למערכת</h2>
-      <form onSubmit={handleLogin} className="space-y-4">
-        <div>
-          <label className="block text-sm font-medium text-gray-700">אימייל</label>
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            className="w-full mt-1 p-2 border rounded-md"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700">סיסמה</label>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            className="w-full mt-1 p-2 border rounded-md"
-          />
-        </div>
-        {error && <p className="text-sm text-red-500 text-center">{error}</p>}
-        <button
-          type="submit"
-          className="w-full bg-blue-600 text-white p-2 rounded-md hover:bg-blue-700"
-        >
-          התחבר
-        </button>
-      </form>
+    <div className="login-page">
+      <style>{`
+        .login-page {
+          min-height: 100vh;
+          background: linear-gradient(to bottom right, #f7fafd, #e6f3fa);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 2em;
+        }
 
-      <div className="mt-4 text-sm text-center">
-        <button onClick={handlePasswordReset} className="text-blue-500 hover:underline">
-          שכחת סיסמה?
-        </button>
+        .login-container {
+          background: #fff;
+          border-radius: 16px;
+          box-shadow: 0 4px 20px rgba(110, 200, 241, 0.12);
+          padding: 2.5em 2em;
+          width: 100%;
+          max-width: 420px;
+          text-align: center;
+        }
+
+        .login-logo {
+          max-width: 120px;
+          margin: 0 auto 1.2em;
+          display: block;
+        }
+
+        .login-title {
+          font-size: 1.6em;
+          color: #6ec8f1;
+          margin-bottom: 1em;
+          font-weight: bold;
+        }
+
+        .login-form {
+          display: flex;
+          flex-direction: column;
+          gap: 1em;
+        }
+
+        .login-form label {
+          text-align: right;
+          font-size: 0.95em;
+          color: #7a7a7a;
+        }
+
+        .login-form input {
+          width: 100%;
+          padding: 0.65em 1em;
+          border: 1px solid #e0e4ec;
+          border-radius: 10px;
+          background: #f9fbfd;
+          font-size: 1em;
+          margin-top: 0.3em;
+        }
+
+        .login-form input:focus {
+          outline: none;
+          border-color: #6ec8f1;
+        }
+
+        .login-form button[type="submit"] {
+          background: #6ec8f1;
+          color: white;
+          border: none;
+          padding: 0.7em;
+          border-radius: 10px;
+          font-size: 1em;
+          cursor: pointer;
+          transition: background 0.2s;
+        }
+
+        .login-form button[type="submit"]:hover {
+          background: #58bae4;
+        }
+
+        .login-footer {
+          margin-top: 1em;
+        }
+
+        .login-footer button {
+          background: none;
+          border: none;
+          color: #f4a63f;
+          cursor: pointer;
+          font-size: 0.9em;
+          text-decoration: underline;
+        }
+
+        .error-message {
+          color: #e76b6b;
+          font-size: 0.85em;
+          margin-top: -0.5em;
+          text-align: center;
+        }
+      `}</style>
+
+      <div className="login-container">
+        <img src={logo} alt="לוגו" className="login-logo" />
+        <h2 className="login-title">התחברות למערכת</h2>
+        <form onSubmit={handleLogin} className="login-form">
+          <label>
+            אימייל
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </label>
+          <label>
+            סיסמה
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </label>
+          {error && <p className="error-message">{error}</p>}
+          <button type="submit">התחבר</button>
+        </form>
+        <div className="login-footer">
+          <button onClick={handlePasswordReset}>שכחת סיסמה?</button>
+        </div>
       </div>
     </div>
   );
