@@ -16,6 +16,7 @@ import HallReservation from "./pages/HallReservation";
 import FileSystem from "./pages/FileSystem";
 import SearchPage from "./pages/SearchPage";
 import AdminPanel from "./pages/AdminPanel";
+import logo from "./assets/logo.webp";
 
 import "./App.css"; // Add necessary CSS for layout
 
@@ -23,6 +24,9 @@ const App = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   return (
+    <>
+      <img src={logo} alt="Logo" className="logo" />
+   
     <Router>
       {isAuthenticated && <TopMenu className="top-menu" />}
       <div className="p-6">
@@ -58,8 +62,11 @@ const App = () => {
             element={<Navigate to={isAuthenticated ? "/" : "/login"} />}
           />
         </Routes>
+        
       </div>
+    
     </Router>
+     </>
   );
 };
 

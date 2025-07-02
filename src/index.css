@@ -13,6 +13,18 @@
   --font-main: "Segoe UI", Tahoma, Arial, sans-serif;
   --border-radius: 12px;
   --shadow: 0 2px 12px rgba(110, 200, 241, 0.08);
+  
+  /* משתנים חדשים למרכוז */
+  --max-width-desktop: 900px;
+  --max-width-tablet: 85%;
+  --max-width-mobile: 95%;
+  --padding-desktop: 2.2em 2em 2.5em;
+  --padding-tablet: 1.8em 1.5em 2em;
+  --padding-mobile: 1.2em 1em 1.5em;
+}
+
+* {
+  box-sizing: border-box;
 }
 
 html, body {
@@ -22,15 +34,43 @@ html, body {
   background: var(--color-bg);
   color: var(--color-text);
   line-height: 1.65;
+  width: 100%;
+  height: 100%;
+}
+
+/* מיכל ראשי שמרכז הכל */
+.main-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  min-height: 100vh;
+  width: 100%;
+  padding: 2.5em 1em;
 }
 
 main, .container {
-  max-width: 900px;
-  margin: 2.5em auto;
+  width: 100%;
+  max-width: var(--max-width-desktop);
   background: var(--color-surface);
   box-shadow: var(--shadow);
   border-radius: var(--border-radius);
-  padding: 2.2em 2em 2.5em;
+  padding: var(--padding-desktop);
+  position: relative;
+  margin: 0 auto;
+}
+
+/* מרכוז כל האלמנטים הפנימיים */
+.content-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  text-align: center;
+}
+
+.content-container > * {
+  width: 100%;
+  max-width: 100%;
 }
 
 h1, h2, h3 {
@@ -38,6 +78,7 @@ h1, h2, h3 {
   color: var(--color-text);
   margin-top: 0;
   margin-bottom: 0.5em;
+  text-align: center;
 }
 
 h1 { font-size: 2.2em; }
@@ -48,39 +89,93 @@ h3 { font-size: 1.12em; }
   text-align: center;
   color: var(--color-accent);
   margin-bottom: 1em;
+  width: 100%;
+}
+
+/* מיכל הלוגו */
+.logo-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 2em;
+  padding: 1em 0;
 }
 
 .logo-image {
   display: block;
-  margin: 2em auto 0;
-  max-width: 130px;
+  max-width: 150px;
+  height: auto;
+  margin: 0;
+  transition: transform 0.3s ease;
 }
 
+.logo-image:hover {
+  transform: scale(1.05);
+}
+
+/* וריאציות של הלוגו */
+.logo-small {
+  max-width: 80px;
+}
+
+.logo-medium {
+  max-width: 120px;
+}
+
+.logo-large {
+  max-width: 200px;
+}
+
+/* לוגו בהדר */
+.header-logo {
+  position: absolute;
+  top: 1em;
+  right: 1em;
+  max-width: 60px;
+  z-index: 10;
+}
+
+/* לוגו מרכזי בראש העמוד */
+.main-logo {
+  margin: 0 auto 1.5em;
+  display: block;
+}
+
+/* מיכל כפתורים מרכזי */
 .buttons-container {
   display: flex;
   gap: 1em;
   flex-wrap: wrap;
   justify-content: center;
+  align-items: center;
+  width: 100%;
+  margin: 1.5em 0;
 }
+
 .btn {
-    padding: 0.7em 1.3em;
-    background: linear-gradient(90deg, #6ec8f1 60%, #2e90c9 100%);
-    border: none;
-    border-radius: 12px;
-    color: white;
-    font-size: 1.08em;
-    cursor: pointer;
-    font-weight: 600;
-    box-shadow: 0 2px 8px #6ec8f122;
-    transition: background 0.18s, box-shadow 0.18s;
-    display: flex;
-    align-items: center;
-    gap: 0.5em;
-  }
-  .btn-icon {
-    font-size: 1.2em;
-    margin-left: 0.2em;
-  }
+  padding: 0.7em 1.3em;
+  background: linear-gradient(90deg, #6ec8f1 60%, #2e90c9 100%);
+  border: none;
+  border-radius: 12px;
+  color: white;
+  font-size: 1.08em;
+  cursor: pointer;
+  font-weight: 600;
+  box-shadow: 0 2px 8px #6ec8f122;
+  transition: all 0.18s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5em;
+  min-width: 120px;
+}
+
+.btn-icon {
+  font-size: 1.2em;
+  margin-left: 0.2em;
+}
+
 button {
   font-family: inherit;
   border: none;
@@ -91,14 +186,17 @@ button {
   color: #fff;
   cursor: pointer;
   box-shadow: var(--shadow);
-  transition: background 0.2s, transform 0.2s;
+  transition: all 0.2s ease;
   margin: 0.3em;
+  display: block;
 }
+
 button:hover, .btn:hover {
   background: var(--color-btn-hover);
   transform: translateY(-2px) scale(1.04);
 }
 
+/* טפסים ומרכוז אלמנטים */
 input, select, textarea {
   font-family: inherit;
   border: 1px solid var(--color-border);
@@ -108,7 +206,10 @@ input, select, textarea {
   background: #fafbfc;
   font-size: 1em;
   transition: border 0.2s;
+  width: 100%;
+  max-width: 400px;
 }
+
 input:focus, select:focus, textarea:focus {
   border-color: var(--color-accent);
   outline: none;
@@ -119,22 +220,33 @@ label {
   margin-bottom: 0.25em;
   color: var(--color-muted);
   font-weight: 500;
+  text-align: center;
 }
 
 .form, .filters {
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: 1.1em;
   margin-bottom: 1.8em;
+  width: 100%;
+}
+
+.form > *, .filters > * {
+  width: 100%;
+  max-width: 400px;
 }
 
 ul, ol {
   padding-left: 1.3em;
-  margin: 0.8em 0;
+  margin: 0.8em auto;
+  max-width: 600px;
+  text-align: right;
 }
 
 .file-list, .results {
   margin-top: 1.5em;
+  width: 100%;
 }
 
 .file-item, .comment-preview {
@@ -148,7 +260,12 @@ ul, ol {
   box-shadow: var(--shadow);
   transition: background 0.2s;
   cursor: pointer;
+  width: 100%;
+  max-width: 700px;
+  margin-left: auto;
+  margin-right: auto;
 }
+
 .file-item:hover, .comment-preview:hover {
   background: #f3fafd;
 }
@@ -164,6 +281,7 @@ ul, ol {
   gap: 0.4em;
   align-items: center;
 }
+
 .action-btn {
   background: none;
   border: none;
@@ -173,13 +291,19 @@ ul, ol {
   margin: 0;
   padding: 0 0.2em;
 }
-.action-btn.delete { color: var(--color-danger); }
+
+.action-btn.delete { 
+  color: var(--color-danger); 
+}
 
 .breadcrumb {
   margin-bottom: 1.2em;
   font-size: 1em;
   color: var(--color-muted);
+  text-align: center;
+  width: 100%;
 }
+
 .breadcrumb-btn {
   background: none;
   border: none;
@@ -197,15 +321,21 @@ ul, ol {
   padding: 1.3em 1em;
   border-radius: var(--border-radius);
   box-shadow: var(--shadow);
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
 }
 
 .search-input-wrapper {
   display: flex;
   align-items: center;
+  width: 100%;
 }
+
 .search-input {
   flex: 1;
 }
+
 .clear-search-btn {
   margin-right: 0.6em;
   background: none;
@@ -223,29 +353,175 @@ ul, ol {
   display: flex;
   justify-content: center;
   align-items: center;
+  padding: 1em;
 }
+
 .modal-content {
   background: var(--color-surface);
   border-radius: var(--border-radius);
   box-shadow: var(--shadow);
   padding: 2em 2.5em;
   max-width: 430px;
-  width: 98%;
+  width: 100%;
   text-align: center;
+  position: relative;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }
 
-@media (max-width: 800px) {
-  main, .container {
-    padding: 1.2em 0.6em;
-    max-width: 98vw;
+/* התאמות לטאבלט */
+@media (max-width: 1024px) and (min-width: 769px) {
+  .main-wrapper {
+    padding: 2em 1em;
   }
+  
+  main, .container {
+    max-width: var(--max-width-tablet);
+    padding: var(--padding-tablet);
+  }
+  
+  .buttons-container {
+    gap: 0.8em;
+  }
+  
+  .btn {
+    font-size: 1em;
+    padding: 0.6em 1.1em;
+  }
+  
+  .logo-image {
+    max-width: 120px;
+  }
+  
+  .header-logo {
+    max-width: 50px;
+    top: 0.8em;
+    right: 0.8em;
+  }
+}
+
+/* התאמות למובייל */
+@media (max-width: 768px) {
+  .main-wrapper {
+    padding: 1em 0.5em;
+  }
+  
+  main, .container {
+    max-width: var(--max-width-mobile);
+    padding: var(--padding-mobile);
+  }
+  
   .modal-content {
-    padding: 1.1em 0.3em;
+    padding: 1.5em 1em;
     font-size: 0.95em;
+    max-width: 90%;
+  }
+  
+  .buttons-container {
+    flex-direction: column;
+    gap: 0.6em;
+  }
+  
+  .btn {
+    width: 100%;
+    max-width: 280px;
+    justify-content: center;
+  }
+  
+  input, select, textarea {
+    max-width: 100%;
+  }
+  
+  .form > *, .filters > * {
+    max-width: 100%;
+  }
+  
+  .logo-image {
+    max-width: 100px;
+  }
+  
+  .header-logo {
+    max-width: 45px;
+    top: 0.5em;
+    right: 0.5em;
+  }
+  
+  .logo-container {
+    margin-bottom: 1.5em;
+    padding: 0.5em 0;
   }
 }
 
 @media (max-width: 600px) {
-  h1, .page-title, .hall-title, .home-title { font-size: 1.15em; }
-  .file-item, .comment-preview { font-size: 0.98em; }
+  h1, .page-title, .hall-title, .home-title { 
+    font-size: 1.4em; 
+  }
+  
+  h2 { 
+    font-size: 1.2em; 
+  }
+  
+  .file-item, .comment-preview { 
+    font-size: 0.95em;
+    padding: 0.6em 0.8em;
+  }
+  
+  .main-wrapper {
+    padding: 0.5em 0.2em;
+  }
+}
+
+/* התאמות נוספות למכשירים קטנים מאוד */
+@media (max-width: 480px) {
+  main, .container {
+    max-width: 98%;
+    padding: 1em 0.8em;
+  }
+  
+  .modal-content {
+    max-width: 95%;
+    padding: 1.2em 0.8em;
+  }
+}
+
+/* שיפורים למרכוז מושלם */
+.centered-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  text-align: center;
+}
+
+.flex-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+/* מחלקות עזר למרכוז */
+.text-center { text-align: center; }
+.mx-auto { margin-left: auto; margin-right: auto; }
+.w-full { width: 100%; }
+.max-w-sm { max-width: 24rem; }
+.max-w-md { max-width: 28rem; }
+.max-w-lg { max-width: 32rem; }
+.logo {
+  max-width: 12vw;
+  min-width: 40px;
+  width: 100%;
+  height: auto;
+}
+
+.logo-small {
+  max-width: 8vw;
+  min-width: 32px;
+}
+
+.logo-medium {
+  max-width: 14vw;
+  min-width: 48px;
 }
