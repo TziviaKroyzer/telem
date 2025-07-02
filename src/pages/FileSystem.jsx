@@ -1,4 +1,3 @@
-// FileSystem.jsx – מערכת ניהול קבצים עם חיפוש מתקדם ומחיקה רקורסיבית
 import logo from "../assets/logo.webp";
 
 import React, { useState, useEffect } from "react";
@@ -12,13 +11,15 @@ import {
   doc,
   getDoc,
   updateDoc,
-  deleteDoc
+  deleteDoc,
+  writeBatch
 } from "firebase/firestore";
 import {
   ref,
   uploadBytes,
   getDownloadURL,
-  deleteObject
+  deleteObject,
+  listAll
 } from "firebase/storage";
 import {
   onAuthStateChanged,
@@ -36,6 +37,7 @@ function FileSystem() {
   const [renamingItem, setRenamingItem] = useState(null);
   const [newName, setNewName] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (u) => {
@@ -46,15 +48,30 @@ function FileSystem() {
   }, []);
 
   const fetchItems = async () => {
-    const q = query(
-      collection(db, "files"),
-      where("parentId", "==", currentFolderId),
-      where("userId", "==", user.uid)
-    );
-    const snapshot = await getDocs(q);
-    const results = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-    setItems(results);
-    updateBreadcrumb(currentFolderId);
+    if (!user) return;
+    
+    setLoading(true);
+    try {
+      // *** הצגת כל הקבצים של כולם ***
+      const q = query(
+        collection(db, "files"),
+        where("parentId", "==", currentFolderId)
+      );
+      const snapshot = await getDocs(q);
+      const results = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+      results.sort((a, b) => {
+        if (a.type === "folder" && b.type === "file") return -1;
+        if (a.type === "file" && b.type === "folder") return 1;
+        return a.name.localeCompare(b.name);
+      });
+      setItems(results);
+      await updateBreadcrumb(currentFolderId);
+    } catch (error) {
+      console.error("שגיאה בטעינת פריטים:", error);
+      alert("שגיאה בטעינת הקבצים");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const updateBreadcrumb = async (folderId) => {
@@ -64,26 +81,28 @@ function FileSystem() {
     }
     const path = [];
     let currentId = folderId;
-    while (currentId && currentId !== "root") {
-      const docRef = doc(db, "files", currentId);
-      const snap = await getDoc(docRef);
-      if (snap.exists()) {
-        const data = snap.data();
-        path.unshift({ id: currentId, name: data.name });
-        currentId = data.parentId;
-      } else {
-        break;
+    try {
+      while (currentId && currentId !== "root") {
+        const docRef = doc(db, "files", currentId);
+        const snap = await getDoc(docRef);
+        if (snap.exists()) {
+          const data = snap.data();
+          path.unshift({ id: currentId, name: data.name });
+          currentId = data.parentId;
+        } else {
+          break;
+        }
       }
+      path.unshift({ id: "root", name: "ראשי" });
+      setBreadcrumb(path);
+    } catch (error) {
+      setBreadcrumb([{ id: "root", name: "ראשי" }]);
     }
-    path.unshift({ id: "root", name: "ראשי" });
-    setBreadcrumb(path);
   };
 
-  // פילטור פריטים לפי חיפוש
   useEffect(() => {
-    if (!searchQuery.trim()) {
-      setFilteredItems(items);
-    } else {
+    if (!searchQuery.trim()) setFilteredItems(items);
+    else {
       const filtered = items.filter(item =>
         item.name.toLowerCase().includes(searchQuery.toLowerCase())
       );
@@ -94,163 +113,193 @@ function FileSystem() {
   useEffect(() => {
     if (!user) return;
     fetchItems();
+    // eslint-disable-next-line
   }, [currentFolderId, user]);
 
   const createFolder = async () => {
-    const docRef = await addDoc(collection(db, "files"), {
-      name: "תיקיה חדשה",
-      type: "folder",
-      parentId: currentFolderId,
-      userId: user.uid,
-      createdAt: serverTimestamp(),
-    });
-    setRenamingItem(docRef.id);
-    setNewName("תיקיה חדשה");
-    fetchItems();
+    if (!user) return;
+    try {
+      const docRef = await addDoc(collection(db, "files"), {
+        name: "תיקיה חדשה",
+        type: "folder",
+        parentId: currentFolderId,
+        userId: user.uid,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp()
+      });
+      setRenamingItem(docRef.id);
+      setNewName("תיקיה חדשה");
+      await fetchItems();
+    } catch (error) {
+      alert("שגיאה ביצירת התיקיה");
+    }
   };
 
   const uploadFile = async () => {
+    if (!user) return;
     const input = document.createElement("input");
     input.type = "file";
+    input.multiple = true;
     input.onchange = async (e) => {
-      const file = e.target.files[0];
-      if (!file) return;
+      const files = Array.from(e.target.files);
+      if (files.length === 0) return;
+      setLoading(true);
+      const uploadPromises = files.map(async (file) => {
+        try {
+          const timestamp = Date.now();
+          const uniqueFileName = `${timestamp}_${file.name}`;
+          const fileRef = ref(storage, `files/${user.uid}/${uniqueFileName}`);
+          await uploadBytes(fileRef, file);
+          const url = await getDownloadURL(fileRef);
+          const docRef = await addDoc(collection(db, "files"), {
+            name: file.name,
+            type: "file",
+            url,
+            storagePath: `files/${user.uid}/${uniqueFileName}`,
+            parentId: currentFolderId,
+            userId: user.uid,
+            size: file.size,
+            mimeType: file.type,
+            createdAt: serverTimestamp(),
+            updatedAt: serverTimestamp()
+          });
+          return docRef.id;
+        } catch (error) {
+          alert(`שגיאה בהעלאת הקובץ ${file.name}`);
+          return null;
+        }
+      });
       try {
-        const fileRef = ref(storage, `files/${user.uid}/${Date.now()}_${file.name}`);
-        await uploadBytes(fileRef, file);
-        const url = await getDownloadURL(fileRef);
-        const docRef = await addDoc(collection(db, "files"), {
-          name: file.name,
-          type: "file",
-          url,
-          parentId: currentFolderId,
-          userId: user.uid,
-          size: file.size,
-          createdAt: serverTimestamp(),
-        });
-        setRenamingItem(docRef.id);
-        setNewName(file.name);
-        fetchItems();
-      } catch (err) {
-        alert("שגיאה בהעלאת הקובץ");
+        await Promise.all(uploadPromises);
+        await fetchItems();
+      } catch (error) {
+        //
+      } finally {
+        setLoading(false);
       }
     };
     input.click();
   };
 
   const renameItem = async (itemId) => {
-    if (!newName.trim()) {
+    if (!newName.trim() || !user) {
       setRenamingItem(null);
       return;
     }
-    const itemRef = doc(db, "files", itemId);
-    await updateDoc(itemRef, { name: newName.trim() });
-    setRenamingItem(null);
-    setNewName("");
-    fetchItems();
+    try {
+      const itemRef = doc(db, "files", itemId);
+      await updateDoc(itemRef, { 
+        name: newName.trim(),
+        updatedAt: serverTimestamp()
+      });
+      setRenamingItem(null);
+      setNewName("");
+      await fetchItems();
+    } catch (error) {
+      alert("שגיאה בשינוי השם");
+    }
   };
 
-  // פונקציה רקורסיבית למחיקת כל התוכן של תיקיה
-  const deleteItemRecursively = async (itemId) => {
+  // ---- שינוי כאן למחיקה רקורסיבית: כל הקבצים של כולם ----
+  const deleteItemRecursively = async (itemId, batch = null) => {
     try {
-      // קודם נשיג את הפריט לבדיקה
+      const isRootCall = !batch;
+      if (isRootCall) {
+        batch = writeBatch(db);
+      }
       const itemRef = doc(db, "files", itemId);
       const itemSnap = await getDoc(itemRef);
-      
-      if (!itemSnap.exists()) {
-        console.log(`פריט ${itemId} לא קיים`);
-        return;
-      }
-
+      if (!itemSnap.exists()) return batch;
       const itemData = itemSnap.data();
-
-      // אם זה תיקיה, מוחקים קודם את כל התוכן שלה
       if (itemData.type === "folder") {
-        console.log(`מוחק תוכן של תיקיה: ${itemData.name}`);
-        
-        // מוצאים את כל הפריטים בתיקיה
         const q = query(
           collection(db, "files"),
-          where("parentId", "==", itemId),
-          where("userId", "==", user.uid)
+          where("parentId", "==", itemId)
         );
         const snapshot = await getDocs(q);
-        
-        // מוחקים כל פריט בתיקיה באופן רקורסיבי
-        const deletePromises = snapshot.docs.map(async (docSnap) => {
-          await deleteItemRecursively(docSnap.id);
-        });
-        
-        await Promise.all(deletePromises);
-      }
-
-      // אחרי מחיקת התוכן (אם זה תיקיה), מוחקים את הפריט עצמו
-      console.log(`מוחק פריט: ${itemData.name} (${itemData.type})`);
-
-      // אם זה קובץ, מוחקים גם מ-Storage
-      if (itemData.type === "file" && itemData.url) {
-        try {
-          // מנסים לחלץ את שם הקובץ מה-URL
-          const urlParts = itemData.url.split('/');
-          const fileNameWithParams = urlParts[urlParts.length - 1];
-          const fileName = fileNameWithParams.split('?')[0];
-          
-          const fileRef = ref(storage, `files/${user.uid}/${fileName}`);
-          await deleteObject(fileRef);
-          console.log(`קובץ נמחק מ-Storage: ${fileName}`);
-        } catch (storageError) {
-          console.warn(`שגיאה במחיקת קובץ מ-Storage:`, storageError);
-          // ממשיכים למחוק מ-Firestore גם אם נכשל ב-Storage
+        for (const docSnap of snapshot.docs) {
+          batch = await deleteItemRecursively(docSnap.id, batch);
         }
       }
-
-      // מוחקים את הפריט מ-Firestore
-      await deleteDoc(itemRef);
-      console.log(`פריט נמחק מ-Firestore: ${itemData.name}`);
-
+      if (itemData.type === "file" && itemData.storagePath) {
+        try {
+          const fileRef = ref(storage, itemData.storagePath);
+          await deleteObject(fileRef);
+        } catch (storageError) {
+          //
+        }
+      }
+      batch.delete(itemRef);
+      if (isRootCall) {
+        await batch.commit();
+      }
+      return batch;
     } catch (error) {
-      console.error(`שגיאה במחיקת פריט ${itemId}:`, error);
       throw error;
     }
   };
 
   const deleteItem = async (itemId) => {
-    // מוצאים את הפריט כדי להציג שם נכון בהודעת האישור
+    if (!user) return;
     const itemRef = doc(db, "files", itemId);
     const itemSnap = await getDoc(itemRef);
-    
     if (!itemSnap.exists()) {
       alert("הפריט לא נמצא");
       return;
     }
-
     const itemData = itemSnap.data();
     const isFolder = itemData.type === "folder";
-    
-    // הודעת אישור שונה לתיקיות
+    let folderContentWarning = "";
+    if (isFolder) {
+      try {
+        const q = query(
+          collection(db, "files"),
+          where("parentId", "==", itemId)
+        );
+        const snapshot = await getDocs(q);
+        const itemCount = snapshot.size;
+        if (itemCount > 0) {
+          folderContentWarning = `\n(התיקיה מכילה ${itemCount} פריטים שיימחקו גם כן)`;
+        }
+      } catch (error) {}
+    }
     const confirmMessage = isFolder 
-      ? `האם להסיר את התיקיה "${itemData.name}" ואת כל התוכן שלה?`
-      : `האם להסיר את הקובץ "${itemData.name}"?`;
-    
+      ? `האם למחוק את התיקיה "${itemData.name}" ואת כל התוכן שלה?${folderContentWarning}`
+      : `האם למחוק את הקובץ "${itemData.name}"?`;
     if (!window.confirm(confirmMessage)) return;
 
+    setLoading(true);
     try {
       await deleteItemRecursively(itemId);
-      console.log("מחיקה הושלמה בהצלחה");
-      fetchItems(); // רענון הרשימה
+      await fetchItems();
     } catch (error) {
-      console.error("שגיאה במחיקה:", error);
       alert("שגיאה במחיקת הפריט. נסה שוב.");
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleDrop = async (e, targetFolderId) => {
     e.preventDefault();
     const itemId = e.dataTransfer.getData("text/plain");
-    if (!itemId || itemId === targetFolderId) return;
-    const itemRef = doc(db, "files", itemId);
-    await updateDoc(itemRef, { parentId: targetFolderId });
-    fetchItems();
+    if (!itemId || itemId === targetFolderId || !user) return;
+    if (targetFolderId !== "root") {
+      const targetItemRef = doc(db, "files", targetFolderId);
+      const targetItemSnap = await getDoc(targetItemRef);
+      if (targetItemSnap.exists() && targetItemSnap.data().type !== "folder") {
+        return;
+      }
+    }
+    try {
+      const itemRef = doc(db, "files", itemId);
+      await updateDoc(itemRef, { 
+        parentId: targetFolderId,
+        updatedAt: serverTimestamp()
+      });
+      await fetchItems();
+    } catch (error) {
+      alert("שגיאה בהעברת הפריט");
+    }
   };
 
   const startRename = (item) => {
@@ -262,30 +311,27 @@ function FileSystem() {
     if (item.type === "folder") {
       setCurrentFolderId(item.id);
     } else {
-      // פתיחת קובץ במקום הורדה
       window.open(item.url, "_blank");
     }
   };
 
   const downloadFile = async (item, e) => {
     e.stopPropagation();
-    
-    // בדיקה אם זה תמונה
+    if (!item.url) {
+      alert("קישור הקובץ לא זמין");
+      return;
+    }
     const isImage = /\.(jpg|jpeg|png|gif|bmp|webp)$/i.test(item.name);
-    
     if (isImage) {
-      // עבור תמונות - שיטה מיוחדת
       try {
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
         const img = new Image();
-        
         img.crossOrigin = 'anonymous';
         img.onload = function() {
           canvas.width = img.width;
           canvas.height = img.height;
           ctx.drawImage(img, 0, 0);
-          
           canvas.toBlob(function(blob) {
             const downloadUrl = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -297,20 +343,14 @@ function FileSystem() {
             document.body.removeChild(a);
           });
         };
-        
         img.onerror = function() {
-          // אם נכשל, ננסה דרך fetch
           fallbackDownload(item);
         };
-        
         img.src = item.url;
-        
       } catch (error) {
-        console.error('שגיאה בהורדת תמונה:', error);
         fallbackDownload(item);
       }
     } else {
-      // עבור קבצים רגילים
       try {
         const response = await fetch(item.url);
         const blob = await response.blob();
@@ -323,14 +363,12 @@ function FileSystem() {
         window.URL.revokeObjectURL(downloadUrl);
         document.body.removeChild(a);
       } catch (error) {
-        console.error('שגיאה בהורדת קובץ:', error);
         fallbackDownload(item);
       }
     }
   };
 
   const fallbackDownload = (item) => {
-    // פתרון גיבוי - יצירת link זמני
     const a = document.createElement('a');
     a.href = item.url;
     a.download = item.name;
@@ -341,8 +379,14 @@ function FileSystem() {
     document.body.removeChild(a);
   };
 
-  const clearSearch = () => {
-    setSearchQuery("");
+  const clearSearch = () => setSearchQuery("");
+
+  const formatFileSize = (bytes) => {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   };
 
   return (
@@ -352,7 +396,11 @@ function FileSystem() {
       </div>
       <div className="file-system">
         <h1>📁 ניהול קבצים</h1>
-
+        {loading && (
+          <div className="loading-overlay">
+            <div className="loading-spinner">טוען...</div>
+          </div>
+        )}
         <div className="breadcrumb">
           {breadcrumb.map((b, i) => (
             <span
@@ -378,13 +426,12 @@ function FileSystem() {
             </span>
           ))}
         </div>
-
         <div className="controls">
           <div className="action-buttons">
-            <button onClick={uploadFile} className="btn upload-btn">
+            <button onClick={uploadFile} className="btn upload-btn" disabled={loading}>
               <span className="btn-icon">📄</span> הוסף קובץ
             </button>
-            <button onClick={createFolder} className="btn folder-btn">
+            <button onClick={createFolder} className="btn folder-btn" disabled={loading}>
               <span className="btn-icon">📁</span> הוסף תיקיה
             </button>
           </div>
@@ -404,18 +451,17 @@ function FileSystem() {
             </div>
           </div>
         </div>
-
         <div className="file-list">
           {filteredItems.length === 0 ? (
             <div className="empty">
-              {searchQuery ? `לא נמצאו פריטים המכילים "${searchQuery}"` : "אין קבצים או תיקיות"}
+              {loading ? "טוען..." : searchQuery ? `לא נמצאו פריטים המכילים "${searchQuery}"` : "אין קבצים או תיקיות"}
             </div>
           ) : (
             filteredItems.map((item) => (
               <div
                 key={item.id}
                 className={`file-item ${item.type}`}
-                draggable={true}
+                draggable={!loading}
                 onDragStart={(e) => e.dataTransfer.setData("text/plain", item.id)}
                 onDrop={(e) => item.type === "folder" && handleDrop(e, item.id)}
                 onDragOver={(e) => item.type === "folder" && e.preventDefault()}
@@ -428,45 +474,51 @@ function FileSystem() {
                     <span className="file-gradient">📄</span>
                   )}
                 </div>
-
-                <div className="file-name">
-                  {renamingItem === item.id ? (
-                    <input
-                      type="text"
-                      value={newName}
-                      onChange={(e) => setNewName(e.target.value)}
-                      onBlur={() => renameItem(item.id)}
-                      onKeyDown={(e) => e.key === "Enter" && renameItem(item.id)}
-                      autoFocus
-                      onClick={(e) => e.stopPropagation()} />
-                  ) : (
-                    <span>{item.name}</span>
+                <div className="file-info">
+                  <div className="file-name">
+                    {renamingItem === item.id ? (
+                      <input
+                        type="text"
+                        value={newName}
+                        onChange={(e) => setNewName(e.target.value)}
+                        onBlur={() => renameItem(item.id)}
+                        onKeyDown={(e) => e.key === "Enter" && renameItem(item.id)}
+                        autoFocus
+                        onClick={(e) => e.stopPropagation()} />
+                    ) : (
+                      <span>{item.name}</span>
+                    )}
+                  </div>
+                  {item.type === "file" && item.size && (
+                    <div className="file-size">{formatFileSize(item.size)}</div>
                   )}
                 </div>
-
                 <div className="file-actions">
                   <button
                     onClick={(e) => { e.stopPropagation(); startRename(item); }}
                     className="action-btn rename"
                     title="שנה שם"
+                    disabled={loading}
                   >
-                    <span role="img" aria-label="rename">✏️</span>
+                    <span role="img" aria-label="rename">✏</span>
                   </button>
                   {item.type === "file" && (
                     <button
                       onClick={(e) => downloadFile(item, e)}
                       className="action-btn download"
                       title="הורד קובץ"
+                      disabled={loading}
                     >
-                      <span role="img" aria-label="download">⬇️</span>
+                      <span role="img" aria-label="download">⬇</span>
                     </button>
                   )}
                   <button
                     onClick={(e) => { e.stopPropagation(); deleteItem(item.id); }}
                     className="action-btn delete"
                     title="מחק"
+                    disabled={loading}
                   >
-                    <span role="img" aria-label="delete">🗑️</span>
+                    <span role="img" aria-label="delete">🗑</span>
                   </button>
                 </div>
               </div>
@@ -503,7 +555,6 @@ function FileSystem() {
     max-width: 700px;
     margin: 2em auto;
   }
-
   h1 {
     color: #2e90c9;
     text-align: center;
@@ -513,7 +564,6 @@ function FileSystem() {
     font-weight: 800;
     text-shadow: 0 2px 8px #6ec8f133;
   }
-
   .breadcrumb {
     margin-bottom: 1.2em;
     color: #7a7a7a;
@@ -526,7 +576,6 @@ function FileSystem() {
     flex-wrap: wrap;
     gap: 0.2em;
   }
-
   .breadcrumb-btn {
     background: none;
     border: none;
@@ -542,7 +591,6 @@ function FileSystem() {
     color: #0e6fa7;
     background: #e3f6fc;
   }
-
   .controls {
     display: flex;
     justify-content: space-between;
@@ -555,12 +603,10 @@ function FileSystem() {
     box-shadow: 0 2px 8px #6ec8f111;
     padding: 1em 1.2em;
   }
-
   .action-buttons {
     display: flex;
     gap: 1em;
   }
-
   .btn {
     padding: 0.7em 1.3em;
     background: linear-gradient(90deg, #6ec8f1 60%, #2e90c9 100%);
@@ -584,13 +630,11 @@ function FileSystem() {
     background: linear-gradient(90deg, #2e90c9 60%, #6ec8f1 100%);
     box-shadow: 0 4px 16px #6ec8f133;
   }
-
   .search-container {
     flex: 1;
     max-width: 340px;
     min-width: 180px;
   }
-
   .search-input-wrapper {
     display: flex;
     align-items: center;
@@ -600,7 +644,6 @@ function FileSystem() {
     padding: 0.2em 0.6em;
     box-shadow: 0 1px 4px #6ec8f111;
   }
-
   .search-input {
     flex: 1;
     padding: 0.6em 0.8em;
@@ -612,7 +655,6 @@ function FileSystem() {
     color: #2e90c9;
     font-weight: 500;
   }
-
   .clear-search-btn {
     background: none;
     border: none;
@@ -625,11 +667,9 @@ function FileSystem() {
   .clear-search-btn:hover {
     color: #b82c2c;
   }
-
   .file-list {
     margin-top: 1.2em;
   }
-
   .file-item {
     display: flex;
     align-items: center;
@@ -644,12 +684,10 @@ function FileSystem() {
     position: relative;
     gap: 1em;
   }
-
   .file-item:hover {
     background: linear-gradient(90deg, #e3f6fc 80%, #f7fafd 100%);
     box-shadow: 0 4px 16px #6ec8f122;
   }
-
   .file-icon {
     font-size: 2em;
     margin-left: 0.8em;
@@ -670,7 +708,6 @@ function FileSystem() {
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
-
   .file-name {
     flex: 1;
     font-size: 1.08em;
@@ -678,7 +715,6 @@ function FileSystem() {
     color: #2e90c9;
     word-break: break-all;
   }
-
   .file-name input {
     padding: 0.3em 0.6em;
     font-size: 1em;
@@ -691,13 +727,11 @@ function FileSystem() {
     outline: none;
     box-shadow: 0 1px 4px #6ec8f111;
   }
-
   .file-actions {
     display: flex;
     gap: 0.7em;
     align-items: center;
   }
-
   .action-btn {
     background: none;
     border: none;
@@ -720,7 +754,6 @@ function FileSystem() {
     color: #b82c2c;
     background: #ffeaea;
   }
-
   .empty {
     color: #888;
     font-style: italic;
@@ -731,7 +764,6 @@ function FileSystem() {
     border-radius: 12px;
     box-shadow: 0 1px 4px #6ec8f111;
   }
-
   @media (max-width: 900px) {
     .file-system {
       max-width: 98vw;
@@ -769,12 +801,9 @@ function FileSystem() {
     }
   }
 `}</style>
-
       </div>
     </>
   );
- 
-
 }
 
 export default FileSystem;
