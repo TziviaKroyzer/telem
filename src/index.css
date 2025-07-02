@@ -1,10 +1,10 @@
 :root {
   --color-bg: #f7fafd;
-  --color-surface: #fff;
+  --color-surface: #ffffff;
   --color-text: #232323;
   --color-muted: #8a8a8a;
-  --color-accent: #6ec8f1;   /* תכלת */
-  --color-highlight: #f4a63f; /* כתום עדין */
+  --color-accent: #6ec8f1;
+  --color-highlight: #f4a63f;
   --color-border: #e0e4ec;
   --color-btn: #6ec8f1;
   --color-btn-hover: #58bae4;
@@ -12,87 +12,126 @@
 
   --font-main: "Segoe UI", Tahoma, Arial, sans-serif;
   --border-radius: 12px;
-  --shadow: 0 2px 12px rgba(110, 200, 241, 0.08);
+  --shadow: 0 4px 20px rgba(110, 200, 241, 0.12);
+  --shadow-light: 0 2px 8px rgba(110, 200, 241, 0.08);
   
-  /* משתנים חדשים למרכוז */
+  /* משתנים למרכוז ורספונסיביות */
   --max-width-desktop: 900px;
   --max-width-tablet: 85%;
   --max-width-mobile: 95%;
-  --padding-desktop: 2.2em 2em 2.5em;
-  --padding-tablet: 1.8em 1.5em 2em;
-  --padding-mobile: 1.2em 1em 1.5em;
+  --padding-desktop: 2.5em 2.5em 3em;
+  --padding-tablet: 2em 2em 2.5em;
+  --padding-mobile: 1.5em 1.2em 2em;
 }
 
 * {
   box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
 html, body {
-  margin: 0;
-  padding: 0;
   font-family: var(--font-main);
   background: var(--color-bg);
   color: var(--color-text);
-  line-height: 1.65;
+  line-height: 1.6;
   width: 100%;
-  height: 100%;
+  min-height: 100vh;
 }
 
-/* מיכל ראשי שמרכז הכל */
+/* מחיקה מוחלטת של כל המסגרות הלבנות */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* ביטול כל המסגרות המיותרות */
+.container, .main-container, .page-container, .content-wrapper, 
+main, section, article, .wrapper, .layout {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+}
+
+/* הסרת מסגרות מכל אלמנטי המיכל */
 .main-wrapper {
   display: flex;
   justify-content: center;
   align-items: flex-start;
   min-height: 100vh;
   width: 100%;
-  padding: 2.5em 1em;
+  padding: 0 !important; /* ללא padding כלל */
+  background: var(--color-bg) !important;
 }
 
+/* וידוא שאין מיכלים עם רקע לבן */
+.page-container, .content-wrapper, .main-container {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+}
+
+/* ביטול מוחלט של כל המסגרות */
+div, section, main, article {
+  background: inherit;
+}
+
+/* רק אלמנטים ספציפיים יקבלו מסגרת */
+input, select, textarea, button, .btn {
+  /* כאן נשאיר את העיצוב המקורי */
+}
+
+/* קונטיינר ראשי ללא מסגרות בכלל */
 main, .container {
   width: 100%;
-  max-width: var(--max-width-desktop);
-  background: var(--color-surface);
-  box-shadow: var(--shadow);
-  border-radius: var(--border-radius);
-  padding: var(--padding-desktop);
+  max-width: none !important; /* ללא הגבלת רוחב */
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  padding: 2em 1em !important; /* padding מינימלי */
+  margin: 0 !important;
   position: relative;
-  margin: 0 auto;
 }
 
-/* מרכוז כל האלמנטים הפנימיים */
+/* מיכל תוכן מרכזי */
 .content-container {
   display: flex;
   flex-direction: column;
   align-items: center;
   width: 100%;
   text-align: center;
+  gap: 1.5em;
 }
 
 .content-container > * {
   width: 100%;
-  max-width: 100%;
+  max-width: 600px;
 }
 
+/* כותרות */
 h1, h2, h3 {
   font-weight: 700;
   color: var(--color-text);
-  margin-top: 0;
-  margin-bottom: 0.5em;
+  margin: 0 0 1em 0;
   text-align: center;
 }
 
 h1 { font-size: 2.2em; }
-h2 { font-size: 1.4em; }
-h3 { font-size: 1.12em; }
+h2 { font-size: 1.6em; }
+h3 { font-size: 1.3em; }
 
 .page-title, .hall-title, .home-title {
   text-align: center;
   color: var(--color-accent);
-  margin-bottom: 1em;
-  width: 100%;
+  margin-bottom: 1.5em;
+  font-weight: 700;
 }
 
-/* מיכל הלוגו */
+/* לוגו משופר */
 .logo-container {
   display: flex;
   justify-content: center;
@@ -102,19 +141,19 @@ h3 { font-size: 1.12em; }
   padding: 1em 0;
 }
 
-.logo-image {
+.logo-image, .logo {
   display: block;
-  max-width: 150px;
+  max-width: 140px;
   height: auto;
-  margin: 0;
+  margin: 0 auto;
   transition: transform 0.3s ease;
 }
 
-.logo-image:hover {
+.logo-image:hover, .logo:hover {
   transform: scale(1.05);
 }
 
-/* וריאציות של הלוגו */
+/* גדלי לוגו רספונסיביים */
 .logo-small {
   max-width: 80px;
 }
@@ -124,7 +163,7 @@ h3 { font-size: 1.12em; }
 }
 
 .logo-large {
-  max-width: 200px;
+  max-width: 180px;
 }
 
 /* לוגו בהדר */
@@ -136,16 +175,10 @@ h3 { font-size: 1.12em; }
   z-index: 10;
 }
 
-/* לוגו מרכזי בראש העמוד */
-.main-logo {
-  margin: 0 auto 1.5em;
-  display: block;
-}
-
 /* מיכל כפתורים מרכזי */
 .buttons-container {
   display: flex;
-  gap: 1em;
+  gap: 1.2em;
   flex-wrap: wrap;
   justify-content: center;
   align-items: center;
@@ -153,83 +186,49 @@ h3 { font-size: 1.12em; }
   margin: 1.5em 0;
 }
 
-.btn {
-  padding: 0.7em 1.3em;
-  background: linear-gradient(90deg, #6ec8f1 60%, #2e90c9 100%);
+/* כפתורים אחידים ויפים */
+.btn, button {
+  padding: 0.8em 1.8em;
+  background: linear-gradient(135deg, var(--color-btn) 0%, #58bae4 100%);
   border: none;
-  border-radius: 12px;
+  border-radius: var(--border-radius);
   color: white;
-  font-size: 1.08em;
-  cursor: pointer;
+  font-size: 1.1em;
   font-weight: 600;
-  box-shadow: 0 2px 8px #6ec8f122;
-  transition: all 0.18s ease;
-  display: flex;
+  cursor: pointer;
+  box-shadow: var(--shadow-light);
+  transition: all 0.25s ease;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.5em;
-  min-width: 120px;
+  min-width: 140px;
+  font-family: inherit;
+  text-decoration: none;
+}
+
+.btn:hover, button:hover {
+  background: linear-gradient(135deg, var(--color-btn-hover) 0%, #4ba8d1 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 25px rgba(110, 200, 241, 0.25);
 }
 
 .btn-icon {
   font-size: 1.2em;
-  margin-left: 0.2em;
 }
 
-button {
-  font-family: inherit;
-  border: none;
-  border-radius: var(--border-radius);
-  padding: 0.6em 1.5em;
-  font-size: 1em;
-  background: var(--color-btn);
-  color: #fff;
-  cursor: pointer;
-  box-shadow: var(--shadow);
-  transition: all 0.2s ease;
-  margin: 0.3em;
-  display: block;
-}
-
-button:hover, .btn:hover {
-  background: var(--color-btn-hover);
-  transform: translateY(-2px) scale(1.04);
-}
-
-/* טפסים ומרכוז אלמנטים */
-input, select, textarea {
-  font-family: inherit;
-  border: 1px solid var(--color-border);
-  border-radius: var(--border-radius);
-  padding: 0.55em 1em;
-  margin: 0.4em 0;
-  background: #fafbfc;
-  font-size: 1em;
-  transition: border 0.2s;
-  width: 100%;
-  max-width: 400px;
-}
-
-input:focus, select:focus, textarea:focus {
-  border-color: var(--color-accent);
-  outline: none;
-}
-
-label {
-  display: block;
-  margin-bottom: 0.25em;
-  color: var(--color-muted);
-  font-weight: 500;
-  text-align: center;
-}
-
+/* טפסים מרכזיים ללא מסגרות כלליות */
 .form, .filters {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1.1em;
-  margin-bottom: 1.8em;
+  gap: 1.2em;
+  margin: 2em 0;
   width: 100%;
+  padding: 0; /* ללא padding נוסף */
+  background: transparent !important; /* ללא רקע */
+  border: none !important;
+  box-shadow: none !important;
 }
 
 .form > *, .filters > * {
@@ -237,16 +236,59 @@ label {
   max-width: 400px;
 }
 
+/* אזורי תוכן ספציפיים שכן צריכים מסגרת */
+.card, .info-box, .notification {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius);
+  padding: 1.5em;
+  box-shadow: var(--shadow-light);
+  margin: 1em 0;
+}
+
+/* שדות קלט */
+input, select, textarea {
+  font-family: inherit;
+  border: 2px solid var(--color-border);
+  border-radius: var(--border-radius);
+  padding: 0.8em 1.2em;
+  margin: 0.3em 0;
+  background: var(--color-surface);
+  font-size: 1em;
+  transition: all 0.3s ease;
+  width: 100%;
+  box-shadow: var(--shadow-light);
+}
+
+input:focus, select:focus, textarea:focus {
+  border-color: var(--color-accent);
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(110, 200, 241, 0.1);
+}
+
+label {
+  display: block;
+  margin-bottom: 0.5em;
+  color: var(--color-muted);
+  font-weight: 600;
+  text-align: center;
+}
+
+/* רשימות */
 ul, ol {
-  padding-left: 1.3em;
-  margin: 0.8em auto;
+  padding-right: 1.5em;
+  margin: 1em auto;
   max-width: 600px;
   text-align: right;
 }
 
+/* פריטי קבצים ללא מסגרות */
 .file-list, .results {
-  margin-top: 1.5em;
+  margin-top: 2em;
   width: 100%;
+  max-width: 700px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .file-item, .comment-preview {
@@ -255,30 +297,30 @@ ul, ol {
   background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--border-radius);
-  padding: 0.7em 1em;
-  margin-bottom: 0.8em;
-  box-shadow: var(--shadow);
-  transition: background 0.2s;
+  padding: 1em 1.5em;
+  margin-bottom: 1em;
+  box-shadow: var(--shadow-light);
+  transition: all 0.3s ease;
   cursor: pointer;
   width: 100%;
-  max-width: 700px;
-  margin-left: auto;
-  margin-right: auto;
 }
 
 .file-item:hover, .comment-preview:hover {
-  background: #f3fafd;
+  background: #f8fcff;
+  transform: translateY(-2px);
+  box-shadow: var(--shadow);
 }
 
 .file-icon {
-  font-size: 1.5em;
-  margin-left: 0.9em;
+  font-size: 1.6em;
+  margin-left: 1em;
+  color: var(--color-accent);
 }
 
 .file-actions, .file-name {
   margin-right: auto;
   display: flex;
-  gap: 0.4em;
+  gap: 0.5em;
   align-items: center;
 }
 
@@ -287,17 +329,27 @@ ul, ol {
   border: none;
   color: var(--color-accent);
   cursor: pointer;
-  font-size: 1.1em;
-  margin: 0;
-  padding: 0 0.2em;
+  font-size: 1.2em;
+  padding: 0.3em;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.action-btn:hover {
+  background: rgba(110, 200, 241, 0.1);
 }
 
 .action-btn.delete { 
   color: var(--color-danger); 
 }
 
+.action-btn.delete:hover {
+  background: rgba(231, 107, 107, 0.1);
+}
+
+/* ניווט */
 .breadcrumb {
-  margin-bottom: 1.2em;
+  margin-bottom: 1.5em;
   font-size: 1em;
   color: var(--color-muted);
   text-align: center;
@@ -308,28 +360,50 @@ ul, ol {
   background: none;
   border: none;
   color: var(--color-accent);
-  font-weight: bold;
+  font-weight: 600;
   cursor: pointer;
   font-size: 1em;
+  padding: 0.2em 0.5em;
+  border-radius: 6px;
+  transition: background 0.2s ease;
 }
 
+.breadcrumb-btn:hover {
+  background: rgba(110, 200, 241, 0.1);
+}
+
+/* מיכל חיפוש מרכזי - יוצר מסגרת רק סביב החיפוש */
 .search-container {
   display: flex;
   flex-direction: column;
-  gap: 0.7em;
+  gap: 1em;
   background: var(--color-surface);
-  padding: 1.3em 1em;
+  padding: 1.5em;
   border-radius: var(--border-radius);
   box-shadow: var(--shadow);
   width: 100%;
   max-width: 600px;
   margin: 0 auto;
+  border: 1px solid var(--color-border);
+}
+
+/* אזור התחברות - רק כשצריך מסגרת */
+.login-container, .auth-container {
+  background: var(--color-surface);
+  padding: 2em;
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow);
+  border: 1px solid var(--color-border);
+  max-width: 450px;
+  margin: 2em auto;
+  width: 100%;
 }
 
 .search-input-wrapper {
   display: flex;
   align-items: center;
   width: 100%;
+  gap: 0.5em;
 }
 
 .search-input {
@@ -337,18 +411,25 @@ ul, ol {
 }
 
 .clear-search-btn {
-  margin-right: 0.6em;
   background: none;
   color: var(--color-danger);
   border: none;
-  font-size: 1.1em;
+  font-size: 1.2em;
   cursor: pointer;
+  padding: 0.3em;
+  border-radius: 6px;
+  transition: background 0.2s ease;
 }
 
+.clear-search-btn:hover {
+  background: rgba(231, 107, 107, 0.1);
+}
+
+/* מודאל */
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(50, 67, 89, 0.17);
+  background: rgba(0, 0, 0, 0.5);
   z-index: 1000;
   display: flex;
   justify-content: center;
@@ -359,21 +440,18 @@ ul, ol {
 .modal-content {
   background: var(--color-surface);
   border-radius: var(--border-radius);
-  box-shadow: var(--shadow);
-  padding: 2em 2.5em;
-  max-width: 430px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+  padding: 2.5em;
+  max-width: 450px;
   width: 100%;
   text-align: center;
   position: relative;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
 }
 
 /* התאמות לטאבלט */
 @media (max-width: 1024px) and (min-width: 769px) {
   .main-wrapper {
-    padding: 2em 1em;
+    padding: 1.5em 1em;
   }
   
   main, .container {
@@ -381,23 +459,22 @@ ul, ol {
     padding: var(--padding-tablet);
   }
   
-  .buttons-container {
-    gap: 0.8em;
-  }
-  
-  .btn {
-    font-size: 1em;
-    padding: 0.6em 1.1em;
-  }
-  
-  .logo-image {
-    max-width: 120px;
+  .logo-image, .logo {
+    max-width: 110px;
   }
   
   .header-logo {
     max-width: 50px;
-    top: 0.8em;
-    right: 0.8em;
+  }
+  
+  .btn, button {
+    font-size: 1em;
+    padding: 0.7em 1.5em;
+    min-width: 120px;
+  }
+  
+  .buttons-container {
+    gap: 1em;
   }
 }
 
@@ -412,21 +489,26 @@ ul, ol {
     padding: var(--padding-mobile);
   }
   
-  .modal-content {
-    padding: 1.5em 1em;
-    font-size: 0.95em;
-    max-width: 90%;
+  .logo-image, .logo {
+    max-width: 90px;
+  }
+  
+  .header-logo {
+    max-width: 45px;
+    top: 0.8em;
+    right: 0.8em;
   }
   
   .buttons-container {
     flex-direction: column;
-    gap: 0.6em;
+    gap: 0.8em;
+    align-items: stretch;
   }
   
-  .btn {
+  .btn, button {
     width: 100%;
-    max-width: 280px;
-    justify-content: center;
+    max-width: 300px;
+    margin: 0 auto;
   }
   
   input, select, textarea {
@@ -437,55 +519,55 @@ ul, ol {
     max-width: 100%;
   }
   
-  .logo-image {
-    max-width: 100px;
+  .modal-content {
+    padding: 2em 1.5em;
+    max-width: 95%;
   }
   
-  .header-logo {
-    max-width: 45px;
-    top: 0.5em;
-    right: 0.5em;
+  h1, .page-title, .hall-title, .home-title { 
+    font-size: 1.8em; 
   }
   
-  .logo-container {
-    margin-bottom: 1.5em;
-    padding: 0.5em 0;
+  h2 { 
+    font-size: 1.4em; 
   }
 }
 
 @media (max-width: 600px) {
-  h1, .page-title, .hall-title, .home-title { 
-    font-size: 1.4em; 
+  .logo-image, .logo {
+    max-width: 80px;
   }
   
-  h2 { 
-    font-size: 1.2em; 
+  h1, .page-title, .hall-title, .home-title { 
+    font-size: 1.6em; 
   }
   
   .file-item, .comment-preview { 
     font-size: 0.95em;
-    padding: 0.6em 0.8em;
-  }
-  
-  .main-wrapper {
-    padding: 0.5em 0.2em;
+    padding: 0.8em 1em;
   }
 }
 
-/* התאמות נוספות למכשירים קטנים מאוד */
 @media (max-width: 480px) {
   main, .container {
     max-width: 98%;
     padding: 1em 0.8em;
   }
   
+  .logo-image, .logo {
+    max-width: 70px;
+  }
+  
   .modal-content {
     max-width: 95%;
-    padding: 1.2em 0.8em;
+    padding: 1.5em 1em;
   }
 }
 
-/* שיפורים למרכוז מושלם */
+/* מחלקות עזר */
+.text-center { text-align: center; }
+.mx-auto { margin-left: auto; margin-right: auto; }
+.w-full { width: 100%; }
 .centered-content {
   display: flex;
   flex-direction: column;
@@ -494,34 +576,9 @@ ul, ol {
   width: 100%;
   text-align: center;
 }
-
 .flex-center {
   display: flex;
   justify-content: center;
   align-items: center;
   width: 100%;
-}
-
-/* מחלקות עזר למרכוז */
-.text-center { text-align: center; }
-.mx-auto { margin-left: auto; margin-right: auto; }
-.w-full { width: 100%; }
-.max-w-sm { max-width: 24rem; }
-.max-w-md { max-width: 28rem; }
-.max-w-lg { max-width: 32rem; }
-.logo {
-  max-width: 12vw;
-  min-width: 40px;
-  width: 100%;
-  height: auto;
-}
-
-.logo-small {
-  max-width: 8vw;
-  min-width: 32px;
-}
-
-.logo-medium {
-  max-width: 14vw;
-  min-width: 48px;
 }
