@@ -79,7 +79,7 @@ const Home = () => {
         <HomeButton text="SearchPage" to="/searchPage" />
       </div>
 
-      <img src={logo} alt="לוגו" className="logo-image" />
+     
     </div>
   );
 };
