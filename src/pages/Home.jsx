@@ -1,8 +1,30 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import HomeButton from "../components/HomeButton";
 import logo from "../assets/logo.webp";
+import { onAuthStateChanged } from "firebase/auth";
+import { auth, db } from "../firebase";
+import { doc, getDoc } from "firebase/firestore";
 
 const Home = () => {
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    const unsub = onAuthStateChanged(auth, async (u) => {
+      if (!u) {
+        setIsAdmin(false);
+        return;
+      }
+      try {
+        // בודק את מסמך המשתמש לפי אימייל; מצפה לשדה role: "admin"
+        const snap = await getDoc(doc(db, "users", u.email));
+        setIsAdmin(snap.exists() && snap.data()?.role === "admin");
+      } catch {
+        setIsAdmin(false);
+      }
+    });
+    return () => unsub();
+  }, []);
+
   return (
     <div className="home-page">
       <style>{`
@@ -14,62 +36,27 @@ const Home = () => {
           align-items: center;
           justify-content: center;
           padding: 2em;
-          text-align: center;
         }
-
+        .logo {
+          max-width: 140px;
+          margin-bottom: 1em;
+        }
         .home-title {
-          font-size: 2em;
-          font-weight: bold;
+          font-size: 1.8em;
           color: #6ec8f1;
           margin-bottom: 1.2em;
+          font-weight: bold;
         }
-
         .buttons-container {
           display: flex;
           flex-wrap: wrap;
-          gap: 1em;
+          align-items: center;
           justify-content: center;
-          margin-bottom: 2em;
-        }
-
-        .logo-image {
-          max-width: 130px;
-          height: auto;
-          margin-top: 1em;
-        }
-
-        /* עיצוב ברירת מחדל לכפתורים אם HomeButton לא כולל עיצוב */
-        .buttons-container button,
-        .buttons-container a {
-          background: #6ec8f1;
-          color: white;
-          padding: 0.75em 1.5em;
-          border: none;
-          border-radius: 12px;
-          font-size: 1em;
-          font-weight: 500;
-          cursor: pointer;
-          text-decoration: none;
-          transition: background 0.3s ease;
-        }
-
-        .buttons-container button:hover,
-        .buttons-container a:hover {
-          background: #58bae4;
-        }
-
-        @media (max-width: 600px) {
-          .buttons-container {
-            flex-direction: column;
-            gap: 0.8em;
-          }
-
-          .home-title {
-            font-size: 1.4em;
-          }
+          gap: 0.5rem;
         }
       `}</style>
 
+      <img src={logo} alt="Logo" className="logo" />
       <h1 className="home-title">home page</h1>
 
       <div className="buttons-container">
@@ -77,9 +64,8 @@ const Home = () => {
         <HomeButton text="halls" to="/halls" />
         <HomeButton text="fileSystem" to="/fileSystem" />
         <HomeButton text="SearchPage" to="/searchPage" />
+        {isAdmin && <HomeButton text="עריכה" to="/admin" />}
       </div>
-
-     
     </div>
   );
 };

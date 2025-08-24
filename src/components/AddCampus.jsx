@@ -1,79 +1,71 @@
-import React, { useState, useEffect } from 'react';
-import { db } from '../firebase';
-import { collection, addDoc, getDocs } from 'firebase/firestore';
+import React, { useState, useEffect } from "react";
+import { db } from "../firebase";
+import { collection, addDoc, getDocs } from "firebase/firestore";
 
 function AddCampus() {
-  const [name, setName] = useState('');
-  const [address, setAddress] = useState('');
-  const [contactPerson, setContactPerson] = useState('');
+  const [name, setName] = useState("");
+  const [address, setAddress] = useState("");
+  const [contactPerson, setContactPerson] = useState(""); // אימייל של אחראי
   const [users, setUsers] = useState([]);
 
-  // שלב 1: הבאת המשתמשים מה-Firestore
   useEffect(() => {
-    const fetchUsers = async () => {
-      const querySnapshot = await getDocs(collection(db, 'users'));
-      const userList = [];
-      querySnapshot.forEach((doc) => {
-        userList.push({ id: doc.id, ...doc.data() });
-      });
-      setUsers(userList);
-    };
-
-    fetchUsers();
+    (async () => {
+      const qs = await getDocs(collection(db, "users"));
+      const list = qs.docs.map((d) => ({ id: d.id, ...d.data() }));
+      setUsers(list);
+    })();
   }, []);
 
-  // שלב 2: שליחת הטופס
-  const handleSubmit = async (e) => {
+  const onSubmit = async (e) => {
     e.preventDefault();
-    try {
-      await addDoc(collection(db, 'campuses'), {
-        name,
-        address,
-        ContactPerson: `/users/${contactPerson}`,
-      });
-      alert('קמפוס נוסף בהצלחה!');
-      setName('');
-      setAddress('');
-      setContactPerson('');
-    } catch (error) {
-      console.error('שגיאה בהוספה:', error);
-    }
+    if (!name.trim()) return alert("נא למלא שם קמפוס");
+
+    await addDoc(collection(db, "campuses"), {
+      name: name.trim(),
+      address: address.trim(),
+      contactPerson: contactPerson || null, // שמרי אימייל/ID לפי מה שמתאים לך
+    });
+
+    setName("");
+    setAddress("");
+    setContactPerson("");
+    alert("קמפוס נוסף בהצלחה");
   };
 
   return (
-    <div className="add-campus">
+    <div className="card">
       <h2>הוספת קמפוס חדש</h2>
-      <form onSubmit={handleSubmit}>
-        <input
-          type="text"
-          placeholder="שם קמפוס"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-        />
-        <input
-          type="text"
-          placeholder="כתובת"
-          value={address}
-          onChange={(e) => setAddress(e.target.value)}
-        />
+      <form onSubmit={onSubmit} className="form-grid form-grid--3" style={{ marginTop: ".5rem" }}>
+        <div>
+          <label>שם קמפוס</label>
+          <input className="input" value={name} onChange={(e) => setName(e.target.value)} />
+        </div>
+        <div>
+          <label>כתובת</label>
+          <input className="input" value={address} onChange={(e) => setAddress(e.target.value)} />
+        </div>
+        <div>
+          <label>בחר אחראי</label>
+          <select
+            className="select-input"
+            value={contactPerson}
+            onChange={(e) => setContactPerson(e.target.value)}
+          >
+            <option value="">— ללא —</option>
+            {users.map((u) => (
+              <option key={u.id} value={u.id}>
+                {(u.firstName ? `${u.firstName} ` : "") + (u.lastName || u.id)}
+              </option>
+            ))}
+          </select>
+        </div>
 
-        {/* תיבת בחירה של המשתמשים */}
-        <select
-          value={contactPerson}
-          onChange={(e) => setContactPerson(e.target.value)}
-        >
-          <option value="">בחר אחראי</option>
-          {users.map((user) => (
-            <option key={user.email} value={user.email}>
-              {user.firstName} {user.lastName} ({user.email})
-            </option>
-          ))}
-        </select>
-
-        <button type="submit">הוסף</button>
+        <div className="row" style={{ gridColumn: "1 / -1" }}>
+          <button className="btn btn--accent" type="submit">
+            הוסף
+          </button>
+        </div>
       </form>
-
-     
     </div>
   );
 }

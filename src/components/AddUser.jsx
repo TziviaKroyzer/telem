@@ -10,85 +10,67 @@ function AddUser() {
   const [lastName, setLastName] = useState('');
   const [phone, setPhone] = useState('');
   const [role, setRole] = useState('user');
+  const [busy, setBusy] = useState(false);
+  const [msg, setMsg] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const auth = getAuth();
-
+    setMsg('');
+    setBusy(true);
     try {
-      // שלב 1: יצירת חשבון ב-Auth
-      await createUserWithEmailAndPassword(auth, email, password);
-
-      // שלב 2: שמירת המשתמש במסד הנתונים
+      const auth = getAuth();
+      const cred = await createUserWithEmailAndPassword(auth, email, password);
       await setDoc(doc(db, 'users', email), {
-        email,
-        firstName,
-        lastName,
-        phone,
-        role,
+        firstName, lastName, phone, role,
+        failedAttempts: 0, locked: false,
       });
-
-      alert('המשתמש נוצר בהצלחה!');
-      // איפוס שדות
-      setEmail('');
-      setPassword('');
-      setFirstName('');
-      setLastName('');
-      setPhone('');
-      setRole('user');
-    } catch (error) {
-      console.error('שגיאה:', error.message);
-      alert('שגיאה: ' + error.message);
+      setMsg('משתמש נוצר בהצלחה');
+      setEmail(''); setPassword(''); setFirstName(''); setLastName(''); setPhone(''); setRole('user');
+    } catch (err) {
+      console.error(err);
+      setMsg('שגיאה ביצירת משתמש');
+    } finally {
+      setBusy(false);
     }
   };
 
   return (
-    <div className="add-user">
-      <h2>הוספת משתמש חדש</h2>
-      <form onSubmit={handleSubmit}>
-        <input
-          type="email"
-          placeholder="אימייל"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
-        <input
-          type="password"
-          placeholder="סיסמה"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
-        <input
-          type="text"
-          placeholder="שם פרטי"
-          value={firstName}
-          onChange={(e) => setFirstName(e.target.value)}
-          required
-        />
-        <input
-          type="text"
-          placeholder="שם משפחה"
-          value={lastName}
-          onChange={(e) => setLastName(e.target.value)}
-          required
-        />
-        <input
-          type="text"
-          placeholder="טלפון"
-          value={phone}
-          onChange={(e) => setPhone(e.target.value)}
-        />
-        <select value={role} onChange={(e) => setRole(e.target.value)}>
-          <option value="user">משתמש רגיל</option>
-          <option value="admin">מנהל</option>
-        </select>
+    <div className="card" style={{marginBottom:'1rem'}}>
+      <h2>הוספת משתמש</h2>
+      <form onSubmit={handleSubmit} className="form-grid form-grid--2">
+        <div>
+          <label>שם פרטי</label>
+          <input className="input" value={firstName} onChange={e=>setFirstName(e.target.value)} />
+        </div>
+        <div>
+          <label>שם משפחה</label>
+          <input className="input" value={lastName} onChange={e=>setLastName(e.target.value)} />
+        </div>
+        <div>
+          <label>אימייל</label>
+          <input type="email" className="input" value={email} onChange={e=>setEmail(e.target.value)} />
+        </div>
+        <div>
+          <label>סיסמה</label>
+          <input type="password" className="input" value={password} onChange={e=>setPassword(e.target.value)} />
+        </div>
+        <div>
+          <label>טלפון</label>
+          <input className="input" value={phone} onChange={e=>setPhone(e.target.value)} />
+        </div>
+        <div>
+          <label>תפקיד</label>
+          <select className="select-input" value={role} onChange={e=>setRole(e.target.value)}>
+            <option value="user">משתמש רגיל</option>
+            <option value="admin">מנהל</option>
+          </select>
+        </div>
 
-        <button type="submit">הוסף</button>
+        <div className="row" style={{gridColumn:'1 / -1', marginTop:'.25rem'}}>
+          <button className="btn" type="submit" disabled={busy}>{busy? "יוצר..." : "הוסף"}</button>
+          <span className="muted">{msg}</span>
+        </div>
       </form>
-
-     
     </div>
   );
 }

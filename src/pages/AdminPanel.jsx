@@ -10,39 +10,35 @@ function AdminPanel() {
   const [activeTab, setActiveTab] = useState('campus');
 
   return (
-    <div className="admin-panel">
+    <div className="stack" style={{gap:'1rem'}}>
       <h1>ניהול מערכת</h1>
 
-      <div className="tabs">
-        <button onClick={() => setActiveTab('campus')}>הוסף קמפוס</button>
-        <button onClick={() => setActiveTab('hall')}>הוסף אולם</button>
-        <button onClick={() => setActiveTab('user')}>הוסף משתמש</button>
+      <div className="row">
+        <button className={"btn " + (activeTab==='campus'?'':'btn--ghost')} onClick={()=>setActiveTab('campus')}>קמפוסים</button>
+        <button className={"btn " + (activeTab==='hall'?'':'btn--ghost')} onClick={()=>setActiveTab('hall')}>אולמות</button>
+        <button className={"btn " + (activeTab==='user'?'':'btn--ghost')} onClick={()=>setActiveTab('user')}>משתמשים</button>
       </div>
 
-      <div className="form-container">
-        {activeTab === 'campus' && (
-          <>
-            <AddCampus />
-            <CampusList />
-          </>
-        )}
-        {activeTab === 'hall' && (
-          <>
-            <AddHall />
-            <HallList />
-          </>
-        )}
+      {activeTab === 'campus' && (
+        <div className="stack">
+          <div className="card"><AddCampus /></div>
+          <div className="card"><CampusList /></div>
+        </div>
+      )}
 
-        {activeTab === 'user' && (
-          <>
-            <AddUser />
-            <UserList />
-          </>
-        )}
+      {activeTab === 'hall' && (
+        <div className="stack">
+          <div className="card"><AddHall /></div>
+          <div className="card"><HallList /></div>
+        </div>
+      )}
 
-      </div>
-
-     
+      {activeTab === 'user' && (
+        <div className="stack">
+          <AddUser />
+          <UserList />
+        </div>
+      )}
     </div>
   );
 }

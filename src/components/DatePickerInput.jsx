@@ -7,10 +7,8 @@ const DatePickerInput = ({ value, onChange }) => (
       type="date"
       value={value}
       onChange={(e) => onChange(e.target.value)}
-      className="date-picker-input"
+      className="input"       // ← סטייל אחיד
     />
-
-  
   </div>
 );
 

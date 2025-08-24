@@ -192,7 +192,7 @@ const AddComment = () => {
         <TextAreaInput value={noteText} onChange={setNoteText} />
         <FileUploadInput onChange={setFile} />
 
-        <button type="submit" className="submit-button">
+        <button type="submit" className="btn btn--accent">
           אישור
         </button>
       </form>

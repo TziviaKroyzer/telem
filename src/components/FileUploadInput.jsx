@@ -6,10 +6,8 @@ const FileUploadInput = ({ onChange }) => (
     <input
       type="file"
       onChange={(e) => onChange(e.target.files[0])}
-      className="file-upload-input"
+      className="input"       // ← סטייל אחיד
     />
-    
-    
   </div>
 );
 

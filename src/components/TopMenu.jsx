@@ -2,50 +2,33 @@ import React from "react";
 import { Link, NavLink } from "react-router-dom";
 
 const navLinks = [
-  { path: "/addComment", label: "AddComment" },
-  { path: "/hallReservation", label: "HallReservation" },
-  { path: "/halls", label: "Halls" },
-  { path: "/fileSystem", label: "FileSystem" },
-  { path: "/home", label: "Home" },
-  { path: "/searchPage", label: "SearchPage" },
-  { path: "/admin", label: "ניהול מערכת" },
- 
-
+  { path: "/addComment", label: "הערה חדשה" },
+  { path: "/halls", label: "אולמות" },
+  { path: "/fileSystem", label: "קבצים" },
+  { path: "/searchPage", label: "חיפוש" },
+  { path: "/admin", label: "ניהול מערכת", cta: true },
 ];
-const headerStyle = {
-  position: "fixed",
-  top: 0,
-  left: 0,
-  width: "100%",
-  backgroundColor: "#fff",
-  zIndex: 1000,
-  boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
-};
-const TopMenu = () => {
+
+export default function TopMenu(){
   return (
-    <header>
-      <nav>
-        <Link to="/" >
-          {/* Replace this with an <img src="/logo.png" alt="Logo" /> if you have a logo */}
-           </Link>
-        <div>
-          {navLinks.map(({ path, label }) => (
-            <Link
+    <header className="site-header">
+      <nav className="site-nav">
+        <Link to="/" className="nav-link">דף הבית</Link>
+        <div className="nav-links">
+          {navLinks.map(({ path, label, cta }) => (
+            <NavLink
               key={path}
               to={path}
-              style={{
-                margin: "0 8px",
-                textDecoration: "none",
-                color: "inherit",
-              }}
+              className={({isActive}) =>
+                "nav-link" + (cta ? " nav-link--cta" : "") + (isActive ? " active" : "")
+              }
+              end
             >
               {label}
-            </Link>
+            </NavLink>
           ))}
         </div>
       </nav>
     </header>
   );
-};
-
-export default TopMenu;
+}
