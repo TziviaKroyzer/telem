@@ -250,7 +250,11 @@ export default function FileSystem() {
     const data = snap.data();
 
     if (data.type === "folder") {
-      const q = query(collection(db, "files"), where("parentId", "==", itemId), userFilter);
+      const q = query(
+        collection(db, "files"),
+        where("parentId", "==", itemId),
+        userFilter
+      );
       const children = await getDocs(q);
       for (const c of children.docs) {
         await deleteRecursively(c.id);
@@ -262,7 +266,7 @@ export default function FileSystem() {
         if (data.storagePath) {
           await deleteObject(ref(storage, data.storagePath));
         } else if (data.url) {
-          const last = data.url.split("/").pop();     // name.ext?token=...
+          const last = data.url.split("/").pop(); // name.ext?token=...
           const nameOnly = (last || "").split("?")[0];
           if (user) {
             await deleteObject(ref(storage, `files/${user.uid}/${nameOnly}`));
@@ -306,12 +310,15 @@ export default function FileSystem() {
 
   // UI – עיצוב אחיד של האתר (.card / .btn / .input / .row / .stack)
   const breadcrumbUI = (
-    <div className="row" style={{ gap: 8, flexWrap: "wrap", alignItems: "center" }}>
+    <div
+      className="row"
+      style={{ gap: 8, flexWrap: "wrap", alignItems: "center" }}
+    >
       {breadcrumb.map((b, i) => (
         <button
           key={b.id}
           className="btn btn--ghost"
-          onClick={() => enterFolder(b.id)}
+          onClick={() => enterFolder(כb.id)}
           disabled={i === breadcrumb.length - 1}
           title={b.name}
           onDrop={(e) => handleDrop(e, b.id)}
@@ -340,8 +347,12 @@ export default function FileSystem() {
         )}
       </div>
       <div className="row" style={{ gap: 8, marginInlineStart: "auto" }}>
-        <button className="btn" onClick={addFolder}>הוסף תיקיה</button>
-        <button className="btn btn--accent" onClick={uploadFile}>הוסף קובץ</button>
+        <button className="btn" onClick={addFolder}>
+          הוסף תיקיה
+        </button>
+        <button className="btn btn--accent" onClick={uploadFile}>
+          הוסף קובץ
+        </button>
       </div>
     </div>
   );
@@ -351,7 +362,14 @@ export default function FileSystem() {
       <h1>ניהול קבצים</h1>
 
       <div className="card">
-        <div className="row" style={{ justifyContent: "space-between", alignItems: "center", gap: 12 }}>
+        <div
+          className="row"
+          style={{
+            justifyContent: "space-between",
+            alignItems: "center",
+            gap: 12,
+          }}
+        >
           {breadcrumbUI}
           {toolbarUI}
         </div>
@@ -370,15 +388,29 @@ export default function FileSystem() {
               onDrop={(e) => item.type === "folder" && handleDrop(e, item.id)}
               onDragOver={(e) => item.type === "folder" && e.preventDefault()}
             >
-              <div className="row" style={{ justifyContent: "space-between", alignItems: "center" }}>
+              <div
+                className="row"
+                style={{
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                }}
+              >
                 <div
                   className="row"
-                  style={{ gap: 10, alignItems: "center", cursor: item.type === "folder" ? "pointer" : "default" }}
+                  style={{
+                    gap: 10,
+                    alignItems: "center",
+                    cursor: item.type === "folder" ? "pointer" : "default",
+                  }}
                   onClick={() =>
-                    item.type === "folder" ? enterFolder(item.id) : window.open(item.url, "_blank")
+                    item.type === "folder"
+                      ? enterFolder(item.id)
+                      : window.open(item.url, "_blank")
                   }
                 >
-                  <span aria-hidden>{item.type === "folder" ? "📁" : "📄"}</span>
+                  <span aria-hidden>
+                    {item.type === "folder" ? "📁" : "📄"}
+                  </span>
                   {renamingId === item.id ? (
                     <input
                       className="input"
@@ -403,19 +435,34 @@ export default function FileSystem() {
 
                 <div className="row" style={{ gap: 6 }}>
                   {item.type === "file" && (
-                    <button className="btn" onClick={(e) => downloadFile(item, e)} title="הורדה">
+                    <button
+                      className="btn"
+                      onClick={(e) => downloadFile(item, e)}
+                      title="הורדה"
+                    >
                       הורדה
                     </button>
                   )}
                   {renamingId === item.id ? (
                     <>
-                      <button className="btn" onClick={saveRename}>שמור</button>
-                      <button className="btn btn--ghost" onClick={cancelRename}>בטל</button>
+                      <button className="btn" onClick={saveRename}>
+                        שמור
+                      </button>
+                      <button className="btn btn--ghost" onClick={cancelRename}>
+                        בטל
+                      </button>
                     </>
                   ) : (
                     <>
-                      <button className="btn" onClick={() => startRename(item)}>ערוך</button>
-                      <button className="btn btn--danger" onClick={() => removeItem(item)}>מחק</button>
+                      <button className="btn" onClick={() => startRename(item)}>
+                        ערוך
+                      </button>
+                      <button
+                        className="btn btn--danger"
+                        onClick={() => removeItem(item)}
+                      >
+                        מחק
+                      </button>
                     </>
                   )}
                 </div>
