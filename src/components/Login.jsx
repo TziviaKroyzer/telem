@@ -142,16 +142,29 @@ const Login = ({ onLoginSuccess = () => {} }) => {
     <div className="login-page">
       <style>{`
   .login-page{
-    min-height:100vh;
-    background:transparent; /* הרקע הגלובלי מגיע מה-Body */
-    display:flex; align-items:center; justify-content:center;
-    padding:2rem;
+    /* היה center -> עכשיו למעלה כדי לצמצם רווח מתחת ללוגו/ההדר */
+    min-height: 100vh;
+    background: transparent;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;   /* חשוב */
+    padding: 1rem 2rem;            /* פחות רווח אנכי */
   }
+
   .login-container{
-    background:transparent; border:0; box-shadow:none;
-    width:100%; max-width:440px; text-align:center; padding:0;
+    /* טופס קרוב יותר ללוגו */
+    margin-top: 8px;               /* אם תרצי צמוד ממש: 0 */
+    background: transparent;
+    border: 0;
+    box-shadow: none;
+    width: 100%;
+    max-width: 440px;
+    text-align: center;
+    padding: 0;
   }
-  .login-title{ font-size:1.6rem; color:#6ec8f1; margin:0 0 1rem; font-weight:700; }
+
+  .login-title{ font-size:1.6rem; color:#6ec8f1; margin:0 0 0.75rem; font-weight:700; }
 
   .login-form{ display:flex; flex-direction:column; gap:1rem; text-align:right; }
   .login-form label{ font-size:.95rem; color:#637186; }

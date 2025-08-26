@@ -1,6 +1,9 @@
+// src/pages/Home.jsx
 import React, { useEffect, useState } from "react";
 import HomeButton from "../components/HomeButton";
-import logo from "../assets/logo.webp";
+// אם תרצי להחזיר לוגו, בטלי את ההערה והוסיפי <img .../> למטה
+// import logo from "../assets/logo.webp";
+
 import { onAuthStateChanged } from "firebase/auth";
 import { auth, db } from "../firebase";
 import { doc, getDoc } from "firebase/firestore";
@@ -10,10 +13,7 @@ const Home = () => {
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, async (u) => {
-      if (!u) {
-        setIsAdmin(false);
-        return;
-      }
+      if (!u) return setIsAdmin(false);
       try {
         const snap = await getDoc(doc(db, "users", u.email));
         setIsAdmin(snap.exists() && snap.data()?.role === "admin");
@@ -25,62 +25,68 @@ const Home = () => {
   }, []);
 
   return (
-    <main className="home-page" style={{ background: "transparent" }}>
+    <main className="home-page">
       <style>{`
-        /* העטיפה הראשית – שקופה לגמרי, בלי כרטיס/מסגרת */
+        /* עוטף הדף – שקוף, התוכן מתחיל למעלה */
         .home-page{
           min-height: 100svh;
           background: transparent !important;
-          display:flex;
-          align-items:center;
-          justify-content:center;
-          padding: clamp(16px, 3vw, 32px);
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: flex-start;   /* ↑↑ זה מעלה את התוכן למעלה */
+          padding-block-start: clamp(24px, 4vw, 48px); /* יותר ריווח עליון */
+          padding-block-end: clamp(20px, 3vw, 36px);
+          padding-inline: clamp(12px, 3vw, 32px);
         }
 
-        /* שכבת תוכן פנימית – גם שקופה לחלוטין */
         .home-inner{
           background: transparent !important;
           box-shadow: none !important;
           border: 0 !important;
-          display:flex;
-          flex-direction:column;
-          align-items:center;
-          gap: 1.2rem;
+          width: min(100%, 1100px);
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 1rem;
         }
 
         .home-logo{
           max-width: 140px;
           height: auto;
-          display:block;
+          display: block;
         }
 
         .home-title{
           margin: 0;
-          font-size: clamp(1.4rem, 3.2vw, 1.9rem);
+          font-size: clamp(1.4rem, 3.2vw, 2rem);
           color: #6ec8f1;
           font-weight: 800;
-          letter-spacing: .5px;
+          letter-spacing: .4px;
         }
 
         .buttons-container{
-          display:flex;
-          flex-wrap:wrap;
-          align-items:center;
-          justify-content:center;
+          display: flex;
+          flex-wrap: wrap;
+          align-items: center;
+          justify-content: center;
           gap: .6rem;
           margin-top: .4rem;
         }
       `}</style>
 
       <div className="home-inner">
+        {/* אם תרצי לוגו כאן:
         <img src={logo} alt="Logo" className="home-logo" />
-        <h1 className="home-title">home page</h1>
+        */}
+
+        <h1 className="home-title">דף הבית</h1>
 
         <div className="buttons-container">
-          <HomeButton text="add comment" to="/addComment" />
-          <HomeButton text="halls" to="/halls" />
-          <HomeButton text="fileSystem" to="/fileSystem" />
-          <HomeButton text="SearchPage" to="/searchPage" />
+          <HomeButton text="הוספת הערה" to="/addComment" />
+          <HomeButton text="אולמות" to="/halls" />
+          <HomeButton text="מערכת קבצים" to="/fileSystem" />
+          <HomeButton text="חיפוס" to="/searchPage" />
           {isAdmin && <HomeButton text="עריכה" to="/admin" />}
         </div>
       </div>
