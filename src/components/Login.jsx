@@ -1,3 +1,4 @@
+// src/components/Login.jsx
 import React, { useState } from "react";
 import {
   signInWithEmailAndPassword,
@@ -13,23 +14,24 @@ const Login = ({ onLoginSuccess = () => {} }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false); // מניעת קליקים כפולים
+  const [loading, setLoading] = useState(false);
 
   const handleLogin = async (e) => {
+    e.preventDefault();
+
     if (!navigator.onLine) {
       setError("אין חיבור אינטרנט. נסי שוב כשיהיה חיבור יציב.");
       return;
     }
-    
-    e.preventDefault();
     if (loading) return;
+
     setLoading(true);
     setError("");
 
     const userRef = doc(db, "users", email);
 
     try {
-      // ננסה לבדוק אם החשבון נעול; אם אין הרשאות קריאה לפני התחברות - נתעלם
+      // בדיקת נעילה מוקדמת (אם יש הרשאת קריאה לפני התחברות)
       let locked = false;
       try {
         const preSnap = await getDoc(userRef);
@@ -47,10 +49,9 @@ const Login = ({ onLoginSuccess = () => {} }) => {
       const cred = await signInWithEmailAndPassword(auth, email, password);
       const user = cred.user;
 
-      // בדיקת הרשאה קיימת במסד (users/{email})
+      // בדיקת הרשאה במסד (users/{email})
       const freshSnap = await getDoc(userRef);
       if (!freshSnap.exists()) {
-        // המשתמש קיים ב-Auth אבל לא מורשה במערכת => מוחקים ומודיעים
         try {
           await deleteUser(user);
         } catch (_) {}
@@ -59,7 +60,7 @@ const Login = ({ onLoginSuccess = () => {} }) => {
         return;
       }
 
-      // איפוס מונה והסרת נעילה (אם אין הרשאת כתיבה - נתעלם)
+      // איפוס מונה והסרת נעילה
       try {
         await updateDoc(userRef, {
           failedAttempts: 0,
@@ -73,25 +74,17 @@ const Login = ({ onLoginSuccess = () => {} }) => {
     } catch (err) {
       console.error(err);
 
-      // פיירבייס חסם זמנית בגלל יותר מדי ניסיונות
       if (err.code === "auth/too-many-requests") {
-        setError(
-          "בוצעו יותר מדי ניסיונות התחברות. ניתן לבצע איפוס סיסמה כעת."
-        );
+        setError("בוצעו יותר מדי ניסיונות התחברות. ניתן לבצע איפוס סיסמה כעת.");
         setLoading(false);
         return;
       }
 
-      // סיסמה שגויה – בגרסאות חדשות זה עלול להופיע כ-invalid-credential
-      if (
-        err.code === "auth/wrong-password" ||
-        err.code === "auth/invalid-credential"
-      ) {
+      if (err.code === "auth/wrong-password" || err.code === "auth/invalid-credential") {
         try {
           const snap = await getDoc(userRef);
           if (snap.exists()) {
             const current = snap.data()?.failedAttempts || 0;
-            // אם פיירבייס כבר חוסם – לא נספור עוד ניסיון כאן
             const next = current + 1;
             const lock = next >= MAX_ATTEMPTS;
 
@@ -136,95 +129,115 @@ const Login = ({ onLoginSuccess = () => {} }) => {
 
   const handlePasswordReset = async () => {
     if (!email) return setError("הכנס אימייל לאיפוס סיסמה.");
-
     try {
       await sendPasswordResetEmail(auth, email);
       setError("אם החשבון קיים – נשלחה אליך הודעה לאיפוס סיסמה.");
     } catch (err) {
       console.error(err);
-      if (err.code === "auth/invalid-email") {
-        setError("כתובת אימייל לא תקינה.");
-      } else {
-        setError("שגיאה בשליחת אימייל לאיפוס סיסמה.");
-      }
+      setError(err.code === "auth/invalid-email" ? "כתובת אימייל לא תקינה." : "שגיאה בשליחת אימייל לאיפוס סיסמה.");
     }
   };
 
   return (
     <div className="login-page">
       <style>{`
-        .login-page {
-          min-height: 100vh;
-          background: linear-gradient(to bottom right, #f7fafd, #e6f3fa);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          padding: 2em;
-        }
-        .login-container {
-          background: #fff;
-          border-radius: 16px;
-          box-shadow: 0 4px 20px rgba(110, 200, 241, 0.12);
-          padding: 2.5em 2em;
-          width: 100%;
-          max-width: 420px;
-          text-align: center;
-        }
-        .login-title {
-          font-size: 1.6em;
-          color: #6ec8f1;
-          margin-bottom: 1em;
-          font-weight: bold;
-        }
-        .login-form { display: flex; flex-direction: column; gap: 1em; }
-        .login-form label { text-align: right; font-size: 0.95em; color: #7a7a7a; }
-        .login-form input {
-          width: 100%;
-          padding: 0.65em 1em;
-          border: 1px solid #e0e4ec;
-          border-radius: 10px;
-          background: #f9fbfd;
-          font-size: 1em;
-          margin-top: 0.3em;
-        }
-        .login-form input:focus { outline: none; border-color: #6ec8f1; }
-        .login-form button[type="submit"] {
-          background: #6ec8f1; color: white; border: none; padding: 0.7em;
-          border-radius: 10px; font-size: 1em; cursor: pointer; transition: background 0.2s;
-          opacity: ${"${"}loading ? 0.7 : 1${"}"}; pointer-events: ${"${"}loading ? "none" : "auto"${"}"};
-        }
-        .login-form button[type="submit"]:hover { background: #58bae4; }
-        .login-footer { margin-top: 1em; }
-        .login-footer button { background: none; border: none; color: #f4a63f; cursor: pointer; font-size: 0.9em; text-decoration: underline; }
-        .error-message { color: #e76b6b; font-size: 0.85em; margin-top: -0.5em; text-align: center; }
-      `}</style>
+  .login-page{
+    min-height:100vh;
+    background:transparent; /* הרקע הגלובלי מגיע מה-Body */
+    display:flex; align-items:center; justify-content:center;
+    padding:2rem;
+  }
+  .login-container{
+    background:transparent; border:0; box-shadow:none;
+    width:100%; max-width:440px; text-align:center; padding:0;
+  }
+  .login-title{ font-size:1.6rem; color:#6ec8f1; margin:0 0 1rem; font-weight:700; }
+
+  .login-form{ display:flex; flex-direction:column; gap:1rem; text-align:right; }
+  .login-form label{ font-size:.95rem; color:#637186; }
+
+  /* שדות לבנים תמיד (כולל Autofill) */
+  .login-form input{
+    width:100%;
+    padding:.65rem 1rem;
+    border:1px solid #e0e4ec;
+    border-radius:10px;
+    background:#ffffff;
+    font-size:1rem;
+    margin-top:.35rem;
+    color:#0f172a;
+    outline:none;
+    transition:border-color .15s ease, box-shadow .15s ease, background-color .15s;
+  }
+  .login-form input::placeholder{ color:#9aa7b5; }
+  .login-form input:focus{
+    border-color:#6ec8f1;
+    box-shadow:0 0 0 3px rgba(110,200,241,.25);
+    background:#ffffff;
+  }
+  .login-form input:-webkit-autofill,
+  .login-form input:-webkit-autofill:hover,
+  .login-form input:-webkit-autofill:focus{
+    -webkit-text-fill-color:#0f172a;
+    caret-color:#0f172a;
+    background:#ffffff !important;
+    -webkit-box-shadow:0 0 0 1000px #ffffff inset !important;
+            box-shadow:0 0 0 1000px #ffffff inset !important;
+    transition: background-color 9999s ease-in-out 0s;
+  }
+
+  .login-form button[type="submit"]{
+    background:#6ec8f1; color:#fff; border:0; padding:.8rem;
+    border-radius:12px; font-size:1rem; font-weight:600; cursor:pointer;
+    transition:background .2s, box-shadow .2s, transform .1s;
+    box-shadow:0 2px 10px rgba(110,200,241,.18);
+  }
+  .login-form button[type="submit"]:hover{
+    background:#58bae4; box-shadow:0 6px 18px rgba(110,200,241,.24); transform:translateY(-1px);
+  }
+  .login-form button[type="submit"][disabled]{ opacity:.6; cursor:not-allowed; box-shadow:none; transform:none; }
+
+  .login-footer{ margin-top:1rem; }
+  .login-footer button{
+    background:none; border:0; color:#f4a63f; cursor:pointer; font-size:.95rem; text-decoration:underline;
+  }
+
+  .error-message{ color:#e76b6b; font-size:.9rem; margin-top:-.25rem; text-align:center; }
+`}</style>
 
       <div className="login-container">
         <h2 className="login-title">התחברות למערכת</h2>
+
         <form onSubmit={handleLogin} className="login-form">
           <label>
             אימייל
             <input
               type="email"
+              dir="ltr"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
             />
           </label>
+
           <label>
             סיסמה
             <input
               type="password"
+              dir="ltr"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
             />
           </label>
+
           {error && <p className="error-message">{error}</p>}
-          <button type="submit">
+
+          <button type="submit" disabled={loading}>
             {loading ? "מתחבר..." : "התחבר"}
           </button>
         </form>
+
         <div className="login-footer">
           <button onClick={handlePasswordReset}>שכחת סיסמה?</button>
         </div>

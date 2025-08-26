@@ -15,7 +15,6 @@ const Home = () => {
         return;
       }
       try {
-        // בודק את מסמך המשתמש לפי אימייל; מצפה לשדה role: "admin"
         const snap = await getDoc(doc(db, "users", u.email));
         setIsAdmin(snap.exists() && snap.data()?.role === "admin");
       } catch {
@@ -26,47 +25,66 @@ const Home = () => {
   }, []);
 
   return (
-    <div className="home-page">
+    <main className="home-page" style={{ background: "transparent" }}>
       <style>{`
-        .home-page {
-          min-height: 100vh;
-          background: linear-gradient(to bottom right, #f7fafd, #e6f3fa);
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          padding: 2em;
+        /* העטיפה הראשית – שקופה לגמרי, בלי כרטיס/מסגרת */
+        .home-page{
+          min-height: 100svh;
+          background: transparent !important;
+          display:flex;
+          align-items:center;
+          justify-content:center;
+          padding: clamp(16px, 3vw, 32px);
         }
-        .logo {
+
+        /* שכבת תוכן פנימית – גם שקופה לחלוטין */
+        .home-inner{
+          background: transparent !important;
+          box-shadow: none !important;
+          border: 0 !important;
+          display:flex;
+          flex-direction:column;
+          align-items:center;
+          gap: 1.2rem;
+        }
+
+        .home-logo{
           max-width: 140px;
-          margin-bottom: 1em;
+          height: auto;
+          display:block;
         }
-        .home-title {
-          font-size: 1.8em;
+
+        .home-title{
+          margin: 0;
+          font-size: clamp(1.4rem, 3.2vw, 1.9rem);
           color: #6ec8f1;
-          margin-bottom: 1.2em;
-          font-weight: bold;
+          font-weight: 800;
+          letter-spacing: .5px;
         }
-        .buttons-container {
-          display: flex;
-          flex-wrap: wrap;
-          align-items: center;
-          justify-content: center;
-          gap: 0.5rem;
+
+        .buttons-container{
+          display:flex;
+          flex-wrap:wrap;
+          align-items:center;
+          justify-content:center;
+          gap: .6rem;
+          margin-top: .4rem;
         }
       `}</style>
 
-      <img src={logo} alt="Logo" className="logo" />
-      <h1 className="home-title">home page</h1>
+      <div className="home-inner">
+        <img src={logo} alt="Logo" className="home-logo" />
+        <h1 className="home-title">home page</h1>
 
-      <div className="buttons-container">
-        <HomeButton text="add comment" to="/addComment" />
-        <HomeButton text="halls" to="/halls" />
-        <HomeButton text="fileSystem" to="/fileSystem" />
-        <HomeButton text="SearchPage" to="/searchPage" />
-        {isAdmin && <HomeButton text="עריכה" to="/admin" />}
+        <div className="buttons-container">
+          <HomeButton text="add comment" to="/addComment" />
+          <HomeButton text="halls" to="/halls" />
+          <HomeButton text="fileSystem" to="/fileSystem" />
+          <HomeButton text="SearchPage" to="/searchPage" />
+          {isAdmin && <HomeButton text="עריכה" to="/admin" />}
+        </div>
       </div>
-    </div>
+    </main>
   );
 };
 
