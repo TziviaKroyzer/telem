@@ -1,4 +1,4 @@
-/* ============== Design System: Tablet-first ============== */
+/* ============== Design System: Tablet-first (RTL) ============== */
 
 /* 1) Tokens */
 :root{
@@ -10,7 +10,9 @@
   --ink:          #0f172a;   /* טקסט ראשי */
   --ink-2:        #334155;   /* טקסט משני */
   --line:         #e2e8f0;   /* קווי מתאר */
-  --bg-page:      linear-gradient(145deg,#f7fafd,#e6f3fa);
+  --bg-page:      #EAF6FF;   /* ← רקע אחיד לכל האתר */
+  /* --bg-page-grad: linear-gradient(145deg,#f7fafd,#e6f3fa);  // אם תרצי לחזור לגרדיאנט */
+
   --bg-card:      #ffffff;
   --success:      #16a34a;
   --danger:       #dc2626;
@@ -19,7 +21,7 @@
   /* טיפוגרפיה */
   --font-sans: "Heebo","Rubik","Assistant",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
 
-  /* ריווח ורדיוסים */
+  /* רדיוסים וריווחים */
   --radius: 14px;
   --radius-lg: 18px;
   --space-1: .25rem;
@@ -45,14 +47,14 @@ html,body,#root{ height:100%; }
 body{
   margin:0;
   direction: rtl;
-  background: var(--bg-page);
+  background: var(--bg-page) !important; /* רקע אחיד */
   color: var(--ink);
   font-family: var(--font-sans);
   font-size: 16px;
   line-height: 1.5;
 }
 
-/* 3) קונטיינר גלובלי לפנים־אפליקציה */
+/* 3) קונטיינר גלובלי */
 .app-container{
   width: var(--container);
   margin-inline: auto;
@@ -66,16 +68,7 @@ h2{ font-size: clamp(1.3rem, 2vw, 1.6rem); }
 h3{ font-size: clamp(1.15rem, 1.6vw, 1.25rem); }
 p{ margin: 0 0 .8em; color: var(--ink-2); }
 
-/* 5) כרטיסים */
-.card{
-  background: var(--bg-card);
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow-sm);
-  padding: var(--space-6);
-}
-
-/* 6) כפתורים */
+/* 5) כפתורים */
 .btn{
   display:inline-flex; align-items:center; justify-content:center;
   gap:.5rem;
@@ -97,7 +90,7 @@ p{ margin: 0 0 .8em; color: var(--ink-2); }
 .btn--danger{ background: var(--danger); }
 .btn--pill{ border-radius:999px; }
 
-/* 7) שדות טפסים (מתכתב עם המחלקות שיש לך כבר) */
+/* 6) שדות טפסים */
 .input, .select-input, .textarea-input{
   width:100%;
   background:#f9fbfd;
@@ -115,22 +108,19 @@ p{ margin: 0 0 .8em; color: var(--ink-2); }
 }
 label{ display:block; font-size:.95rem; color:var(--ink-2); margin-bottom:.35rem; }
 
-/* 8) גריד נוח לטפסים – Tablet-first */
-.form-grid{
-  display:grid;
-  grid-template-columns: 1fr;
-  gap: var(--space-5);
-}
+/* 7) גריד לטפסים – Tablet-first */
+.form-grid{ display:grid; grid-template-columns: 1fr; gap: var(--space-5); }
 @media (min-width: 720px){
   .form-grid--2{ grid-template-columns: 1fr 1fr; }
   .form-grid--3{ grid-template-columns: 1fr 1fr 1fr; }
 }
 
-/* 9) תפריט עליון */
+/* 8) תפריט עליון */
 .site-header{
   position: sticky; top:0; inset-inline:0;
-  background:#fff; border-bottom:1px solid var(--line);
-  box-shadow: var(--shadow-sm);
+  background: transparent !important;  /* שקוף כדי שלא ייווצר “פס” */
+  border-bottom: 0 !important;
+  box-shadow: none !important;
   z-index:1000;
 }
 .site-nav{
@@ -151,7 +141,7 @@ label{ display:block; font-size:.95rem; color:var(--ink-2); margin-bottom:.35rem
 .nav-link--cta{ background: var(--brand); color:#fff; }
 .nav-link--cta:hover{ background: var(--brand-600); }
 
-/* 10) מודאל בסיסי (עבור ConfirmationModal שלך) */
+/* 9) מודאלים */
 .modal-backdrop{
   position:fixed; inset:0; background:rgba(15,23,42,.4);
   display:flex; align-items:center; justify-content:center;
@@ -165,34 +155,35 @@ label{ display:block; font-size:.95rem; color:var(--ink-2); margin-bottom:.35rem
   padding: var(--space-6);
 }
 
-/* 11) עזרי פריסה */
+/* 10) עזרי פריסה */
 .stack{ display:flex; flex-direction:column; gap: var(--space-4); }
 .row{ display:flex; align-items:center; gap: var(--space-3); flex-wrap:wrap; }
 .center{ display:flex; align-items:center; justify-content:center; }
 .muted{ color: var(--ink-2); }
 
-/* 12) התאמות לדפים קיימים */
 .logo{ max-width: 120px; display:block; margin: 12px auto; }
 .p-6{ padding: var(--space-6); }
 .login-page{ background: var(--bg-page); }
 
-/* 13) כפתור הבית הצף – התאמה לסט */
+/* 11) כפתור בית צף */
 .fab-home{
   background: var(--brand) !important;
   box-shadow: var(--shadow-md) !important;
 }
 .fab-home:hover{ background: var(--brand-600) !important; }
 
-/* 14) פידבק */
+/* 12) פידבק */
 .alert{ padding:.8rem 1rem; border-radius: 10px; border:1px solid var(--line); }
 .alert--danger{ background:#fff1f1; border-color:#ffd5d5; color:#9b1c1c; }
 .alert--success{ background:#f0fff4; border-color:#c6f6d5; color:#166534; }
 
-/* ==== React Calendar – skin יפה ועדין ==== */
+/* 13) React Calendar – skin עדין */
 .calendar-wrapper { max-width: 760px; margin: 0 auto var(--space-6); }
 .react-calendar{
-  width:100%; background:#fff; border:1px solid var(--line);
-  border-radius: var(--radius); box-shadow: var(--shadow-sm);
+  width:100%;
+  background: transparent !important;    /* שקוף – בלי “כרטיס” */
+  border:0 !important;
+  box-shadow:none !important;
   font-family: var(--font-sans);
 }
 .react-calendar__navigation{ display:flex; gap:.25rem; padding:.25rem; }
@@ -208,3 +199,32 @@ label{ display:block; font-size:.95rem; color:var(--ink-2); margin-bottom:.35rem
 .react-calendar__tile:enabled:hover{ background:#f0f7fd; }
 .react-calendar__tile--active{ background:var(--brand); color:#fff; }
 .react-calendar__tile--now{ background:#fff8e7; }
+
+/* ===========================================================
+   Flat surfaces – מבטל מסגרות/כרטיסים כדי לקבל רקע חלק
+   =========================================================== */
+
+/* מבטל רקעים/גבולות/צללים של מעטפות נפוצות שיוצרות “ריבוע” */
+.app-container,
+.page, .page-container, .content, .wrapper, .section, .container,
+.card,
+.calendar-wrapper,
+.react-calendar {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+/* אם כן תרצי כרטיס לבן נקודתי – השתמשי במחלקה הזו במקום .card */
+.surface{
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  padding: var(--space-6);
+}
+.surface--elev{ box-shadow: var(--shadow-md); }
+
+/* אופציונלי: קו הפרדה רך לאזורים ספציפיים */
+.divider{ height:1px; background: var(--line); opacity:.6; }
+

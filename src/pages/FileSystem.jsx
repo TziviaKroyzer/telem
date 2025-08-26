@@ -311,7 +311,7 @@ export default function FileSystem() {
         <button
           key={b.id}
           className="btn btn--ghost"
-          onClick={() => enterFolder(b.id)}
+          onClick={() => enterFolder(כb.id)}
           disabled={i === breadcrumb.length - 1}
           title={b.name}
           onDrop={(e) => handleDrop(e, b.id)}
