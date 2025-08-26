@@ -1,25 +1,32 @@
 /* ============== Design System: Tablet-first (RTL) ============== */
 
 /* 1) Tokens */
-:root{
+:root {
   /* צבעים */
-  --brand:        #6EC8F1;   /* תכלת */
-  --brand-600:    #58BAE4;   /* תכלת כהה */
-  --brand-700:    #3fa8d6;
-  --accent:       #F4A63F;   /* כתום דבש */
-  --ink:          #0f172a;   /* טקסט ראשי */
-  --ink-2:        #334155;   /* טקסט משני */
-  --line:         #e2e8f0;   /* קווי מתאר */
-  --bg-page:      #EAF6FF;   /* ← רקע אחיד לכל האתר */
+  --brand: #6EC8F1;
+  /* תכלת */
+  --brand-600: #58BAE4;
+  /* תכלת כהה */
+  --brand-700: #3fa8d6;
+  --accent: #F4A63F;
+  /* כתום דבש */
+  --ink: #0f172a;
+  /* טקסט ראשי */
+  --ink-2: #334155;
+  /* טקסט משני */
+  --line: #e2e8f0;
+  /* קווי מתאר */
+  --bg-page: #EAF6FF;
+  /* ← רקע אחיד לכל האתר */
   /* --bg-page-grad: linear-gradient(145deg,#f7fafd,#e6f3fa);  // אם תרצי לחזור לגרדיאנט */
 
-  --bg-card:      #ffffff;
-  --success:      #16a34a;
-  --danger:       #dc2626;
-  --warning:      #d97706;
+  --bg-card: #ffffff;
+  --success: #16a34a;
+  --danger: #dc2626;
+  --warning: #d97706;
 
   /* טיפוגרפיה */
-  --font-sans: "Heebo","Rubik","Assistant",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  --font-sans: "Heebo", "Rubik", "Assistant", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 
   /* רדיוסים וריווחים */
   --radius: 14px;
@@ -33,21 +40,30 @@
   --space-8: 2rem;
 
   /* צללים */
-  --shadow-sm: 0 2px 10px rgba(0,0,0,.06);
-  --shadow-md: 0 6px 18px rgba(0,0,0,.10);
-  --shadow-lg: 0 10px 28px rgba(0,0,0,.12);
+  --shadow-sm: 0 2px 10px rgba(0, 0, 0, .06);
+  --shadow-md: 0 6px 18px rgba(0, 0, 0, .10);
+  --shadow-lg: 0 10px 28px rgba(0, 0, 0, .12);
 
   /* רוחבי קונטיינר לטאבלט */
   --container: min(100%, 980px);
 }
 
 /* 2) Reset עדין + RTL */
-*{ box-sizing:border-box; }
-html,body,#root{ height:100%; }
-body{
-  margin:0;
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
   direction: rtl;
-  background: var(--bg-page) !important; /* רקע אחיד */
+  background: var(--bg-page) !important;
+  /* רקע אחיד */
   color: var(--ink);
   font-family: var(--font-sans);
   font-size: 16px;
@@ -55,150 +71,334 @@ body{
 }
 
 /* 3) קונטיינר גלובלי */
-.app-container{
+.app-container {
   width: var(--container);
   margin-inline: auto;
   padding: var(--space-6);
 }
 
 /* 4) טיפוגרפיה בסיסית */
-h1,h2,h3{ margin: 0 0 .6em; font-weight:700; color: var(--ink); }
-h1{ font-size: clamp(1.6rem, 2.5vw, 2rem); }
-h2{ font-size: clamp(1.3rem, 2vw, 1.6rem); }
-h3{ font-size: clamp(1.15rem, 1.6vw, 1.25rem); }
-p{ margin: 0 0 .8em; color: var(--ink-2); }
+h1,
+h2,
+h3 {
+  margin: 0 0 .6em;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+h1 {
+  font-size: clamp(1.6rem, 2.5vw, 2rem);
+}
+
+h2 {
+  font-size: clamp(1.3rem, 2vw, 1.6rem);
+}
+
+h3 {
+  font-size: clamp(1.15rem, 1.6vw, 1.25rem);
+}
+
+p {
+  margin: 0 0 .8em;
+  color: var(--ink-2);
+}
 
 /* 5) כפתורים */
-.btn{
-  display:inline-flex; align-items:center; justify-content:center;
-  gap:.5rem;
-  border:1px solid transparent;
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .5rem;
+  border: 1px solid transparent;
   background: var(--brand);
-  color:#fff;
+  color: #fff;
   padding: .65rem 1rem;
   border-radius: 12px;
-  font-weight:600;
-  cursor:pointer;
+  font-weight: 600;
+  cursor: pointer;
   box-shadow: var(--shadow-sm);
   transition: transform .12s ease, background .2s ease, box-shadow .2s ease;
 }
-.btn:hover{ background: var(--brand-600); box-shadow: var(--shadow-md); transform: translateY(-1px);}
-.btn:active{ transform: translateY(0); }
-.btn:disabled{ opacity:.7; cursor:not-allowed; }
-.btn--ghost{ background:#fff; color: var(--ink); border-color: var(--line); }
-.btn--accent{ background: var(--accent); }
-.btn--danger{ background: var(--danger); }
-.btn--pill{ border-radius:999px; }
+
+.btn:hover {
+  background: var(--brand-600);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+
+.btn:active {
+  transform: translateY(0);
+}
+
+.btn:disabled {
+  opacity: .7;
+  cursor: not-allowed;
+}
+
+.btn--ghost {
+  background: #fff;
+  color: var(--ink);
+  border-color: var(--line);
+}
+
+.btn--accent {
+  background: var(--accent);
+}
+
+.btn--danger {
+  background: var(--danger);
+}
+
+.btn--pill {
+  border-radius: 999px;
+}
 
 /* 6) שדות טפסים */
-.input, .select-input, .textarea-input{
-  width:100%;
-  background:#f9fbfd;
-  border:1px solid var(--line);
+.input,
+.select-input,
+.textarea-input {
+  width: 100%;
+  background: #f9fbfd;
+  border: 1px solid var(--line);
   border-radius: 10px;
-  padding:.65rem .9rem;
-  font-size:1rem;
+  padding: .65rem .9rem;
+  font-size: 1rem;
   color: var(--ink);
-  outline:none;
+  outline: none;
   transition: border-color .15s ease, box-shadow .15s ease;
 }
-.input:focus, .select-input:focus, .textarea-input:focus{
+
+.input:focus,
+.select-input:focus,
+.textarea-input:focus {
   border-color: var(--brand);
-  box-shadow: 0 0 0 3px rgba(110,200,241,.25);
+  box-shadow: 0 0 0 3px rgba(110, 200, 241, .25);
 }
-label{ display:block; font-size:.95rem; color:var(--ink-2); margin-bottom:.35rem; }
+
+.input.hidden {
+  display: none !important;
+}
+
+label {
+  display: block;
+  font-size: .95rem;
+  color: var(--ink-2);
+  margin-bottom: .35rem;
+}
 
 /* 7) גריד לטפסים – Tablet-first */
-.form-grid{ display:grid; grid-template-columns: 1fr; gap: var(--space-5); }
-@media (min-width: 720px){
-  .form-grid--2{ grid-template-columns: 1fr 1fr; }
-  .form-grid--3{ grid-template-columns: 1fr 1fr 1fr; }
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-5);
+}
+
+@media (min-width: 720px) {
+  .form-grid--2 {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .form-grid--3 {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
 }
 
 /* 8) תפריט עליון */
-.site-header{
-  position: sticky; top:0; inset-inline:0;
-  background: transparent !important;  /* שקוף כדי שלא ייווצר “פס” */
+.site-header {
+  position: sticky;
+  top: 0;
+  inset-inline: 0;
+  background: transparent !important;
+  /* שקוף כדי שלא ייווצר “פס” */
   border-bottom: 0 !important;
   box-shadow: none !important;
-  z-index:1000;
+  z-index: 1000;
 }
-.site-nav{
+
+.site-nav {
   width: var(--container);
-  margin-inline:auto;
-  display:flex; align-items:center; justify-content:space-between;
+  margin-inline: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   padding: .6rem var(--space-6);
 }
-.nav-links{ display:flex; gap:.6rem; flex-wrap:wrap; }
-.nav-link{
-  display:inline-flex; align-items:center; gap:.4rem;
-  padding:.5rem .75rem;
+
+.nav-links {
+  display: flex;
+  gap: .6rem;
+  flex-wrap: wrap;
+}
+
+.nav-link {
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  padding: .5rem .75rem;
   border-radius: 10px;
-  text-decoration:none; color: var(--ink);
+  text-decoration: none;
+  color: var(--ink);
   transition: background .15s ease, color .15s ease;
 }
-.nav-link:hover{ background:#f6f9fc; color:#0b1220; }
-.nav-link--cta{ background: var(--brand); color:#fff; }
-.nav-link--cta:hover{ background: var(--brand-600); }
+
+.nav-link:hover {
+  background: #f6f9fc;
+  color: #0b1220;
+}
+
+.nav-link--cta {
+  background: var(--brand);
+  color: #fff;
+}
+
+.nav-link--cta:hover {
+  background: var(--brand-600);
+}
 
 /* 9) מודאלים */
-.modal-backdrop{
-  position:fixed; inset:0; background:rgba(15,23,42,.4);
-  display:flex; align-items:center; justify-content:center;
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, .4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
   z-index: 1100;
 }
-.modal{
-  width:min(92vw, 640px);
-  background:#fff; border:1px solid var(--line);
+
+.modal {
+  width: min(92vw, 640px);
+  background: #fff;
+  border: 1px solid var(--line);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-lg);
   padding: var(--space-6);
 }
 
 /* 10) עזרי פריסה */
-.stack{ display:flex; flex-direction:column; gap: var(--space-4); }
-.row{ display:flex; align-items:center; gap: var(--space-3); flex-wrap:wrap; }
-.center{ display:flex; align-items:center; justify-content:center; }
-.muted{ color: var(--ink-2); }
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
 
-.logo{ max-width: 120px; display:block; margin: 12px auto; }
-.p-6{ padding: var(--space-6); }
-.login-page{ background: var(--bg-page); }
+.row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.muted {
+  color: var(--ink-2);
+}
+
+.logo {
+  max-width: 120px;
+  display: block;
+  margin: 12px auto;
+}
+
+.p-6 {
+  padding: var(--space-6);
+}
+
+.login-page {
+  background: var(--bg-page);
+}
 
 /* 11) כפתור בית צף */
-.fab-home{
+.fab-home {
   background: var(--brand) !important;
   box-shadow: var(--shadow-md) !important;
 }
-.fab-home:hover{ background: var(--brand-600) !important; }
+
+.fab-home:hover {
+  background: var(--brand-600) !important;
+}
 
 /* 12) פידבק */
-.alert{ padding:.8rem 1rem; border-radius: 10px; border:1px solid var(--line); }
-.alert--danger{ background:#fff1f1; border-color:#ffd5d5; color:#9b1c1c; }
-.alert--success{ background:#f0fff4; border-color:#c6f6d5; color:#166534; }
+.alert {
+  padding: .8rem 1rem;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+}
+
+.alert--danger {
+  background: #fff1f1;
+  border-color: #ffd5d5;
+  color: #9b1c1c;
+}
+
+.alert--success {
+  background: #f0fff4;
+  border-color: #c6f6d5;
+  color: #166534;
+}
 
 /* 13) React Calendar – skin עדין */
-.calendar-wrapper { max-width: 760px; margin: 0 auto var(--space-6); }
-.react-calendar{
-  width:100%;
-  background: transparent !important;    /* שקוף – בלי “כרטיס” */
-  border:0 !important;
-  box-shadow:none !important;
+.calendar-wrapper {
+  max-width: 760px;
+  margin: 0 auto var(--space-6);
+}
+
+.react-calendar {
+  width: 100%;
+  background: transparent !important;
+  /* שקוף – בלי “כרטיס” */
+  border: 0 !important;
+  box-shadow: none !important;
   font-family: var(--font-sans);
 }
-.react-calendar__navigation{ display:flex; gap:.25rem; padding:.25rem; }
-.react-calendar__navigation button{
-  min-height:44px; border-radius:10px; border:1px solid transparent;
-  background:#f6f9fc; transition:background .2s ease, border-color .2s ease;
+
+.react-calendar__navigation {
+  display: flex;
+  gap: .25rem;
+  padding: .25rem;
 }
-.react-calendar__navigation button:hover{ background:#eef5fb; }
-.react-calendar__month-view__weekdays{ text-align:center; font-weight:700; color:var(--ink-2); }
-.react-calendar__tile{
-  padding:.75rem .25rem; border-radius:8px; transition:background .15s ease,color .15s ease;
+
+.react-calendar__navigation button {
+  min-height: 44px;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  background: #f6f9fc;
+  transition: background .2s ease, border-color .2s ease;
 }
-.react-calendar__tile:enabled:hover{ background:#f0f7fd; }
-.react-calendar__tile--active{ background:var(--brand); color:#fff; }
-.react-calendar__tile--now{ background:#fff8e7; }
+
+.react-calendar__navigation button:hover {
+  background: #eef5fb;
+}
+
+.react-calendar__month-view__weekdays {
+  text-align: center;
+  font-weight: 700;
+  color: var(--ink-2);
+}
+
+.react-calendar__tile {
+  padding: .75rem .25rem;
+  border-radius: 8px;
+  transition: background .15s ease, color .15s ease;
+}
+
+.react-calendar__tile:enabled:hover {
+  background: #f0f7fd;
+}
+
+.react-calendar__tile--active {
+  background: var(--brand);
+  color: #fff;
+}
+
+.react-calendar__tile--now {
+  background: #fff8e7;
+}
 
 /* ===========================================================
    Flat surfaces – מבטל מסגרות/כרטיסים כדי לקבל רקע חלק
@@ -206,7 +406,12 @@ label{ display:block; font-size:.95rem; color:var(--ink-2); margin-bottom:.35rem
 
 /* מבטל רקעים/גבולות/צללים של מעטפות נפוצות שיוצרות “ריבוע” */
 .app-container,
-.page, .page-container, .content, .wrapper, .section, .container,
+.page,
+.page-container,
+.content,
+.wrapper,
+.section,
+.container,
 .card,
 .calendar-wrapper,
 .react-calendar {
@@ -216,15 +421,21 @@ label{ display:block; font-size:.95rem; color:var(--ink-2); margin-bottom:.35rem
 }
 
 /* אם כן תרצי כרטיס לבן נקודתי – השתמשי במחלקה הזו במקום .card */
-.surface{
+.surface {
   background: var(--bg-card);
   border: 1px solid var(--line);
   border-radius: var(--radius);
   box-shadow: var(--shadow-sm);
   padding: var(--space-6);
 }
-.surface--elev{ box-shadow: var(--shadow-md); }
+
+.surface--elev {
+  box-shadow: var(--shadow-md);
+}
 
 /* אופציונלי: קו הפרדה רך לאזורים ספציפיים */
-.divider{ height:1px; background: var(--line); opacity:.6; }
-
+.divider {
+  height: 1px;
+  background: var(--line);
+  opacity: .6;
+}

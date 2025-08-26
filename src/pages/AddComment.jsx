@@ -198,8 +198,6 @@ const AddComment = () => {
       </form>
 
       {showModal && <ConfirmationModal onClose={closeModal} />}
-
-     
     </div>
   );
 };
