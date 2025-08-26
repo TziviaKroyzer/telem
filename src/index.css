@@ -383,12 +383,17 @@ label {
 
 .react-calendar__tile {
   padding: .75rem .25rem;
-  border-radius: 8px;
+  border-radius: 0;
+  /* מבטל עיגול פינות – שיהיה ריבוע */
+  border: 1px solid #e0e0e0;
+  background: #f9fbfd;
+  /* מסגרת אפורה בהירה */
   transition: background .15s ease, color .15s ease;
 }
 
+
 .react-calendar__tile:enabled:hover {
-  background: #f0f7fd;
+  background: var(--brand);
 }
 
 .react-calendar__tile--active {
@@ -397,7 +402,7 @@ label {
 }
 
 .react-calendar__tile--now {
-  background: #fff8e7;
+  background: var(--accent);
 }
 
 /* ===========================================================
