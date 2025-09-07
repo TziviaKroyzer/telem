@@ -20,18 +20,6 @@ import {
 } from "firebase/storage";
 import { db, storage } from "../firebase";
 
-/**
- * סכימת מסמך בקולקציית "files":
- * - name: string
- * - type: "folder" | "file"
- * - parentId: "root" | <folderId>
- * - userId: uid
- * - url: string (לקובץ)
- * - storagePath: string (נתיב ב-Storage, לקבצים)
- * - size: number (bytes)
- * - mimeType: string
- * - createdAt, updatedAt: serverTimestamp()
- */
 
 export default function FileSystem() {
   const [user, setUser] = useState(() => getAuth().currentUser);
@@ -47,17 +35,18 @@ export default function FileSystem() {
 
   const [renamingId, setRenamingId] = useState(null);
   const [newName, setNewName] = useState("");
+  const [loadingItems, setLoadingItems] = useState(false);
+  const [uploading, setUploading] = useState(false);
 
-  const userFilter = useMemo(
-    () => (user ? where("userId", "==", user.uid) : null),
-    [user]
-  );
+
 
   const formatFileSize = (bytes) => {
     if (bytes === undefined || bytes === null) return "";
     const k = 1024;
     const sizes = ["Bytes", "KB", "MB", "GB", "TB"];
+    if (bytes === 0) return "0 Bytes";
     const i = Math.floor(Math.log(bytes) / Math.log(k));
+
     return `${(bytes / Math.pow(k, i)).toFixed(2)} ${sizes[i]}`;
   };
 
@@ -76,41 +65,45 @@ export default function FileSystem() {
     return trail;
   };
 
-  const fetchItems = async () => {
-    if (!user) return;
-    try {
-      if (search.trim()) {
-        // חיפוש גלובלי של הפריטים של המשתמש
-        const qAll = query(collection(db, "files"), userFilter);
-        const snap = await getDocs(qAll);
-        const all = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
-        const filtered = all.filter((i) =>
-          (i.name || "").toLowerCase().includes(search.trim().toLowerCase())
-        );
-        filtered.sort((a, b) => {
-          if (a.type !== b.type) return a.type === "folder" ? -1 : 1;
-          return (a.name || "").localeCompare(b.name || "", "he");
-        });
-        setItems(filtered);
-      } else {
-        // תוכן התיקיה הנוכחית
-        const q = query(
-          collection(db, "files"),
-          userFilter,
-          where("parentId", "==", currentFolder)
-        );
-        const snap = await getDocs(q);
-        const list = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
-        list.sort((a, b) => {
-          if (a.type !== b.type) return a.type === "folder" ? -1 : 1;
-          return (a.name || "").localeCompare(b.name || "", "he");
-        });
-        setItems(list);
+const fetchItems = async () => {
+  setLoadingItems(true);
+  try {
+    let snap;
+    if (search.trim()) {
+      const searchText = search.trim();
+      if (!searchText) {
+        setItems([]);
+        return;
       }
-    } catch (e) {
-      console.error(e);
+      const qAll = query(
+        collection(db, "files"),
+        where("name", ">=", searchText),
+        where("name", "<=", searchText + "\uf8ff")
+      );
+      snap = await getDocs(qAll);
+    } else {
+      const q = query(
+        collection(db, "files"),
+        where("parentId", "==", currentFolder)
+      );
+      snap = await getDocs(q);
     }
-  };
+
+    const list = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+    list.sort((a, b) => {
+      if (a.type !== b.type) return a.type === "folder" ? -1 : 1;
+      return (a.name || "").localeCompare(b.name || "", "he");
+    });
+    setItems(list);
+  } catch (e) {
+    console.error(e);
+  } finally {
+    setLoadingItems(false);
+  }
+};
+
+
+
 
   useEffect(() => {
     fetchItems();
@@ -123,7 +116,7 @@ export default function FileSystem() {
     setCurrentFolder(folderId);
   };
 
-  // הוספת תיקיה
+
   const addFolder = async () => {
     if (!user) return alert("אין משתמש מחובר");
     const name = prompt("שם תיקיה חדש:");
@@ -139,13 +132,16 @@ export default function FileSystem() {
     fetchItems();
   };
 
-  // העלאת כמה קבצים יחד
+ 
   const uploadFile = () => {
-    if (!user) return alert("אין משתמש מחובר");
-    const input = document.createElement("input");
-    input.type = "file";
-    input.multiple = true; // חדש: העלאת כמה קבצים
-    input.onchange = async () => {
+  if (!user) return alert("אין משתמש מחובר");
+  const input = document.createElement("input");
+  input.type = "file";
+  input.multiple = true;
+
+  input.onchange = async () => {
+    setUploading(true);
+    try {
       const files = Array.from(input.files || []);
       if (!files.length) return;
 
@@ -161,7 +157,7 @@ export default function FileSystem() {
           name: file.name,
           type: "file",
           url,
-          storagePath: path, // נשמור את הנתיב המקורי
+          storagePath: path,
           parentId: currentFolder,
           userId: user.uid,
           size: file.size,
@@ -171,12 +167,19 @@ export default function FileSystem() {
         });
       }
 
-      fetchItems();
-    };
-    input.click();
+      fetchItems(); 
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setUploading(false);
+    }
   };
 
-  // גרירה ושחרור – העברת פריט בין תיקיות/פירורי-לחם
+  input.click();
+};
+
+
+
   const handleDrop = async (e, targetFolderId) => {
     e.preventDefault();
     const itemId = e.dataTransfer.getData("text/plain");
@@ -188,7 +191,6 @@ export default function FileSystem() {
     fetchItems();
   };
 
-  // הורדה בטוחה עם fallback
   const fallbackDownload = (item) => {
     const a = document.createElement("a");
     a.href = item.url;
@@ -199,67 +201,25 @@ export default function FileSystem() {
     document.body.removeChild(a);
   };
 
-  const downloadFile = async (item, e) => {
-    e.stopPropagation();
-    if (!item.url) return;
-    const isImage = /\.(jpg|jpeg|png|gif|bmp|webp)$/i.test(item.name);
-    try {
-      if (isImage) {
-        const img = new Image();
-        img.crossOrigin = "anonymous";
-        await new Promise((res, rej) => {
-          img.onload = res;
-          img.onerror = rej;
-          img.src = item.url;
-        });
-        const canvas = document.createElement("canvas");
-        canvas.width = img.width;
-        canvas.height = img.height;
-        const ctx = canvas.getContext("2d");
-        ctx.drawImage(img, 0, 0);
-        const blob = await new Promise((res) => canvas.toBlob(res));
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = item.name;
-        document.body.appendChild(a);
-        a.click();
-        URL.revokeObjectURL(url);
-        document.body.removeChild(a);
-      } else {
-        const res = await fetch(item.url);
-        const blob = await res.blob();
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = item.name;
-        document.body.appendChild(a);
-        a.click();
-        URL.revokeObjectURL(url);
-        document.body.removeChild(a);
-      }
-    } catch {
-      fallbackDownload(item);
-    }
-  };
 
-  // מחיקה רקורסיבית (עדיפות ל-storagePath, אחרת fallback מ-URL)
+
   const deleteRecursively = async (itemId) => {
     const snap = await getDoc(doc(db, "files", itemId));
     if (!snap.exists()) return;
     const data = snap.data();
 
-    if (data.type === "folder") {
-      const q = query(
-        collection(db, "files"),
-        where("parentId", "==", itemId),
-        userFilter
-      );
-      const children = await getDocs(q);
-      for (const c of children.docs) {
-        await deleteRecursively(c.id);
-      }
+    if (!user) return;
+    const q = query(
+      collection(db, "files"),
+      where("parentId", "==", itemId)
+    );
+
+
+    const children = await getDocs(q);
+    for (const c of children.docs) {
+      await deleteRecursively(c.id);
     }
+
 
     if (data.type === "file") {
       try {
@@ -315,18 +275,23 @@ export default function FileSystem() {
       style={{ gap: 8, flexWrap: "wrap", alignItems: "center" }}
     >
       {breadcrumb.map((b, i) => (
-        <button
-          key={b.id}
-          className="btn btn--ghost"
-          onClick={() => enterFolder(כb.id)}
-          disabled={i === breadcrumb.length - 1}
-          title={b.name}
-          onDrop={(e) => handleDrop(e, b.id)}
-          onDragOver={(e) => e.preventDefault()}
-        >
-          {b.name}
-        </button>
-      ))}
+  <React.Fragment key={b.id}>
+    <button
+      className="btn btn--ghost"
+      onClick={() => enterFolder(b.id)}
+      disabled={i === breadcrumb.length - 1}
+      title={b.name}
+      onDrop={(e) => i !== breadcrumb.length - 1 && handleDrop(e, b.id)}
+      onDragOver={(e) => e.preventDefault()}
+    >
+      {b.name}
+    </button>
+    {i < breadcrumb.length - 1 && (
+      <span style={{ margin: "0 6px" }}>{"/"}</span>
+    )}
+  </React.Fragment>
+))}
+
     </div>
   );
 
@@ -376,8 +341,12 @@ export default function FileSystem() {
       </div>
 
       <div className="stack" style={{ gap: 8 }}>
-        {items.length === 0 ? (
-          <div className="card empty center">אין קבצים או תיקיות</div>
+  {loadingItems ? (
+    <div className="card center">טוען קבצים...</div>
+  ) : uploading ? (
+    <div className="card center accent">טוען קובץ...</div>
+  ) : items.length === 0 ? (
+    <div className="card empty center">אין קבצים או תיקיות</div>
         ) : (
           items.map((item) => (
             <div
@@ -434,15 +403,6 @@ export default function FileSystem() {
                 </div>
 
                 <div className="row" style={{ gap: 6 }}>
-                  {item.type === "file" && (
-                    <button
-                      className="btn"
-                      onClick={(e) => downloadFile(item, e)}
-                      title="הורדה"
-                    >
-                      הורדה
-                    </button>
-                  )}
                   {renamingId === item.id ? (
                     <>
                       <button className="btn" onClick={saveRename}>
