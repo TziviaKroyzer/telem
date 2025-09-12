@@ -87,6 +87,7 @@ const Home = () => {
           <HomeButton text="אולמות" to="/halls" />
           <HomeButton text="מערכת קבצים" to="/fileSystem" />
           <HomeButton text="חיפוס" to="/searchPage" />
+          <HomeButton text="פרופיל" to="/profile" />
           {isAdmin && <HomeButton text="עריכה" to="/admin" />}
         </div>
       </div>

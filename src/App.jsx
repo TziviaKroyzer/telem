@@ -18,6 +18,7 @@ import HallReservation from "./pages/HallReservation";
 import FileSystem from "./pages/FileSystem";
 import SearchPage from "./pages/SearchPage";
 import AdminPanel from "./pages/AdminPanel";
+import Profile from "./pages/Profile";
 
 import FloatingHomeButton from "./components/FloatingHomeButton";
 import logo from "./assets/logo.webp";
@@ -33,7 +34,7 @@ const App = () => {
       <Router>
         {isAuthenticated && <TopMenu className="top-menu" />}
 
-       <div className="app-container">
+        <div className="app-container">
           <Routes>
             {/* Public */}
             {!isAuthenticated && (
@@ -55,6 +56,7 @@ const App = () => {
                 <Route path="/fileSystem" element={<FileSystem />} />
                 <Route path="/searchPage" element={<SearchPage />} />
                 <Route path="/admin" element={<AdminPanel />} />
+                <Route path="/profile" element={<Profile />} />
               </>
             )}
 
