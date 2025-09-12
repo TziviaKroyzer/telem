@@ -7,7 +7,7 @@ import {
   Route,
 } from "react-router-dom";
 
-import TopMenu from "./components/TopMenu";
+// import TopMenu from "./components/TopMenu";
 
 import Authentication from "./pages/Authentication";
 import Home from "./pages/Home";
@@ -22,7 +22,7 @@ import Profile from "./pages/Profile";
 
 import FloatingHomeButton from "./components/FloatingHomeButton";
 import logo from "./assets/logo.webp";
-import "./App.css";
+// import "./App.css";
 
 const App = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -32,7 +32,7 @@ const App = () => {
       <img src={logo} alt="Logo" className="logo" />
 
       <Router>
-        {isAuthenticated && <TopMenu className="top-menu" />}
+        {/* {isAuthenticated && <TopMenu className="top-menu" />} */}
 
         <div className="app-container">
           <Routes>
