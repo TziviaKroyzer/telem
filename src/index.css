@@ -351,7 +351,7 @@ label {
 .react-calendar {
   width: 100%;
   background: transparent !important;
-  /* שקוף – בלי “כרטיס” */
+
   border: 0 !important;
   box-shadow: none !important;
   font-family: var(--font-sans);
@@ -384,10 +384,10 @@ label {
 .react-calendar__tile {
   padding: .75rem .25rem;
   border-radius: 0;
-  /* מבטל עיגול פינות – שיהיה ריבוע */
+
   border: 1px solid #e0e0e0;
   background: #f9fbfd;
-  /* מסגרת אפורה בהירה */
+
   transition: background .15s ease, color .15s ease;
 }
 
@@ -404,6 +404,42 @@ label {
 .react-calendar__tile--now {
   background: var(--accent);
 }
+
+/* מרכז את היומן באמצע הדף */
+.calendar-container {
+  direction: rtl;
+  text-align: center;
+  max-width: 600px;
+  /* רוחב קבוע ליומן */
+  margin: 0 auto;
+  /* מרכז אופקי */
+  font-family: Arial, sans-serif;
+}
+
+/* תוכן התא */
+.tile-content {
+  font-size: 10px;
+  color: purple;
+}
+
+/* תאריך עברי */
+.tile-content .hebrew-date {
+  font-weight: normal;
+}
+
+/* חגים ושבתות מודגשים */
+.tile-content.holiday {
+  font-weight: bold;
+  color: red;
+}
+
+/* רשימת אירועים (חג או שבת) */
+.tile-content .events {
+  font-size: 8px;
+  color: darkred;
+}
+
+
 
 /* ===========================================================
    Flat surfaces – מבטל מסגרות/כרטיסים כדי לקבל רקע חלק
