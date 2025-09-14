@@ -68,8 +68,6 @@ const JewishCalendar = () => {
 
   return (
     <div style={{ direction: "rtl", textAlign: "center" }}>
-      <h2>📅 יומן עברי־לועזי עם חגים ושבתות</h2>
-
       <Calendar
         onChange={setDate}
         value={date}
