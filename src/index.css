@@ -580,3 +580,211 @@ label {
 .user-name {
   font-weight: 700;
 }
+
+/* ===========================================================
+   Calendar – Neo / Rounded Skin (RTL, Tablet-first)
+   שומר על הטוקנים שלך ומשדרג את הלוק
+   =========================================================== */
+
+/* מעטפת כללית ליומן */
+.calendar-container {
+  direction: rtl;
+  display: grid;
+  place-items: center;
+  padding: var(--space-6);
+}
+
+.calendar-card {
+  width: min(100%, 860px);
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  box-shadow: var(--shadow-lg);
+  padding: var(--space-6);
+}
+
+/* בסיס לריאקט-קלנדר */
+.calendar--kz {
+  width: 100%;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  font-family: var(--font-sans);
+}
+
+/* ניווט עליון – יותר “אפליקטיבי” */
+.calendar--kz .react-calendar__navigation {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding-bottom: var(--space-4);
+  border-bottom: 1px dashed rgba(0,0,0,.06);
+  margin-bottom: var(--space-4);
+}
+
+.calendar--kz .react-calendar__navigation button {
+  min-height: 40px;
+  padding: 0 .9rem;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: #f7fbff;
+  color: var(--ink);
+  font-weight: 600;
+  box-shadow: var(--shadow-sm);
+  transition: background .2s ease, transform .12s ease, box-shadow .2s ease;
+}
+
+.calendar--kz .react-calendar__navigation button:hover {
+  background: #eef7ff;
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+/* כותרות ימי השבוע – “פילים” רכים */
+.calendar--kz .react-calendar__month-view__weekdays {
+  text-align: center;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.calendar--kz .react-calendar__month-view__weekdays__weekday {
+  padding: .45rem .5rem;
+}
+
+.calendar--kz .react-calendar__month-view__weekdays__weekday abbr {
+  text-decoration: none;
+  display: inline-block;
+  padding: .25rem .7rem;
+  background: #f2f7fb;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  box-shadow: var(--shadow-sm);
+}
+
+/* רשת הימים – בלי קווים חזקים, עם ריווח ונשימה */
+.calendar--kz .react-calendar__viewContainer {
+  border: 0;
+  background: transparent;
+}
+
+/* אריחי ימים – כרטיסים עגולים עם הצללה רכה */
+.calendar--kz .react-calendar__tile {
+  position: relative;
+  margin: .35rem;
+  padding: 1rem .6rem .75rem;
+  background: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  box-shadow: var(--shadow-sm);
+  transition: transform .12s ease, box-shadow .2s ease, background .2s ease, color .2s ease;
+}
+
+.calendar--kz .react-calendar__tile:enabled:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  background: #f7fbff;
+}
+
+/* תוכן האריח – היררכיה מודרנית */
+.calendar--kz .tile-content {
+  display: grid;
+  grid-template-rows: auto auto auto;
+  justify-items: center;
+  gap: .35rem;
+  text-align: center;
+}
+
+.calendar--kz .tile-content .greg-day {
+  font-size: 1.25rem;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--ink);
+}
+
+.calendar--kz .tile-content .heb-date {
+  font-size: .8rem;
+  color: var(--ink-2);
+}
+
+/* תגית אירוע קטנה (חג/שבת) */
+.calendar--kz .tile-content .event-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--accent);
+  box-shadow: 0 0 0 2px #fff;
+}
+
+/* רשימת אירועים */
+.calendar--kz .tile-content .events {
+  margin-top: .25rem;
+  font-size: .7rem;
+  line-height: 1.2;
+  color: var(--ink-2);
+}
+
+/* מצב נבחר – גרדיאנט נקי */
+.calendar--kz .react-calendar__tile--active {
+  background: linear-gradient(135deg, var(--brand) 0%, var(--brand-600) 100%);
+  color: #fff;
+  border-color: transparent;
+  box-shadow: 0 6px 18px rgba(63,168,214,.25);
+}
+.calendar--kz .react-calendar__tile--hasActive {
+  background: linear-gradient(135deg, var(--brand) 0%, var(--brand-600) 100%);
+  color: #fff;
+}
+
+/* היום – טבעת הדגשה עדינה */
+.calendar--kz .react-calendar__tile.is-today {
+  box-shadow: inset 0 0 0 3px rgba(244,166,63,.7);
+}
+
+/* שבת/חג – רקע נעים, לא צועק */
+.calendar--kz .react-calendar__tile.is-shabbat {
+  background: #fff1f4;
+  border-color: #ffd6df;
+}
+.calendar--kz .react-calendar__tile.is-holiday {
+  background: #fff6e9;
+  border-color: #ffe0b8;
+}
+
+/* נגישות מקלדת */
+.calendar--kz .react-calendar__tile:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(110,200,241,.35);
+}
+
+/* תצוגות משנה (שנים/עשורים/מאות) */
+.calendar--kz .react-calendar__year-view .react-calendar__tile,
+.calendar--kz .react-calendar__decade-view .react-calendar__tile,
+.calendar--kz .react-calendar__century-view .react-calendar__tile {
+  border-radius: 14px;
+  margin: .4rem;
+  padding: 1rem .6rem;
+}
+
+/* מובייל/טאבלט */
+@media (max-width: 720px) {
+  .calendar-card { padding: var(--space-4); }
+  .calendar--kz .react-calendar__tile { margin: .25rem; padding: .8rem .45rem .6rem; }
+  .calendar--kz .tile-content .greg-day { font-size: 1.1rem; }
+  .calendar--kz .tile-content .heb-date { font-size: .72rem; }
+}
+
+/* ריבועיות לאריחים */
+.calendar--kz .react-calendar__month-view__days {
+  display: grid !important;
+  grid-template-columns: repeat(7, 1fr);
+}
+
+.calendar--kz .react-calendar__tile {
+  aspect-ratio: 1 / 1;      /* הופך כל אריח לריבוע */
+  padding: .6rem;           /* מרווח פנימי */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
