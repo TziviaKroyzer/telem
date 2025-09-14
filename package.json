@@ -10,6 +10,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@capacitor/cli": "^7.4.3",
+    "@capacitor/core": "^7.4.3",
     "@hebcal/core": "^5.10.1",
     "emailjs-com": "^3.2.0",
     "firebase": "^11.6.0",
