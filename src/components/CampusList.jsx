@@ -37,14 +37,29 @@ function CampusList() {
   };
 
   return (
-    <div className="card">
+    <section>
+      <style>{`
+        .admin-list{ list-style:none; margin:12px 0 0; padding:0; display:grid; gap:12px; }
+        .admin-row{
+          background: rgba(255,255,255,.9);
+          border:1px solid #e6eef6;
+          border-radius:16px;
+          padding:12px 16px;
+          display:flex; align-items:center; justify-content:space-between; gap:12px;
+          box-shadow:0 6px 18px rgba(15,23,42,.06);
+          transition: box-shadow .15s ease, transform .12s ease;
+        }
+        .admin-row:hover{ box-shadow:0 10px 26px rgba(15,23,42,.10); transform: translateY(-1px); }
+        .admin-actions{ display:flex; gap:10px; flex-wrap:wrap; }
+      `}</style>
+
       <h2>רשימת קמפוסים קיימים</h2>
 
-      <ul className="stack" style={{ marginTop: "12px" }}>
+      <ul className="admin-list">
         {campuses.map((c) => (
-          <li key={c.id} className="card" style={{ padding: "12px" }}>
+          <li key={c.id} className="admin-row">
             {editId === c.id ? (
-              <div className="form-grid form-grid--3">
+              <div className="form-grid form-grid--3" style={{ width: "100%" }}>
                 <div>
                   <label>שם</label>
                   <input
@@ -69,21 +84,21 @@ function CampusList() {
                 </div>
               </div>
             ) : (
-              <div className="row" style={{ justifyContent: "space-between" }}>
+              <>
                 <div>
                   <strong>{c.name}</strong>
                   {c.address ? ` · ${c.address}` : ""}
                 </div>
-                <div className="row">
+                <div className="admin-actions">
                   <button className="btn" onClick={() => startEdit(c)}>ערוך</button>
                   <button className="btn btn--danger" onClick={() => remove(c.id)}>מחק</button>
                 </div>
-              </div>
+              </>
             )}
           </li>
         ))}
       </ul>
-    </div>
+    </section>
   );
 }
 

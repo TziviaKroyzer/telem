@@ -1,4 +1,3 @@
-// src/pages/SearchPage.jsx
 import { useEffect, useState } from "react";
 import { db } from "../firebase";
 import { collection, query, where, getDocs } from "firebase/firestore";
@@ -99,41 +98,41 @@ export default function SearchPage() {
         <form onSubmit={handleSearch} className="form-grid form-grid--3">
           <div>
             <label>מתאריך</label>
-            <input type="date" className="input" value={startDate} onChange={(e)=>setStartDate(e.target.value)} />
+            <input type="date" className="input" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
           </div>
           <div>
             <label>עד תאריך</label>
-            <input type="date" className="input" value={endDate} onChange={(e)=>setEndDate(e.target.value)} />
+            <input type="date" className="input" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
           </div>
           <div>
             <label>לפי משתמש</label>
-            <select className="select-input" value={selectedUser} onChange={(e)=>setSelectedUser(e.target.value)}>
+            <select className="select-input" value={selectedUser} onChange={(e) => setSelectedUser(e.target.value)}>
               <option value="">-- כל המשתמשים --</option>
-              {users.map((u)=>(
+              {users.map((u) => (
                 <option key={u.id} value={`/users/${u.id}`}>
-                  {(u.firstName?`${u.firstName} `:"")+(u.lastName||u.name||u.email||u.id)}
+                  {(u.firstName ? `${u.firstName} ` : "") + (u.lastName || u.name || u.email || u.id)}
                 </option>
               ))}
             </select>
           </div>
           <div>
             <label>סוג הערה</label>
-            <select className="select-input" value={selectedNoteType} onChange={(e)=>setSelectedNoteType(e.target.value)}>
+            <select className="select-input" value={selectedNoteType} onChange={(e) => setSelectedNoteType(e.target.value)}>
               <option value="">-- כל הסוגים --</option>
-              {noteTypes.map((t)=>(<option key={t.id} value={t.id}>{t.name||t.id}</option>))}
+              {noteTypes.map((t) => (<option key={t.id} value={t.id}>{t.name || t.id}</option>))}
             </select>
           </div>
           <div>
             <label>קמפוס</label>
-            <select className="select-input" value={selectedCampus} onChange={(e)=>setSelectedCampus(e.target.value)}>
+            <select className="select-input" value={selectedCampus} onChange={(e) => setSelectedCampus(e.target.value)}>
               <option value="">-- כל הקמפוסים --</option>
-              {campuses.map((c)=>(<option key={c.id} value={c.id}>{c.name||c.id}</option>))}
+              {campuses.map((c) => (<option key={c.id} value={c.id}>{c.name || c.id}</option>))}
             </select>
           </div>
           <div>
             <label>טקסט חופשי</label>
             <input type="text" className="input" value={searchText}
-                   onChange={(e)=>setSearchText(e.target.value)} placeholder="חפש לפי תוכן ההערה..." />
+              onChange={(e) => setSearchText(e.target.value)} placeholder="חפש לפי תוכן ההערה..." />
           </div>
 
           <div className="row" style={{ gridColumn: "1 / -1", marginTop: 8 }}>
@@ -144,16 +143,16 @@ export default function SearchPage() {
       </div>
 
       <div className="stack">
-        {comments.map((c)=>(
-          <div key={c.id} className="card" style={{cursor:"pointer"}} onClick={()=>openModal(c)}>
-            <p>{(c.noteText||"").substring(0,120)}...</p>
+        {comments.map((c) => (
+          <div key={c.id} className="search-result" style={{ cursor: "pointer" }} onClick={() => openModal(c)}>
+            <p>{(c.noteText || "").substring(0, 120)}...</p>
           </div>
         ))}
       </div>
 
       {isModalOpen && selectedComment && (
         <div className="modal-backdrop" onClick={closeModal}>
-          <div className="modal" onClick={(e)=>e.stopPropagation()}>
+          <div className="modal" onClick={(e) => e.stopPropagation()}>
             <h3>פרטי ההערה</h3>
             <p><strong>תאריך:</strong> {selectedComment.date}</p>
             <p><strong>משתמש:</strong> {userMap[selectedComment.createdBy] || selectedComment.createdBy}</p>
@@ -169,6 +168,23 @@ export default function SearchPage() {
           </div>
         </div>
       )}
+
+      {/* הסטייל ישירות בתוך הקובץ */}
+      <style>{`
+        .search-result {
+          background: #ffffff; /* רקע לבן */
+          opacity: 0.9; /* שקיפות קלה */
+          border-radius: 10px;
+          padding: 1rem;
+          margin-bottom: 1rem;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+          transition: background 0.3s ease;
+        }
+
+        .search-result:hover {
+          background: #f0f7fd;
+        }
+      `}</style>
     </div>
   );
 }
