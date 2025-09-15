@@ -127,11 +127,43 @@ export default function UserCommentsList() {
       )}
 
       {/* פופ-אפ */}
+
       {selectedComment && (
         <div className="popup-overlay" onClick={() => setSelectedComment(null)}>
           <div className="popup-content" onClick={(e) => e.stopPropagation()}>
             <h3>תוכן ההערה</h3>
-            <p>{selectedComment.noteText}</p>
+
+            {/* טקסט ההערה */}
+            {selectedComment.noteText && <p>{selectedComment.noteText}</p>}
+
+            {/* אם יש תמונה */}
+            {selectedComment.imageUrl && (
+              <div className="note-image">
+                <img
+                  src={selectedComment.imageUrl}
+                  alt="קובץ מצורף"
+                  style={{
+                    maxWidth: "100%",
+                    borderRadius: "8px",
+                    marginTop: "10px",
+                  }}
+                />
+              </div>
+            )}
+
+            {/* אם יש קובץ (PDF, Word וכו') */}
+            {selectedComment.fileUrl && (
+              <div className="note-file">
+                <a
+                  href={selectedComment.fileUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  הורד קובץ מצורף
+                </a>
+              </div>
+            )}
+
             <button onClick={() => setSelectedComment(null)}>סגור</button>
           </div>
         </div>
