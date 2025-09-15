@@ -13,6 +13,7 @@ const MAX_ATTEMPTS = 5;
 const Login = ({ onLoginSuccess = () => {} }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false); // <-- חדש
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -216,6 +217,30 @@ const Login = ({ onLoginSuccess = () => {} }) => {
   }
 
   .error-message{ color:#e76b6b; font-size:.9rem; margin-top:-.25rem; text-align:center; }
+  .password-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.toggle-password {
+  position: absolute;
+  right: 10px;
+  background: none;        /* בלי רקע */
+  border: none;            /* בלי מסגרת */
+  color: #6ec8f1;          /* צבע כחול תואם לעיצוב שלך */
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.2s;
+}
+
+.toggle-password:hover {
+  color: #58bae4;          /* טיפה כהה יותר כשעוברים עם העכבר */
+  text-decoration: underline;
+}
+
 `}</style>
 
       <div className="login-container">
@@ -234,15 +259,25 @@ const Login = ({ onLoginSuccess = () => {} }) => {
           </label>
 
           <label>
-            סיסמה
-            <input
-              type="password"
-              dir="ltr"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-          </label>
+  סיסמה
+  <div className="password-wrapper">
+    <input
+      type={showPassword ? "text" : "password"}   // ← כאן ההבדל
+      dir="ltr"
+      value={password}
+      onChange={(e) => setPassword(e.target.value)}
+      required
+    />
+    <button
+      type="button"
+      className="toggle-password"
+      onClick={() => setShowPassword(!showPassword)} // ← הופך בין הצגה/הסתרה
+    >
+      {showPassword ? "הסתר" : "הצג"}
+    </button>
+  </div>
+</label>
+
 
           {error && <p className="error-message">{error}</p>}
 

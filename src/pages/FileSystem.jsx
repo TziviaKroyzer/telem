@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState, useCallback } from "react";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import {
   addDoc,
@@ -64,8 +64,7 @@ export default function FileSystem() {
     trail.unshift({ id: "root", name: "ראשי" });
     return trail;
   };
-
-const fetchItems = async () => {
+const fetchItems = useCallback(async () => {
   setLoadingItems(true);
   try {
     let snap;
@@ -100,16 +99,17 @@ const fetchItems = async () => {
   } finally {
     setLoadingItems(false);
   }
-};
+}, [search, currentFolder]); // ← שימי לב, הוספתי תלות
 
 
 
 
-  useEffect(() => {
-    fetchItems();
-    buildBreadcrumb(currentFolder).then(setBreadcrumb);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentFolder, search, user]);
+
+ useEffect(() => {
+  fetchItems();
+  buildBreadcrumb(currentFolder).then(setBreadcrumb);
+}, [fetchItems, currentFolder, user]);
+
 
   const enterFolder = (folderId) => {
     setSearch("");
