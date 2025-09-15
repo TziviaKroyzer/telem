@@ -1,10 +1,10 @@
-// src/App.jsx
 import { useState } from "react";
 import {
   BrowserRouter as Router,
   Navigate,
   Routes,
   Route,
+  Link, // ✅ נצרף את Link
 } from "react-router-dom";
 
 // import TopMenu from "./components/TopMenu";
@@ -28,50 +28,51 @@ const App = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   return (
-    <>
-      <img src={logo} alt="Logo" className="logo" />
+    <Router>
+      {/* ✅ הלוגו עם קישור לעמוד הבית */}
+      <Link to="/" style={{ display: "inline-block", margin: "10px" }}>
+        <img src={logo} alt="Logo" className="logo" style={{ height: "50px", cursor: "pointer" }} />
+      </Link>
 
-      <Router>
-        {/* {isAuthenticated && <TopMenu className="top-menu" />} */}
+      {/* {isAuthenticated && <TopMenu className="top-menu" />} */}
 
-        <div className="app-container">
-          <Routes>
-            {/* Public */}
-            {!isAuthenticated && (
-              <Route
-                path="/login"
-                element={
-                  <Login onLoginSuccess={() => setIsAuthenticated(true)} />
-                }
-              />
-            )}
-
-            {/* Protected */}
-            {isAuthenticated && (
-              <>
-                <Route path="/" element={<Home />} />
-                <Route path="/addComment" element={<AddComment />} />
-                <Route path="/halls" element={<Halls />} />
-                <Route path="/hallReservation" element={<HallReservation />} />
-                <Route path="/fileSystem" element={<FileSystem />} />
-                <Route path="/searchPage" element={<SearchPage />} />
-                <Route path="/admin" element={<AdminPanel />} />
-                <Route path="/profile" element={<Profile />} />
-              </>
-            )}
-
-            {/* Fallback */}
+      <div className="app-container">
+        <Routes>
+          {/* Public */}
+          {!isAuthenticated && (
             <Route
-              path="*"
-              element={<Navigate to={isAuthenticated ? "/" : "/login"} />}
+              path="/login"
+              element={
+                <Login onLoginSuccess={() => setIsAuthenticated(true)} />
+              }
             />
-          </Routes>
-        </div>
+          )}
 
-        {/* כפתור חזרה גלובלי (מוסתר אוטומטית ב-/ ו-/login) */}
-        <FloatingHomeButton side="left" />
-      </Router>
-    </>
+          {/* Protected */}
+          {isAuthenticated && (
+            <>
+              <Route path="/" element={<Home />} />
+              <Route path="/addComment" element={<AddComment />} />
+              <Route path="/halls" element={<Halls />} />
+              <Route path="/hallReservation" element={<HallReservation />} />
+              <Route path="/fileSystem" element={<FileSystem />} />
+              <Route path="/searchPage" element={<SearchPage />} />
+              <Route path="/admin" element={<AdminPanel />} />
+              <Route path="/profile" element={<Profile />} />
+            </>
+          )}
+
+          {/* Fallback */}
+          <Route
+            path="*"
+            element={<Navigate to={isAuthenticated ? "/" : "/login"} />}
+          />
+        </Routes>
+      </div>
+
+      {/* כפתור חזרה גלובלי (מוסתר אוטומטית ב-/ ו-/login) */}
+      <FloatingHomeButton side="left" />
+    </Router>
   );
 };
 

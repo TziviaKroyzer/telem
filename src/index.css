@@ -46,6 +46,7 @@
 
   /* רוחבי קונטיינר לטאבלט */
   --container: min(100%, 980px);
+  margin-top: 40px;
 }
 
 /* 2) Reset עדין + RTL */
@@ -418,7 +419,18 @@ label {
   padding: 8px;
   border: 1px solid #ddd;
   border-radius: 8px;
+  overflow: hidden;
+  max-width: 100%;
 }
+
+.comments-list li span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 75%;
+  display: inline-block;
+}
+
 
 .comments-list li.done span {
   text-decoration: line-through;
@@ -445,23 +457,24 @@ label {
 
 .popup-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  inset: 0;
   background: rgba(0, 0, 0, 0.5);
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 1000;
+  padding: 16px;
 }
 
 .popup-content {
   background: white;
   padding: 20px;
   border-radius: 12px;
-  max-width: 400px;
-  width: 90%;
+  max-width: 480px;
+  width: 100%;
+  box-sizing: border-box;
+  overflow-wrap: break-word;
+  text-align: right;
 }
 
 .popup-content button {
