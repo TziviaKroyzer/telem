@@ -4,6 +4,7 @@ import { collection, getDocs } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
 import { db } from "../firebase"; // ← שימי לב למסלול
 
+
 const Halls = () => {
   const [halls, setHalls] = useState([]);
   const navigate = useNavigate();
