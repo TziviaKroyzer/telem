@@ -342,104 +342,6 @@ label {
   color: #166534;
 }
 
-/* 13) React Calendar – skin עדין */
-.calendar-wrapper {
-  max-width: 760px;
-  margin: 0 auto var(--space-6);
-}
-
-.react-calendar {
-  width: 100%;
-  background: transparent !important;
-
-  border: 0 !important;
-  box-shadow: none !important;
-  font-family: var(--font-sans);
-}
-
-.react-calendar__navigation {
-  display: flex;
-  gap: .25rem;
-  padding: .25rem;
-}
-
-.react-calendar__navigation button {
-  min-height: 44px;
-  border-radius: 10px;
-  border: 1px solid transparent;
-  background: #f6f9fc;
-  transition: background .2s ease, border-color .2s ease;
-}
-
-.react-calendar__navigation button:hover {
-  background: #eef5fb;
-}
-
-.react-calendar__month-view__weekdays {
-  text-align: center;
-  font-weight: 700;
-  color: var(--ink-2);
-}
-
-.react-calendar__tile {
-  padding: .75rem .25rem;
-  border-radius: 0;
-
-  border: 1px solid #e0e0e0;
-  background: #f9fbfd;
-
-  transition: background .15s ease, color .15s ease;
-}
-
-
-.react-calendar__tile:enabled:hover {
-  background: var(--brand);
-}
-
-.react-calendar__tile--active {
-  background: var(--brand);
-  color: #fff;
-}
-
-.react-calendar__tile--now {
-  background: var(--accent);
-}
-
-/* מרכז את היומן באמצע הדף */
-.calendar-container {
-  direction: rtl;
-  text-align: center;
-  max-width: 600px;
-  /* רוחב קבוע ליומן */
-  margin: 0 auto;
-  /* מרכז אופקי */
-  font-family: Arial, sans-serif;
-}
-
-/* תוכן התא */
-.tile-content {
-  font-size: 10px;
-  color: purple;
-}
-
-/* תאריך עברי */
-.tile-content .hebrew-date {
-  font-weight: normal;
-}
-
-/* חגים ושבתות מודגשים */
-.tile-content.holiday {
-  font-weight: bold;
-  color: red;
-}
-
-/* רשימת אירועים (חג או שבת) */
-.tile-content .events {
-  font-size: 8px;
-  color: darkred;
-}
-
-
 
 /* ===========================================================
    Flat surfaces – מבטל מסגרות/כרטיסים כדי לקבל רקע חלק
@@ -587,24 +489,48 @@ label {
    =========================================================== */
 
 /* מעטפת כללית ליומן */
-.calendar-container {
-  direction: rtl;
-  display: grid;
-  place-items: center;
-  padding: var(--space-6);
+.calendar-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  /* תופס את כל גובה ה־parent */
 }
 
+
+.calendar-container {
+  /* אפשר להשאיר את העיצוב הקיים שלך כאן */
+  width: min(100%, 960px);
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  padding: var(--space-6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
+
 .calendar-card {
-  width: min(100%, 860px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: min(100%, 960px);
   background: var(--bg-card);
   border: 1px solid var(--line);
   border-radius: 20px;
   box-shadow: var(--shadow-lg);
-  padding: var(--space-6);
 }
 
 /* בסיס לריאקט-קלנדר */
 .calendar--kz {
+  align-items: center;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  justify-content: center;
   width: 100%;
   background: transparent !important;
   border: 0 !important;
@@ -615,16 +541,16 @@ label {
 /* ניווט עליון – יותר “אפליקטיבי” */
 .calendar--kz .react-calendar__navigation {
   display: flex;
+  width: 630px;
   align-items: center;
   justify-content: space-between;
-  gap: var(--space-3);
-  padding-bottom: var(--space-4);
-  border-bottom: 1px dashed rgba(0,0,0,.06);
+  border-bottom: 1px dashed rgba(0, 0, 0, .06);
   margin-bottom: var(--space-4);
 }
 
 .calendar--kz .react-calendar__navigation button {
   min-height: 40px;
+  width: 100%;
   padding: 0 .9rem;
   border-radius: 999px;
   border: 1px solid var(--line);
@@ -644,46 +570,87 @@ label {
 /* כותרות ימי השבוע – “פילים” רכים */
 .calendar--kz .react-calendar__month-view__weekdays {
   text-align: center;
+  padding: 0;
+  margin-right: 0px;
   font-weight: 700;
   color: var(--ink);
+  width: 630px;
+
+
 }
 
 .calendar--kz .react-calendar__month-view__weekdays__weekday {
-  padding: .45rem .5rem;
+  padding: .45rem .0rem;
+
 }
+
+
 
 .calendar--kz .react-calendar__month-view__weekdays__weekday abbr {
   text-decoration: none;
   display: inline-block;
+  align-items: center;
   padding: .25rem .7rem;
   background: #f2f7fb;
+  width: 100px;
+  height: 40px;
   border: 1px solid var(--line);
-  border-radius: 999px;
   box-shadow: var(--shadow-sm);
+}
+
+.react-calendar__year-view__months {
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+  flex-direction: row;
 }
 
 /* רשת הימים – בלי קווים חזקים, עם ריווח ונשימה */
 .calendar--kz .react-calendar__viewContainer {
-  border: 0;
   background: transparent;
+
+
+
+}
+
+.react-calendar__tile {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: row;
+}
+
+.react-calendar__decade-view__years {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: row;
+}
+
+/* כותרת הניווט */
+.react-calendar__navigation__label {
+  font-weight: 600;
+  width: 2000px;
+  color: var(--ink);
 }
 
 /* אריחי ימים – כרטיסים עגולים עם הצללה רכה */
 .calendar--kz .react-calendar__tile {
-  position: relative;
-  margin: .35rem;
-  padding: 1rem .6rem .75rem;
+  align-items: center;
+  justify-content: center;
+  height: 90px;
+  width: 90px;
   background: #ffffff;
   border: 1px solid var(--line);
-  border-radius: 16px;
   box-shadow: var(--shadow-sm);
-  transition: transform .12s ease, box-shadow .2s ease, background .2s ease, color .2s ease;
 }
 
 .calendar--kz .react-calendar__tile:enabled:hover {
   transform: translateY(-2px);
   box-shadow: var(--shadow-md);
   background: #f7fbff;
+
 }
 
 /* תוכן האריח – היררכיה מודרנית */
@@ -712,7 +679,7 @@ label {
   width: 8px;
   height: 8px;
   border-radius: 999px;
-  background: var(--accent);
+  background: #fa224d75;
   box-shadow: 0 0 0 2px #fff;
 }
 
@@ -726,11 +693,12 @@ label {
 
 /* מצב נבחר – גרדיאנט נקי */
 .calendar--kz .react-calendar__tile--active {
-  background: linear-gradient(135deg, var(--brand) 0%, var(--brand-600) 100%);
+  background-color: var(--brand);
   color: #fff;
   border-color: transparent;
-  box-shadow: 0 6px 18px rgba(63,168,214,.25);
+  box-shadow: 0 6px 18px rgba(63, 168, 214, .25);
 }
+
 .calendar--kz .react-calendar__tile--hasActive {
   background: linear-gradient(135deg, var(--brand) 0%, var(--brand-600) 100%);
   color: #fff;
@@ -738,23 +706,24 @@ label {
 
 /* היום – טבעת הדגשה עדינה */
 .calendar--kz .react-calendar__tile.is-today {
-  box-shadow: inset 0 0 0 3px rgba(244,166,63,.7);
+  background-color: var(--accent);
 }
 
 /* שבת/חג – רקע נעים, לא צועק */
 .calendar--kz .react-calendar__tile.is-shabbat {
-  background: #fff1f4;
-  border-color: #ffd6df;
+  background-color: #f3758e;
+  border-color: #ff8fa7;
 }
+
 .calendar--kz .react-calendar__tile.is-holiday {
-  background: #fff6e9;
-  border-color: #ffe0b8;
+  background-color: #fa224d75;
+  border-color: #fa224d75;
 }
 
 /* נגישות מקלדת */
 .calendar--kz .react-calendar__tile:focus {
   outline: none;
-  box-shadow: 0 0 0 3px rgba(110,200,241,.35);
+  box-shadow: 0 0 0 3px rgba(110, 200, 241, .35);
 }
 
 /* תצוגות משנה (שנים/עשורים/מאות) */
@@ -764,14 +733,29 @@ label {
   border-radius: 14px;
   margin: .4rem;
   padding: 1rem .6rem;
+  width: 630px;
+  display: flex;
+
 }
 
 /* מובייל/טאבלט */
 @media (max-width: 720px) {
-  .calendar-card { padding: var(--space-4); }
-  .calendar--kz .react-calendar__tile { margin: .25rem; padding: .8rem .45rem .6rem; }
-  .calendar--kz .tile-content .greg-day { font-size: 1.1rem; }
-  .calendar--kz .tile-content .heb-date { font-size: .72rem; }
+  .calendar-card {
+    padding: var(--space-4);
+  }
+
+  .calendar--kz .react-calendar__tile {
+    margin: .25rem;
+    padding: .8rem .45rem .6rem;
+  }
+
+  .calendar--kz .tile-content .greg-day {
+    font-size: 1.1rem;
+  }
+
+  .calendar--kz .tile-content .heb-date {
+    font-size: .72rem;
+  }
 }
 
 /* ריבועיות לאריחים */
@@ -781,8 +765,8 @@ label {
 }
 
 .calendar--kz .react-calendar__tile {
-  aspect-ratio: 1 / 1;      /* הופך כל אריח לריבוע */
-  padding: .6rem;           /* מרווח פנימי */
+  aspect-ratio: 1 / 1;
+  padding: .6rem;
   display: flex;
   flex-direction: column;
   justify-content: center;
