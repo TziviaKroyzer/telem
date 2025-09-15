@@ -73,6 +73,51 @@ const Home = () => {
           gap: .6rem;
           margin-top: .4rem;
         }
+          .buttons-container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* 3 בעמודה */
+  gap: 1rem; /* ריווח בין הכפתורים */
+  width: 100%;
+  max-width: 800px;
+  margin-top: 1.2rem;
+}
+
+.buttons-container a {
+  text-decoration: none;
+}
+
+.buttons-container button {
+  background: linear-gradient(135deg, #4fc3f7, #0288d1); /* מעבר צבע */
+  color: white;
+  font-size: 1.1rem;
+  font-weight: 600;
+  padding: 1rem 1.5rem;
+  border: none;
+  border-radius: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+  width: 100%; /* יתפסו את הרוחב של התא */
+  text-align: center;
+}
+
+.buttons-container button:hover {
+  transform: translateY(-3px) scale(1.04);
+  box-shadow: 0 8px 14px rgba(0,0,0,0.2);
+  background: linear-gradient(135deg, #29b6f6, #0277bd);
+}
+  .home-title {
+  margin: 0;
+  font-size: clamp(2rem, 5vw, 3rem); /* יותר גדול */
+  color: #0288d1; /* כחול חזק יותר */
+  font-weight: 900; /* מודגש מאוד */
+  letter-spacing: 1px;
+  text-shadow: 0 3px 6px rgba(0,0,0,0.25); /* צל עדין */
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+
       `}</style>
 
       <div className="home-inner">
@@ -86,7 +131,7 @@ const Home = () => {
           <HomeButton text="הוספת הערה" to="/addComment" />
           <HomeButton text="אולמות" to="/halls" />
           <HomeButton text="מערכת קבצים" to="/fileSystem" />
-          <HomeButton text="חיפוס" to="/searchPage" />
+          <HomeButton text="חיפוש" to="/searchPage" />
           <HomeButton text="פרופיל" to="/profile" />
           {isAdmin && <HomeButton text="עריכה" to="/admin" />}
         </div>
