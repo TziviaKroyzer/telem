@@ -785,3 +785,14 @@ label {
   justify-content: center;
   align-items: center;
 }
+
+.logo-wrapper {
+  display: flex;
+  justify-content: center; /* מרכז אופקי */
+  padding: 20px 0;
+}
+
+.logo {
+  height: 60px;
+  cursor: pointer;
+}
