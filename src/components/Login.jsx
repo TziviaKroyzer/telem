@@ -273,7 +273,7 @@ const Login = ({ onLoginSuccess = () => {} }) => {
       className="toggle-password"
       onClick={() => setShowPassword(!showPassword)} // ← הופך בין הצגה/הסתרה
     >
-      {showPassword ? "הסתר" : "הצג"}
+      {showPassword ? "👁️" : "👁️"}
     </button>
   </div>
 </label>
