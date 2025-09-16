@@ -1,7 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
-import Calendar from "../components/Calendar";
-import { doc, query, where, collection, addDoc, getDocs } from "firebase/firestore";
+import JewishCalendar from "../components/Calendar"; // לוח חדש
+import {
+  doc,
+  query,
+  where,
+  collection,
+  addDoc,
+  getDocs,
+} from "firebase/firestore";
 import { db } from "../firebase";
 import { getAuth } from "firebase/auth";
 
@@ -12,7 +19,6 @@ const HallReservation = () => {
 
   const [selectedDate, setSelectedDate] = useState(null);
   const [showModal, setShowModal] = useState(false);
-
   const [showReserveModal, setShowReserveModal] = useState(false);
   const [startTime, setStartTime] = useState("");
   const [endTime, setEndTime] = useState("");
@@ -22,10 +28,14 @@ const HallReservation = () => {
   const [reservationsByDate, setReservationsByDate] = useState({});
   const [notesByDate, setNotesByDate] = useState({});
 
+  // שימוש ב-toLocaleDateString("sv-SE") לכל התאריכים כדי למנוע בעיות timezone
+  const formatDate = (date) => date.toLocaleDateString("sv-SE");
+
   useEffect(() => {
     const fetchReservations = async () => {
       if (!hallId || !selectedDate) return;
-      const formattedDate = selectedDate.toLocaleDateString("sv-SE");
+
+      const formattedDate = formatDate(selectedDate);
 
       const q = query(
         collection(db, "reservations"),
@@ -35,10 +45,17 @@ const HallReservation = () => {
       const snapshot = await getDocs(q);
       const reservations = snapshot.docs.map((d) => {
         const data = d.data();
-        return { startTime: data.startTime, endTime: data.endTime, description: data.description };
+        return {
+          startTime: data.startTime,
+          endTime: data.endTime,
+          description: data.description,
+        };
       });
 
-      setReservationsByDate((prev) => ({ ...prev, [formattedDate]: reservations }));
+      setReservationsByDate((prev) => ({
+        ...prev,
+        [formattedDate]: reservations,
+      }));
     };
     fetchReservations();
   }, [hallId, selectedDate]);
@@ -47,7 +64,7 @@ const HallReservation = () => {
     setSelectedDate(date);
     setShowModal(true);
 
-    const formattedDate = date.toLocaleDateString("sv-SE");
+    const formattedDate = formatDate(date);
 
     // שריונים
     const reservationsQuery = query(
@@ -58,9 +75,16 @@ const HallReservation = () => {
     const reservationsSnapshot = await getDocs(reservationsQuery);
     const reservations = reservationsSnapshot.docs.map((d) => {
       const data = d.data();
-      return { startTime: data.startTime, endTime: data.endTime, description: data.description };
+      return {
+        startTime: data.startTime,
+        endTime: data.endTime,
+        description: data.description,
+      };
     });
-    setReservationsByDate((prev) => ({ ...prev, [formattedDate]: reservations }));
+    setReservationsByDate((prev) => ({
+      ...prev,
+      [formattedDate]: reservations,
+    }));
 
     // אירועים/הערות
     const notesQuery = query(
@@ -69,16 +93,19 @@ const HallReservation = () => {
       where("date", "==", formattedDate)
     );
     const notesSnapshot = await getDocs(notesQuery);
-    const notes = notesSnapshot.docs.map((d) => ({ noteText: d.data().noteText || "" }));
+    const notes = notesSnapshot.docs.map((d) => ({
+      noteText: d.data().noteText || "",
+    }));
     setNotesByDate((prev) => ({ ...prev, [formattedDate]: notes }));
   };
 
-  const formattedDate = selectedDate ? selectedDate.toLocaleDateString("sv-SE") : null;
+  const formattedDate = selectedDate ? formatDate(selectedDate) : null;
 
   const handleReserve = () => setShowReserveModal(true);
 
   const confirmReservation = async () => {
     if (!startTime || !endTime) return alert("נא לבחור שעת התחלה וסיום");
+
     const start = new Date(`2000-01-01T${startTime}`);
     const end = new Date(`2000-01-01T${endTime}`);
     if (end <= start) return alert("שעת הסיום חייבת להיות אחרי שעת ההתחלה");
@@ -106,19 +133,23 @@ const HallReservation = () => {
       alert("נא למלא את כל השדות (תאריך, שעות ותיאור)");
       return;
     }
+
     const reservations = [];
     const currentDate = new Date(selectedDate);
     const currentMonth = currentDate.getMonth();
     let current = new Date(currentDate);
 
     while (current.getMonth() === currentMonth) {
-      const formatted = current.toLocaleDateString("sv-SE");
+      const formatted = formatDate(current);
       reservations.push({ date: formatted, startTime, endTime, description });
       current.setDate(current.getDate() + 7);
     }
 
     for (const r of reservations) {
-      await saveReservationToFirestore({ ...r, description: r.description || "אין" });
+      await saveReservationToFirestore({
+        ...r,
+        description: r.description || "אין",
+      });
     }
 
     setReservationsByDate((prev) => {
@@ -131,10 +162,15 @@ const HallReservation = () => {
     });
 
     alert(
-      `האולם "${hallName}" שוריין בכל ימי ה-${selectedDate.toLocaleDateString("he-IL", {
-        weekday: "long",
-      })} החודש:\n` +
-        reservations.map((r) => `${r.date} (${r.startTime}–${r.endTime}) - ${r.description}`).join("\n")
+      `האולם "${hallName}" שוריין בכל ימי ה-${selectedDate.toLocaleDateString(
+        "he-IL",
+        { weekday: "long" }
+      )} החודש:\n` +
+        reservations
+          .map(
+            (r) => `${r.date} (${r.startTime}–${r.endTime}) - ${r.description}`
+          )
+          .join("\n")
     );
 
     setShowReserveModal(false);
@@ -162,7 +198,11 @@ const HallReservation = () => {
         const arr = updated[reservation.date] || [];
         updated[reservation.date] = [
           ...arr,
-          { startTime: reservation.startTime, endTime: reservation.endTime, description: reservation.description },
+          {
+            startTime: reservation.startTime,
+            endTime: reservation.endTime,
+            description: reservation.description,
+          },
         ];
         return updated;
       });
@@ -171,15 +211,17 @@ const HallReservation = () => {
     }
   };
 
-  const closeModal = () => { setShowModal(false); };
+  const closeModal = () => setShowModal(false);
 
-  useEffect(() => { if (!hallId) console.warn("לא נבחר אולם."); }, [hallId]);
+  useEffect(() => {
+    if (!hallId) console.warn("לא נבחר אולם.");
+  }, [hallId]);
 
   return (
     <div className="stack" style={{ gap: "1rem" }}>
       <h1 className="page-title">הזמנת אולם: {hallName}</h1>
 
-      <Calendar onChange={handleDateClick} value={selectedDate} />
+      <JewishCalendar date={selectedDate} setDate={handleDateClick} />
 
       {/* מודאל פרטי היום הנבחר + כפתור לשריון מתוך המודאל */}
       {showModal && (
@@ -224,7 +266,9 @@ const HallReservation = () => {
                   >
                     לשריון תאריך זה
                   </button>
-                  <button className="btn btn--ghost" onClick={closeModal}>סגור</button>
+                  <button className="btn btn--ghost" onClick={closeModal}>
+                    סגור
+                  </button>
                 </div>
               </>
             )}
@@ -232,38 +276,73 @@ const HallReservation = () => {
         </div>
       )}
 
-      {/* כפתור צף קבוע – מוצג תמיד, פעיל רק כשנבחר תאריך */}
-      <button
-        className="btn btn--accent fab-reserve"
-        onClick={handleReserve}
-        disabled={!selectedDate}
-        title={selectedDate ? `לשריין את ${formattedDate}` : "בחר תאריך מהלוח"}
-      >
-        לשריון
-      </button>
+      {/* כפתור צף */}
 
       {/* מודאל השריון עצמו */}
       {showReserveModal && (
-        <div className="modal-backdrop" onClick={() => setShowReserveModal(false)}>
+        <div
+          className="modal-backdrop"
+          onClick={() => setShowReserveModal(false)}
+        >
           <div className="modal" onClick={(e) => e.stopPropagation()}>
             <h3>שריון לתאריך: {formattedDate}</h3>
 
-            <div className="form-grid form-grid--3" style={{ marginTop: ".5rem" }}>
+            <div
+              className="form-grid form-grid--3"
+              style={{ marginTop: ".5rem" }}
+            >
               <div>
                 <label>שעת התחלה</label>
-                <select className="select-input" value={startTime} onChange={(e) => setStartTime(e.target.value)}>
+                <select
+                  className="select-input"
+                  value={startTime}
+                  onChange={(e) => setStartTime(e.target.value)}
+                >
                   <option value="">בחר</option>
-                  {["08:00","09:00","10:00","11:00","12:00","13:00","14:00","15:00","16:00","17:00","18:00"]
-                    .map((t) => <option key={t} value={t}>{t}</option>)}
+                  {[
+                    "08:00",
+                    "09:00",
+                    "10:00",
+                    "11:00",
+                    "12:00",
+                    "13:00",
+                    "14:00",
+                    "15:00",
+                    "16:00",
+                    "17:00",
+                    "18:00",
+                  ].map((t) => (
+                    <option key={t} value={t}>
+                      {t}
+                    </option>
+                  ))}
                 </select>
               </div>
 
               <div>
                 <label>שעת סיום</label>
-                <select className="select-input" value={endTime} onChange={(e) => setEndTime(e.target.value)}>
+                <select
+                  className="select-input"
+                  value={endTime}
+                  onChange={(e) => setEndTime(e.target.value)}
+                >
                   <option value="">בחר</option>
-                  {["09:00","10:00","11:00","12:00","13:00","14:00","15:00","16:00","17:00","18:00"]
-                    .map((t) => <option key={t} value={t}>{t}</option>)}
+                  {[
+                    "09:00",
+                    "10:00",
+                    "11:00",
+                    "12:00",
+                    "13:00",
+                    "14:00",
+                    "15:00",
+                    "16:00",
+                    "17:00",
+                    "18:00",
+                  ].map((t) => (
+                    <option key={t} value={t}>
+                      {t}
+                    </option>
+                  ))}
                 </select>
               </div>
 
@@ -280,17 +359,26 @@ const HallReservation = () => {
             </div>
 
             <div className="row" style={{ marginTop: 12 }}>
-              <button className="btn btn--accent" onClick={confirmReservation}>אישור שריון</button>
-              <button className="btn" onClick={reserveFullMonth}>שריין עד סוף החודש</button>
-              <button className="btn btn--ghost" onClick={() => setShowReserveModal(false)}>סגור</button>
+              <button className="btn btn--accent" onClick={confirmReservation}>
+                אישור שריון
+              </button>
+              <button className="btn" onClick={reserveFullMonth}>
+                שריין עד סוף החודש
+              </button>
+              <button
+                className="btn btn--ghost"
+                onClick={() => setShowReserveModal(false)}
+              >
+                סגור
+              </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* סגנון קטן לכפתור הצף */}
+      {/* סגנון לכפתור הצף */}
       <style>{`
-        .fab-reserve{
+        .fab-reserve {
           position: fixed; right: 18px; bottom: 18px; z-index: 1001;
         }
       `}</style>

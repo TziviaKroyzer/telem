@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import Calendar from "react-calendar";
+import React from "react";
+import ReactCalendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import { HDate, HebrewCalendar } from "@hebcal/core";
 
@@ -56,51 +56,45 @@ function getEventsForDate(dateObj) {
   return events || [];
 }
 
-const JewishCalendar = () => {
-  const [date, setDate] = useState(new Date());
-
+const JewishCalendar = ({ date, setDate }) => {
   return (
     <div className="calendar-wrapper">
-      <div className="calendar-container">
-        <Calendar
-          className="calendar--kz"
-          onChange={setDate}
-          value={date}
-          locale="he-IL"
-          tileClassName={({ date: tileDate, view }) => {
-            if (view !== "month") return null;
+      <ReactCalendar
+        className="calendar--kz"
+        onChange={setDate}
+        value={date}
+        locale="he-IL"
+        tileClassName={({ date: tileDate, view }) => {
+          if (view !== "month") return null;
 
-            const events = getEventsForDate(tileDate);
-            const isToday =
-              tileDate.toDateString() === new Date().toDateString();
-            const isHolidayOrShabbat = events.length > 0;
+          const events = getEventsForDate(tileDate);
+          const isToday = tileDate.toDateString() === new Date().toDateString();
+          const isHolidayOrShabbat = events.length > 0;
 
-            return [
-              isToday ? "is-today" : null,
-              isHolidayOrShabbat ? "is-holiday" : null,
-            ]
-              .filter(Boolean)
-              .join(" ");
-          }}
-          tileContent={({ date: tileDate, view }) => {
-            if (view !== "month") return null;
+          return [
+            isToday ? "is-today" : null,
+            isHolidayOrShabbat ? "is-holiday" : null,
+          ]
+            .filter(Boolean)
+            .join(" ");
+        }}
+        tileContent={({ date: tileDate, view }) => {
+          if (view !== "month") return null;
 
-            const events = getEventsForDate(tileDate);
-            const names = events.map((e) => e.render("he"));
+          const events = getEventsForDate(tileDate);
+          const names = events.map((e) => e.render("he"));
 
-            return (
-              <div className="tile-content">
-                {/* <span className="greg-day">{tileDate.getDate()}</span> */}
-                <span className="heb-date">{renderHebrewDate(tileDate)}</span>
-                {events.length > 0 && <span className="event-dot" />}
-                {names.length > 0 && (
-                  <div className="events">{names.join(", ")}</div>
-                )}
-              </div>
-            );
-          }}
-        />
-      </div>
+          return (
+            <div className="tile-content">
+              <span className="heb-date">{renderHebrewDate(tileDate)}</span>
+              {events.length > 0 && <span className="event-dot" />}
+              {names.length > 0 && (
+                <div className="events">{names.join(", ")}</div>
+              )}
+            </div>
+          );
+        }}
+      />
     </div>
   );
 };
