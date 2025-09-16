@@ -324,6 +324,45 @@ const fetchItems = useCallback(async () => {
 
   return (
     <div className="stack" style={{ gap: "1rem" }}>
+      <style>{`
+  .file-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: nowrap;
+  }
+
+  .file-name {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .file-actions {
+    display: flex;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+
+  /* במסכים קטנים */
+  @media (max-width: 600px) {
+    .file-row {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    .file-actions {
+      width: 100%;
+      justify-content: flex-end;
+    }
+  }
+`}</style>
+
       <h1>ניהול קבצים</h1>
 
       <div className="card">
@@ -357,76 +396,55 @@ const fetchItems = useCallback(async () => {
               onDrop={(e) => item.type === "folder" && handleDrop(e, item.id)}
               onDragOver={(e) => item.type === "folder" && e.preventDefault()}
             >
-              <div
-                className="row"
-                style={{
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                }}
-              >
-                <div
-                  className="row"
-                  style={{
-                    gap: 10,
-                    alignItems: "center",
-                    cursor: item.type === "folder" ? "pointer" : "default",
-                  }}
-                  onClick={() =>
-                    item.type === "folder"
-                      ? enterFolder(item.id)
-                      : window.open(item.url, "_blank")
-                  }
-                >
-                  <span aria-hidden>
-                    {item.type === "folder" ? "📁" : "📄"}
-                  </span>
-                  {renamingId === item.id ? (
-                    <input
-                      className="input"
-                      autoFocus
-                      value={newName}
-                      onChange={(e) => setNewName(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter") saveRename();
-                        if (e.key === "Escape") cancelRename();
-                      }}
-                      style={{ minWidth: 220 }}
-                    />
-                  ) : (
-                    <strong>{item.name}</strong>
-                  )}
-                  {item.type === "file" && item.size && (
-                    <span className="muted" style={{ marginInlineStart: 8 }}>
-                      {formatFileSize(item.size)}
-                    </span>
-                  )}
-                </div>
+             <div className="file-row">
+  <div
+    className="file-name"
+    onClick={() =>
+      item.type === "folder"
+        ? enterFolder(item.id)
+        : window.open(item.url, "_blank")
+    }
+  >
+    <span aria-hidden>
+      {item.type === "folder" ? "📁" : "📄"}
+    </span>
+    {renamingId === item.id ? (
+      <input
+        className="input"
+        autoFocus
+        value={newName}
+        onChange={(e) => setNewName(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") saveRename();
+          if (e.key === "Escape") cancelRename();
+        }}
+        style={{ minWidth: 220 }}
+      />
+    ) : (
+      <strong>{item.name}</strong>
+    )}
+    {item.type === "file" && item.size && (
+      <span className="muted" style={{ marginInlineStart: 8 }}>
+        {formatFileSize(item.size)}
+      </span>
+    )}
+  </div>
 
-                <div className="row" style={{ gap: 6 }}>
-                  {renamingId === item.id ? (
-                    <>
-                      <button className="btn" onClick={saveRename}>
-                        שמור
-                      </button>
-                      <button className="btn btn--ghost" onClick={cancelRename}>
-                        בטל
-                      </button>
-                    </>
-                  ) : (
-                    <>
-                      <button className="btn" onClick={() => startRename(item)}>
-                        ערוך
-                      </button>
-                      <button
-                        className="btn btn--danger"
-                        onClick={() => removeItem(item)}
-                      >
-                        מחק
-                      </button>
-                    </>
-                  )}
-                </div>
-              </div>
+  <div className="file-actions">
+    {renamingId === item.id ? (
+      <>
+        <button className="btn" onClick={saveRename}>שמור</button>
+        <button className="btn btn--ghost" onClick={cancelRename}>בטל</button>
+      </>
+    ) : (
+      <>
+        <button className="btn" onClick={() => startRename(item)}>ערוך</button>
+        <button className="btn btn--danger" onClick={() => removeItem(item)}>מחק</button>
+      </>
+    )}
+  </div>
+</div>
+
             </div>
           ))
         )}
