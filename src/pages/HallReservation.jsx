@@ -277,14 +277,6 @@ const HallReservation = () => {
       )}
 
       {/* כפתור צף */}
-      <button
-        className="btn btn--accent fab-reserve"
-        onClick={handleReserve}
-        disabled={!selectedDate}
-        title={selectedDate ? `לשריין את ${formattedDate}` : "בחר תאריך מהלוח"}
-      >
-        לשריון
-      </button>
 
       {/* מודאל השריון עצמו */}
       {showReserveModal && (
