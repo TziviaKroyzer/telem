@@ -10,7 +10,7 @@ import {
   Settings,
 } from "lucide-react";
 
-import { onAuthStateChanged } from "firebase/auth";
+import { onAuthStateChanged, signOut } from "firebase/auth";
 import { auth, db } from "../firebase";
 import { doc, getDoc } from "firebase/firestore";
 
@@ -191,6 +191,26 @@ const Home = () => {
           color: #7a92b0;
           line-height: 1.3;
         }
+
+        .home-logout {
+          margin-top: clamp(18px, 3vw, 28px);
+          background: none;
+          border: 1.5px solid #e0e4ec;
+          border-radius: 8px;
+          color: #637186;
+          font-size: 0.88rem;
+          font-weight: 600;
+          padding: 0.45rem 1.4rem;
+          min-height: 36px;
+          cursor: pointer;
+          transition: border-color 0.15s, color 0.15s, background 0.15s;
+        }
+
+        .home-logout:hover {
+          border-color: #e76b6b;
+          color: #e76b6b;
+          background: rgba(231,107,107,0.06);
+        }
       `}</style>
 
       <div className="home-welcome">
@@ -204,6 +224,10 @@ const Home = () => {
           <HomeCard key={c.to} {...c} />
         ))}
       </div>
+
+      <button className="home-logout" onClick={() => signOut(auth)}>
+        התנתק
+      </button>
     </main>
   );
 };

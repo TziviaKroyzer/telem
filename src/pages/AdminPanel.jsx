@@ -39,7 +39,6 @@ function AdminPanel() {
 
   return (
     <div className="admin-page">
-<<<<<<< HEAD
       <style>{`
         .admin-page {
           width: min(100%, 980px);
@@ -115,10 +114,6 @@ function AdminPanel() {
           box-shadow: 0 6px 18px rgba(0,0,0,.10);
         }
       `}</style>
-
-=======
-      {/* ... style ... */}
->>>>>>> 2b55e9b84609976c1c1dedbb07d6f996e74510d7
       <h1 className="admin-title">ניהול מערכת</h1>
       <div className="admin-tabs">
         <button

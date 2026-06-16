@@ -7,7 +7,7 @@ import {
   Route,
   Link,
 } from "react-router-dom";
-import { onAuthStateChanged, signOut } from "firebase/auth";
+import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "./firebase";
 
 import Authentication from "./pages/Authentication";
@@ -33,8 +33,6 @@ const App = () => {
     return unsubscribe;
   }, []);
 
-  const handleLogout = () => signOut(auth);
-
   if (user === undefined) {
     return (
       <div className="app-loading">
@@ -49,15 +47,9 @@ const App = () => {
     <Router>
       <div className="app-wrapper">
         <header className="header">
-          {isAuthenticated ? (
-            <button onClick={handleLogout} className="logout-btn">התנתק</button>
-          ) : (
-            <div className="header-spacer" />
-          )}
           <Link to="/">
             <img src={logo} alt="Logo" className="logo" />
           </Link>
-          <div className="header-spacer" />
         </header>
 
         <div className="app-container">
@@ -115,40 +107,17 @@ const App = () => {
           background-color: transparent;
           display: flex;
           align-items: center;
-          justify-content: space-between;
+          justify-content: center;
         }
 
         @media (min-width: 520px) {
           .header { padding: 12px 24px; }
         }
 
-        .header-spacer {
-          width: 80px;
-        }
-
         .logo {
           height: clamp(44px, 8vw, 60px);
           cursor: pointer;
           display: block;
-        }
-
-        .logout-btn {
-          width: 80px;
-          min-height: 36px;
-          background: none;
-          border: 1.5px solid #e0e4ec;
-          border-radius: 8px;
-          color: #637186;
-          font-size: 0.88rem;
-          font-weight: 600;
-          cursor: pointer;
-          transition: border-color 0.15s, color 0.15s, background 0.15s;
-        }
-
-        .logout-btn:hover {
-          border-color: #e76b6b;
-          color: #e76b6b;
-          background: rgba(231,107,107,0.06);
         }
 
         .app-container {

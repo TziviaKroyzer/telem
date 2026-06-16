@@ -332,6 +332,8 @@ const fetchItems = useCallback(async () => {
       flex-direction: row;
       justify-content: space-between;
       align-items: center;
+      flex: 1;
+      width: auto;
     }
   }
 
