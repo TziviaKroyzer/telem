@@ -6,7 +6,7 @@ import ConfirmationModal from "../components/ConfirmationModal";
 import FileUploadInput from "../components/FileUploadInput";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
-import { collection, getDocs, addDoc } from "firebase/firestore";
+import { collection, getDocs, addDoc, query, where } from "firebase/firestore";
 import { db } from "../firebase";
 import { getAuth } from "firebase/auth";
 
@@ -24,6 +24,9 @@ const AddComment = () => {
   const [commentType, setCommentType] = useState([]);
   const [selectedItems, setSelectedItems] = useState([]);
   const [notifyUsers, setNotifyUsers] = useState([]);
+  const [dayComments, setDayComments] = useState([]);
+  const [showDayModal, setShowDayModal] = useState(false);
+  const [loadingDayComments, setLoadingDayComments] = useState(false);
 
   useEffect(() => {
     const fetchCampuses = async () => {
@@ -75,6 +78,23 @@ const AddComment = () => {
     };
     fetchUsers();
   }, []);
+
+  const handleDateChange = async (newDate) => {
+    setDate(newDate);
+    const dateStr = newDate.toISOString().split("T")[0];
+    setLoadingDayComments(true);
+    setShowDayModal(true);
+    try {
+      const q = query(collection(db, "comments"), where("date", "==", dateStr));
+      const snap = await getDocs(q);
+      setDayComments(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
+    } catch (e) {
+      console.error(e);
+      setDayComments([]);
+    } finally {
+      setLoadingDayComments(false);
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -179,13 +199,89 @@ const AddComment = () => {
           width: 100%;
           overflow: hidden;
         }
+
+        .day-modal-backdrop {
+          position: fixed;
+          inset: 0;
+          background: rgba(0,0,0,0.45);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 1000;
+          padding: 16px;
+        }
+
+        .day-modal {
+          background: #fff;
+          border-radius: 16px;
+          padding: 1.25rem 1.5rem;
+          width: 100%;
+          max-width: 480px;
+          max-height: 70vh;
+          overflow-y: auto;
+          box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+          direction: rtl;
+          text-align: right;
+        }
+
+        .day-modal h3 {
+          font-size: 1.1rem;
+          font-weight: 700;
+          margin: 0 0 1rem;
+          color: #1a2b4a;
+        }
+
+        .day-comment-item {
+          background: #f7fafd;
+          border: 1px solid #e0eaf3;
+          border-radius: 10px;
+          padding: 0.75rem 1rem;
+          margin-bottom: 0.6rem;
+          font-size: 0.92rem;
+          color: #2d3a4e;
+          white-space: pre-wrap;
+          word-break: break-word;
+        }
+
+        .day-comment-done {
+          display: inline-block;
+          margin-top: 0.35rem;
+          font-size: 0.78rem;
+          color: #fff;
+          background: #4caf50;
+          border-radius: 6px;
+          padding: 1px 8px;
+        }
+
+        .day-comment-pending {
+          display: inline-block;
+          margin-top: 0.35rem;
+          font-size: 0.78rem;
+          color: #fff;
+          background: #f4a63f;
+          border-radius: 6px;
+          padding: 1px 8px;
+        }
+
+        .day-modal-empty {
+          color: #7a92b0;
+          font-size: 0.95rem;
+          text-align: center;
+          padding: 1rem 0;
+        }
+
+        .day-modal-footer {
+          margin-top: 1rem;
+          display: flex;
+          justify-content: flex-end;
+        }
       `}</style>
 
       <h2 className="page-title">הוספת הערה ליומן</h2>
       <form onSubmit={handleSubmit} className="add-comment-form">
         <div className="calendar-section">
           <h3 className="calendar-label">בחר תאריך ביומן:</h3>
-          <Calendar value={date} onChange={setDate} />
+          <Calendar date={date} setDate={handleDateChange} />
         </div>
 
         <SelectInput
@@ -227,6 +323,33 @@ const AddComment = () => {
       </form>
 
       {showModal && <ConfirmationModal onClose={closeModal} />}
+
+      {showDayModal && (
+        <div className="day-modal-backdrop" onClick={() => setShowDayModal(false)}>
+          <div className="day-modal" onClick={(e) => e.stopPropagation()}>
+            <h3>הערות ל-{date.toLocaleDateString("he-IL")}</h3>
+
+            {loadingDayComments ? (
+              <p className="day-modal-empty">טוען...</p>
+            ) : dayComments.length === 0 ? (
+              <p className="day-modal-empty">אין הערות לתאריך זה</p>
+            ) : (
+              dayComments.map((c) => (
+                <div key={c.id} className="day-comment-item">
+                  <div>{c.noteText}</div>
+                  <span className={c.done ? "day-comment-done" : "day-comment-pending"}>
+                    {c.done ? "בוצע" : "ממתין"}
+                  </span>
+                </div>
+              ))
+            )}
+
+            <div className="day-modal-footer">
+              <button className="btn btn--ghost" onClick={() => setShowDayModal(false)}>סגור</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

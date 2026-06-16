@@ -35,14 +35,14 @@ const cards = [
   },
   {
     text: "עריכה",
-    sub: "הגדרות וניהול מערכת",
+    sub: "ניהול מערכת",
     to: "/admin",
     icon: Settings,
     adminOnly: true,
   },
   {
     text: "פרופיל",
-    sub: "מידע אישי והגדרות",
+    sub: "משימות אישיות",
     to: "/profile",
     icon: UserCircle,
   },

@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState, useCallback } from "react";
+import { Pencil, Trash2, Check, X } from "lucide-react";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import {
   addDoc,
@@ -453,19 +454,30 @@ const fetchItems = useCallback(async () => {
     flex-shrink: 0;
   }
 
-  .file-actions .btn {
-    padding: .35rem .65rem;
-    font-size: .85rem;
-    min-height: 36px;
+  .file-actions .icon-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background .15s, transform .1s;
+    background: #fff;
+    flex-shrink: 0;
   }
 
-  @media (min-width: 480px) {
-    .file-actions .btn {
-      padding: .5rem .85rem;
-      font-size: .9rem;
-      min-height: 40px;
-    }
-  }
+  .icon-btn--edit  { color: #6ec8f1; border: 1.5px solid #6ec8f1; }
+  .icon-btn--edit:hover  { background: #eaf6ff; transform: scale(1.1); }
+
+  .icon-btn--delete { color: #e76b6b; border: 1.5px solid #e76b6b; }
+  .icon-btn--delete:hover { background: #fdecea; transform: scale(1.1); }
+
+  .icon-btn--save  { color: #4caf50; border: 1.5px solid #4caf50; }
+  .icon-btn--save:hover  { background: #e8f5e9; transform: scale(1.1); }
+
+  .icon-btn--cancel { color: #94a3b8; border: 1.5px solid #94a3b8; }
+  .icon-btn--cancel:hover { background: #f1f5f9; transform: scale(1.1); }
 `}</style>
 
       <h1>ניהול קבצים</h1>
@@ -533,13 +545,21 @@ const fetchItems = useCallback(async () => {
                 <div className="file-actions">
                   {renamingId === item.id ? (
                     <>
-                      <button className="btn" onClick={saveRename}>שמור</button>
-                      <button className="btn btn--ghost" onClick={cancelRename}>בטל</button>
+                      <button className="icon-btn icon-btn--save" title="שמור" onClick={saveRename}>
+                        <Check size={18} strokeWidth={2.2} />
+                      </button>
+                      <button className="icon-btn icon-btn--cancel" title="בטל" onClick={cancelRename}>
+                        <X size={18} strokeWidth={2.2} />
+                      </button>
                     </>
                   ) : (
                     <>
-                      <button className="btn" onClick={() => startRename(item)}>ערוך</button>
-                      <button className="btn btn--danger" onClick={() => removeItem(item)}>מחק</button>
+                      <button className="icon-btn icon-btn--edit" title="ערוך שם" onClick={() => startRename(item)}>
+                        <Pencil size={17} strokeWidth={2} />
+                      </button>
+                      <button className="icon-btn icon-btn--delete" title="מחק" onClick={() => removeItem(item)}>
+                        <Trash2 size={17} strokeWidth={2} />
+                      </button>
                     </>
                   )}
                 </div>
