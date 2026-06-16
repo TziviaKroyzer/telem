@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { collection, getDocs, doc, deleteDoc, updateDoc, getDoc } from "firebase/firestore";
+import { collection, getDocs, doc, updateDoc, getDoc } from "firebase/firestore";
 import { db } from "../firebase";
 
 function UserList() {
@@ -10,15 +10,17 @@ function UserList() {
 
   const fetchUsers = async () => {
     const snapshot = await getDocs(collection(db, "users"));
-    const list = snapshot.docs.map((d) => {
-      const data = d.data() || {};
-      return {
-        id: d.id,
-        ...data,
-        failedAttempts: data.failedAttempts || 0,
-        locked: !!data.locked,
-      };
-    });
+    const list = snapshot.docs
+      .filter((d) => !d.data()?.disabled)
+      .map((d) => {
+        const data = d.data() || {};
+        return {
+          id: d.id,
+          ...data,
+          failedAttempts: data.failedAttempts || 0,
+          locked: !!data.locked,
+        };
+      });
     setUsers(list);
   };
 
@@ -43,10 +45,14 @@ function UserList() {
   };
 
   const handleDelete = async (email) => {
-    if (!window.confirm(`למחוק את ${email}?`)) return;
-    await deleteDoc(doc(db, "users", email));
-    fetchUsers();
-    alert("המשתמש נמחק מה-DB. למחיקה מ-Auth יש צורך ב-Admin SDK בצד שרת.");
+    if (!window.confirm(`למחוק את ${email}? המשתמש לא יוכל להתחבר יותר.`)) return;
+    try {
+      await updateDoc(doc(db, "users", email), { disabled: true });
+      fetchUsers();
+    } catch (e) {
+      console.error(e);
+      alert("שגיאה במחיקת המשתמש.");
+    }
   };
 
   const unlockUser = async (email) => {

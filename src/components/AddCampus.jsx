@@ -51,7 +51,7 @@ function AddCampus() {
             value={contactPerson}
             onChange={(e) => setContactPerson(e.target.value)}
           >
-            <option value="">— ללא —</option>
+            <option value="">ללא —</option>
             {users.map((u) => (
               <option key={u.id} value={u.id}>
                 {(u.firstName ? `${u.firstName} ` : "") + (u.lastName || u.id)}

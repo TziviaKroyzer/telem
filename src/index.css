@@ -1,25 +1,16 @@
-/* ============== Design System: Tablet-first (RTL) ============== */
+/* ============== Design System: Mobile-first (RTL) ============== */
 
 /* 1) Tokens */
 :root {
   /* צבעים */
   --brand: #6EC8F1;
-  /* תכלת */
   --brand-600: #58BAE4;
-  /* תכלת כהה */
   --brand-700: #3fa8d6;
   --accent: #F4A63F;
-  /* כתום דבש */
   --ink: #0f172a;
-  /* טקסט ראשי */
   --ink-2: #334155;
-  /* טקסט משני */
   --line: #e2e8f0;
-  /* קווי מתאר */
   --bg-page: #EAF6FF;
-  /* ← רקע אחיד לכל האתר */
-  /* --bg-page-grad: linear-gradient(145deg,#f7fafd,#e6f3fa);  // אם תרצי לחזור לגרדיאנט */
-
   --bg-card: #ffffff;
   --success: #16a34a;
   --danger: #dc2626;
@@ -44,12 +35,12 @@
   --shadow-md: 0 6px 18px rgba(0, 0, 0, .10);
   --shadow-lg: 0 10px 28px rgba(0, 0, 0, .12);
 
-  /* רוחבי קונטיינר לטאבלט */
+  /* קונטיינר */
   --container: min(100%, 980px);
-  margin-top: 40px;
+  margin-top: 20px;
 }
 
-/* 2) Reset עדין + RTL */
+/* 2) Reset + RTL */
 * {
   box-sizing: border-box;
 }
@@ -64,7 +55,6 @@ body {
   margin: 0;
   direction: rtl;
   background: var(--bg-page) !important;
-  /* רקע אחיד */
   color: var(--ink);
   font-family: var(--font-sans);
   font-size: 16px;
@@ -75,29 +65,28 @@ body {
 .app-container {
   width: var(--container);
   margin-inline: auto;
-  padding: var(--space-6);
+  padding: var(--space-4);
 }
 
-/* 4) טיפוגרפיה בסיסית */
-h1,
-h2,
-h3 {
+@media (min-width: 600px) {
+  :root { margin-top: 30px; }
+  .app-container { padding: var(--space-6); }
+}
+
+@media (min-width: 960px) {
+  :root { margin-top: 40px; }
+}
+
+/* 4) טיפוגרפיה */
+h1, h2, h3 {
   margin: 0 0 .6em;
   font-weight: 700;
   color: var(--ink);
 }
 
-h1 {
-  font-size: clamp(1.6rem, 2.5vw, 2rem);
-}
-
-h2 {
-  font-size: clamp(1.3rem, 2vw, 1.6rem);
-}
-
-h3 {
-  font-size: clamp(1.15rem, 1.6vw, 1.25rem);
-}
+h1 { font-size: clamp(1.4rem, 4vw, 2rem); }
+h2 { font-size: clamp(1.2rem, 3vw, 1.6rem); }
+h3 { font-size: clamp(1.05rem, 2.5vw, 1.25rem); }
 
 p {
   margin: 0 0 .8em;
@@ -114,11 +103,14 @@ p {
   background: var(--brand);
   color: #fff;
   padding: .65rem 1rem;
+  min-height: 44px;
   border-radius: 12px;
   font-weight: 600;
+  font-size: 1rem;
   cursor: pointer;
   box-shadow: var(--shadow-sm);
   transition: transform .12s ease, background .2s ease, box-shadow .2s ease;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .btn:hover {
@@ -127,9 +119,7 @@ p {
   transform: translateY(-1px);
 }
 
-.btn:active {
-  transform: translateY(0);
-}
+.btn:active { transform: translateY(0); }
 
 .btn:disabled {
   opacity: .7;
@@ -142,17 +132,9 @@ p {
   border-color: var(--line);
 }
 
-.btn--accent {
-  background: var(--accent);
-}
-
-.btn--danger {
-  background: var(--danger);
-}
-
-.btn--pill {
-  border-radius: 999px;
-}
+.btn--accent { background: var(--accent); }
+.btn--danger { background: var(--danger); }
+.btn--pill   { border-radius: 999px; }
 
 /* 6) שדות טפסים */
 .input,
@@ -167,6 +149,7 @@ p {
   color: var(--ink);
   outline: none;
   transition: border-color .15s ease, box-shadow .15s ease;
+  min-height: 44px;
 }
 
 .input:focus,
@@ -176,9 +159,7 @@ p {
   box-shadow: 0 0 0 3px rgba(110, 200, 241, .25);
 }
 
-.input.hidden {
-  display: none !important;
-}
+.input.hidden { display: none !important; }
 
 label {
   display: block;
@@ -187,21 +168,19 @@ label {
   margin-bottom: .35rem;
 }
 
-/* 7) גריד לטפסים – Tablet-first */
+/* 7) גריד לטפסים – Mobile-first */
 .form-grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: var(--space-5);
+  gap: var(--space-4);
+}
+
+@media (min-width: 520px) {
+  .form-grid--2 { grid-template-columns: 1fr 1fr; }
 }
 
 @media (min-width: 720px) {
-  .form-grid--2 {
-    grid-template-columns: 1fr 1fr;
-  }
-
-  .form-grid--3 {
-    grid-template-columns: 1fr 1fr 1fr;
-  }
+  .form-grid--3 { grid-template-columns: 1fr 1fr 1fr; }
 }
 
 /* 8) תפריט עליון */
@@ -210,7 +189,6 @@ label {
   top: 0;
   inset-inline: 0;
   background: transparent !important;
-  /* שקוף כדי שלא ייווצר “פס” */
   border-bottom: 0 !important;
   box-shadow: none !important;
   z-index: 1000;
@@ -222,7 +200,11 @@ label {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: .6rem var(--space-6);
+  padding: .6rem var(--space-4);
+}
+
+@media (min-width: 600px) {
+  .site-nav { padding: .6rem var(--space-6); }
 }
 
 .nav-links {
@@ -242,19 +224,10 @@ label {
   transition: background .15s ease, color .15s ease;
 }
 
-.nav-link:hover {
-  background: #f6f9fc;
-  color: #0b1220;
-}
+.nav-link:hover { background: #f6f9fc; color: #0b1220; }
 
-.nav-link--cta {
-  background: var(--brand);
-  color: #fff;
-}
-
-.nav-link--cta:hover {
-  background: var(--brand-600);
-}
+.nav-link--cta { background: var(--brand); color: #fff; }
+.nav-link--cta:hover { background: var(--brand-600); }
 
 /* 9) מודאלים */
 .modal-backdrop {
@@ -265,15 +238,22 @@ label {
   align-items: center;
   justify-content: center;
   z-index: 1100;
+  padding: var(--space-4);
 }
 
 .modal {
-  width: min(92vw, 640px);
+  width: min(96vw, 640px);
   background: #fff;
   border: 1px solid var(--line);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-lg);
-  padding: var(--space-6);
+  padding: var(--space-4);
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+@media (min-width: 520px) {
+  .modal { padding: var(--space-6); }
 }
 
 /* 10) עזרי פריסה */
@@ -296,9 +276,7 @@ label {
   justify-content: center;
 }
 
-.muted {
-  color: var(--ink-2);
-}
+.muted { color: var(--ink-2); }
 
 .logo {
   max-width: 120px;
@@ -306,13 +284,9 @@ label {
   margin: 12px auto;
 }
 
-.p-6 {
-  padding: var(--space-6);
-}
+.p-6 { padding: var(--space-6); }
 
-.login-page {
-  background: var(--bg-page);
-}
+.login-page { background: var(--bg-page); }
 
 /* 11) כפתור בית צף */
 .fab-home {
@@ -320,9 +294,7 @@ label {
   box-shadow: var(--shadow-md) !important;
 }
 
-.fab-home:hover {
-  background: var(--brand-600) !important;
-}
+.fab-home:hover { background: var(--brand-600) !important; }
 
 /* 12) פידבק */
 .alert {
@@ -331,24 +303,12 @@ label {
   border: 1px solid var(--line);
 }
 
-.alert--danger {
-  background: #fff1f1;
-  border-color: #ffd5d5;
-  color: #9b1c1c;
-}
-
-.alert--success {
-  background: #f0fff4;
-  border-color: #c6f6d5;
-  color: #166534;
-}
-
+.alert--danger  { background: #fff1f1; border-color: #ffd5d5; color: #9b1c1c; }
+.alert--success { background: #f0fff4; border-color: #c6f6d5; color: #166534; }
 
 /* ===========================================================
-   Flat surfaces – מבטל מסגרות/כרטיסים כדי לקבל רקע חלק
+   Flat surfaces
    =========================================================== */
-
-/* מבטל רקעים/גבולות/צללים של מעטפות נפוצות שיוצרות “ריבוע” */
 .app-container,
 .page,
 .page-container,
@@ -364,44 +324,39 @@ label {
   box-shadow: none !important;
 }
 
-/* אם כן תרצי כרטיס לבן נקודתי – השתמשי במחלקה הזו במקום .card */
 .surface {
   background: var(--bg-card);
   border: 1px solid var(--line);
   border-radius: var(--radius);
   box-shadow: var(--shadow-sm);
-  padding: var(--space-6);
+  padding: var(--space-4);
 }
 
-.surface--elev {
-  box-shadow: var(--shadow-md);
+@media (min-width: 520px) {
+  .surface { padding: var(--space-6); }
 }
 
-/* אופציונלי: קו הפרדה רך לאזורים ספציפיים */
-.divider {
-  height: 1px;
-  background: var(--line);
-  opacity: .6;
-}
+.surface--elev { box-shadow: var(--shadow-md); }
 
-/* profile style */
+.divider { height: 1px; background: var(--line); opacity: .6; }
+
+/* Profile */
 .filters {
   display: flex;
   gap: 8px;
   margin-bottom: 12px;
+  flex-wrap: wrap;
 }
 
 .filters button {
-  padding: 6px 12px;
+  padding: 6px 14px;
   border-radius: 8px;
   border: none;
   cursor: pointer;
+  min-height: 40px;
 }
 
-.filters .active {
-  background: var(--accent);
-  color: white;
-}
+.filters .active { background: var(--accent); color: white; }
 
 .comments-list {
   list-style: none;
@@ -416,34 +371,34 @@ label {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 8px;
+  padding: 10px 12px;
   border: 1px solid #ddd;
-  border-radius: 8px;
+  border-radius: 10px;
   overflow: hidden;
   max-width: 100%;
+  gap: 8px;
 }
 
 .comments-list li span {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  max-width: 75%;
+  flex: 1;
+  min-width: 0;
   display: inline-block;
 }
 
-
-.comments-list li.done span {
-  text-decoration: line-through;
-  color: gray;
-}
+.comments-list li.done span { text-decoration: line-through; color: gray; }
 
 .comments-list li button.pending-btn {
   background: var(--brand);
   color: white;
   border: none;
   border-radius: 6px;
-  padding: 4px 8px;
+  padding: 6px 10px;
   cursor: pointer;
+  flex-shrink: 0;
+  min-height: 36px;
 }
 
 .comments-list li button.done-btn {
@@ -451,8 +406,10 @@ label {
   color: white;
   border: none;
   border-radius: 6px;
-  padding: 4px 8px;
+  padding: 6px 10px;
   cursor: pointer;
+  flex-shrink: 0;
+  min-height: 36px;
 }
 
 .popup-overlay {
@@ -475,61 +432,65 @@ label {
   box-sizing: border-box;
   overflow-wrap: break-word;
   text-align: right;
+  max-height: 85vh;
+  overflow-y: auto;
 }
 
 .popup-content button {
   margin-top: 12px;
-  padding: 6px 12px;
+  padding: 8px 16px;
   border: none;
   border-radius: 6px;
   cursor: pointer;
   background: var(--brand);
   color: white;
+  min-height: 40px;
 }
 
-
-.user-header {
-  margin-bottom: 16px;
-}
-
-.user-name {
-  font-weight: 700;
-}
+.user-header { margin-bottom: 16px; }
+.user-name   { font-weight: 700; }
 
 /* ===========================================================
-   Calendar – Neo / Rounded Skin (RTL, Tablet-first)
-   שומר על הטוקנים שלך ומשדרג את הלוק
+   Calendar – Neo / Rounded Skin (RTL, Responsive)
    =========================================================== */
 
-/* מעטפת כללית ליומן */
 .calendar-wrapper {
   display: flex;
   justify-content: center;
-  align-items: center;
-  height: 100%;
-  /* תופס את כל גובה ה־parent */
+  align-items: flex-start;
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+  box-sizing: border-box;
 }
 
-
 .calendar-container {
-  /* אפשר להשאיר את העיצוב הקיים שלך כאן */
   width: min(100%, 960px);
   background: var(--bg-card);
   border: 1px solid var(--line);
-  border-radius: 20px;
-  padding: var(--space-6);
+  border-radius: 16px;
+  padding: var(--space-3);
   display: flex;
   align-items: center;
   justify-content: center;
   flex-direction: column;
 }
 
+@media (min-width: 520px) {
+  .calendar-container {
+    padding: var(--space-5);
+    border-radius: 20px;
+  }
+}
+
+@media (min-width: 720px) {
+  .calendar-container { padding: var(--space-6); }
+}
 
 .calendar-card {
   display: flex;
   align-items: center;
   justify-content: center;
-
   width: min(100%, 960px);
   background: var(--bg-card);
   border: 1px solid var(--line);
@@ -537,13 +498,8 @@ label {
   box-shadow: var(--shadow-lg);
 }
 
-/* בסיס לריאקט-קלנדר */
+/* בסיס ל-ReactCalendar */
 .calendar--kz {
-  align-items: center;
-  display: flex;
-  justify-content: center;
-  flex-direction: column;
-  justify-content: center;
   width: 100%;
   background: transparent !important;
   border: 0 !important;
@@ -551,25 +507,34 @@ label {
   font-family: var(--font-sans);
 }
 
-/* ניווט עליון – יותר “אפליקטיבי” */
+/* ניווט עליון */
 .calendar--kz .react-calendar__navigation {
   display: flex;
-  width: 630px;
+  width: 100%;
   align-items: center;
   justify-content: space-between;
   border-bottom: 1px dashed rgba(0, 0, 0, .06);
-  margin-bottom: var(--space-4);
+  margin-bottom: var(--space-3);
+  gap: 4px;
+}
+
+@media (min-width: 520px) {
+  .calendar--kz .react-calendar__navigation {
+    margin-bottom: var(--space-4);
+    gap: 0;
+  }
 }
 
 .calendar--kz .react-calendar__navigation button {
   min-height: 40px;
-  width: 100%;
-  padding: 0 .9rem;
+  flex: 1;
+  padding: 0 .5rem;
   border-radius: 999px;
   border: 1px solid var(--line);
   background: #f7fbff;
   color: var(--ink);
   font-weight: 600;
+  font-size: clamp(.75rem, 2vw, .95rem);
   box-shadow: var(--shadow-sm);
   transition: background .2s ease, transform .12s ease, box-shadow .2s ease;
 }
@@ -580,58 +545,54 @@ label {
   box-shadow: var(--shadow-md);
 }
 
-/* כותרות ימי השבוע – “פילים” רכים */
+/* כותרת הניווט */
+.react-calendar__navigation__label {
+  font-weight: 600;
+  flex: 1;
+  color: var(--ink);
+}
+
+/* כותרות ימי השבוע */
 .calendar--kz .react-calendar__month-view__weekdays {
   text-align: center;
   padding: 0;
-  margin-right: 0px;
   font-weight: 700;
   color: var(--ink);
-  width: 630px;
-
-
+  width: 100%;
 }
 
 .calendar--kz .react-calendar__month-view__weekdays__weekday {
-  padding: .45rem .0rem;
-
+  padding: .3rem 0;
 }
-
-
 
 .calendar--kz .react-calendar__month-view__weekdays__weekday abbr {
   text-decoration: none;
-  display: inline-block;
+  display: flex;
   align-items: center;
-  padding: .25rem .7rem;
+  justify-content: center;
+  padding: .2rem .3rem;
   background: #f2f7fb;
-  width: 100px;
-  height: 40px;
+  width: 100%;
+  min-height: 32px;
   border: 1px solid var(--line);
   box-shadow: var(--shadow-sm);
+  font-size: clamp(.7rem, 1.8vw, .9rem);
 }
 
+@media (min-width: 520px) {
+  .calendar--kz .react-calendar__month-view__weekdays__weekday abbr {
+    min-height: 38px;
+    font-size: .88rem;
+  }
+}
+
+/* שנים/עשורים */
 .react-calendar__year-view__months {
   display: flex;
-
   align-items: center;
   justify-content: center;
   flex-direction: row;
-}
-
-/* רשת הימים – בלי קווים חזקים, עם ריווח ונשימה */
-.calendar--kz .react-calendar__viewContainer {
-  background: transparent;
-
-
-
-}
-
-.react-calendar__tile {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: row;
+  flex-wrap: wrap;
 }
 
 .react-calendar__decade-view__years {
@@ -639,21 +600,27 @@ label {
   align-items: center;
   justify-content: center;
   flex-direction: row;
+  flex-wrap: wrap;
 }
 
-/* כותרת הניווט */
-.react-calendar__navigation__label {
-  font-weight: 600;
-  width: 2000px;
-  color: var(--ink);
+/* רשת הימים */
+.calendar--kz .react-calendar__viewContainer {
+  background: transparent;
 }
 
-/* אריחי ימים – כרטיסים עגולים עם הצללה רכה */
+/* אריחי ימים – responsive squares */
+.calendar--kz .react-calendar__month-view__days {
+  display: grid !important;
+  grid-template-columns: repeat(7, 1fr);
+}
+
 .calendar--kz .react-calendar__tile {
-  align-items: center;
+  aspect-ratio: 1 / 1;
+  padding: clamp(.2rem, 1vw, .5rem);
+  display: flex;
+  flex-direction: column;
   justify-content: center;
-  height: 90px;
-  width: 90px;
+  align-items: center;
   background: #ffffff;
   border: 1px solid var(--line);
   box-shadow: var(--shadow-sm);
@@ -663,48 +630,55 @@ label {
   transform: translateY(-2px);
   box-shadow: var(--shadow-md);
   background: #f7fbff;
-
 }
 
-/* תוכן האריח – היררכיה מודרנית */
+/* תוכן האריח */
 .calendar--kz .tile-content {
-  display: grid;
-  grid-template-rows: auto auto auto;
-  justify-items: center;
-  gap: .35rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: .15rem;
   text-align: center;
+  width: 100%;
 }
 
 .calendar--kz .tile-content .greg-day {
-  font-size: 1.25rem;
+  font-size: clamp(.7rem, 2.2vw, 1.2rem);
   font-weight: 800;
   line-height: 1;
   color: var(--ink);
 }
 
 .calendar--kz .tile-content .heb-date {
-  font-size: .8rem;
+  font-size: clamp(.55rem, 1.5vw, .8rem);
   color: var(--ink-2);
+  line-height: 1.1;
 }
 
-/* תגית אירוע קטנה (חג/שבת) */
+/* נקודת אירוע */
 .calendar--kz .tile-content .event-dot {
-  width: 8px;
-  height: 8px;
+  width: clamp(5px, 1.2vw, 8px);
+  height: clamp(5px, 1.2vw, 8px);
   border-radius: 999px;
   background: #fa224d75;
   box-shadow: 0 0 0 2px #fff;
 }
 
-/* רשימת אירועים */
+/* רשימת אירועים – מוסתרת בנייד, מוצגת מטאבלט */
 .calendar--kz .tile-content .events {
-  margin-top: .25rem;
-  font-size: .7rem;
+  display: none;
+  margin-top: .15rem;
+  font-size: .65rem;
   line-height: 1.2;
   color: var(--ink-2);
 }
 
-/* מצב נבחר – גרדיאנט נקי */
+@media (min-width: 680px) {
+  .calendar--kz .tile-content .events { display: block; }
+}
+
+/* מצב נבחר */
 .calendar--kz .react-calendar__tile--active {
   background-color: var(--brand);
   color: #fff;
@@ -717,12 +691,12 @@ label {
   color: #fff;
 }
 
-/* היום – טבעת הדגשה עדינה */
+/* היום */
 .calendar--kz .react-calendar__tile.is-today {
   background-color: var(--accent);
 }
 
-/* שבת/חג – רקע נעים, לא צועק */
+/* שבת/חג */
 .calendar--kz .react-calendar__tile.is-shabbat {
   background-color: #f3758e;
   border-color: #ff8fa7;
@@ -739,60 +713,33 @@ label {
   box-shadow: 0 0 0 3px rgba(110, 200, 241, .35);
 }
 
-/* תצוגות משנה (שנים/עשורים/מאות) */
+/* תצוגות שנה/עשור/מאה */
 .calendar--kz .react-calendar__year-view .react-calendar__tile,
 .calendar--kz .react-calendar__decade-view .react-calendar__tile,
 .calendar--kz .react-calendar__century-view .react-calendar__tile {
   border-radius: 14px;
-  margin: .4rem;
-  padding: 1rem .6rem;
-  width: 630px;
+  margin: .25rem;
+  padding: .75rem .5rem;
+  width: auto;
+  min-height: 44px;
   display: flex;
-
-}
-
-/* מובייל/טאבלט */
-@media (max-width: 720px) {
-  .calendar-card {
-    padding: var(--space-4);
-  }
-
-  .calendar--kz .react-calendar__tile {
-    margin: .25rem;
-    padding: .8rem .45rem .6rem;
-  }
-
-  .calendar--kz .tile-content .greg-day {
-    font-size: 1.1rem;
-  }
-
-  .calendar--kz .tile-content .heb-date {
-    font-size: .72rem;
-  }
-}
-
-/* ריבועיות לאריחים */
-.calendar--kz .react-calendar__month-view__days {
-  display: grid !important;
-  grid-template-columns: repeat(7, 1fr);
-}
-
-.calendar--kz .react-calendar__tile {
-  aspect-ratio: 1 / 1;
-  padding: .6rem;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
+  aspect-ratio: unset;
 }
 
+/* לוגו */
 .logo-wrapper {
   display: flex;
-  justify-content: center; /* מרכז אופקי */
-  padding: 20px 0;
+  justify-content: center;
+  padding: 12px 0;
+}
+
+@media (min-width: 520px) {
+  .logo-wrapper { padding: 20px 0; }
 }
 
 .logo {
-  height: 60px;
+  height: clamp(44px, 8vw, 60px);
   cursor: pointer;
 }

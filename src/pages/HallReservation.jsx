@@ -256,7 +256,7 @@ const HallReservation = () => {
                   <p>אין אירועים ביום זה.</p>
                 )}
 
-                <div className="row" style={{ marginTop: 12 }}>
+                <div className="reserve-actions">
                   <button
                     className="btn btn--accent"
                     onClick={() => {
@@ -358,7 +358,7 @@ const HallReservation = () => {
               </div>
             </div>
 
-            <div className="row" style={{ marginTop: 12 }}>
+            <div className="reserve-actions">
               <button className="btn btn--accent" onClick={confirmReservation}>
                 אישור שריון
               </button>
@@ -376,10 +376,19 @@ const HallReservation = () => {
         </div>
       )}
 
-      {/* סגנון לכפתור הצף */}
       <style>{`
-        .fab-reserve {
-          position: fixed; right: 18px; bottom: 18px; z-index: 1001;
+        .reserve-actions {
+          display: flex;
+          gap: 8px;
+          flex-wrap: wrap;
+          margin-top: 12px;
+        }
+        .reserve-actions .btn {
+          flex: 1;
+          min-width: 100px;
+        }
+        @media (min-width: 480px) {
+          .reserve-actions .btn { flex: 0 1 auto; }
         }
       `}</style>
     </div>

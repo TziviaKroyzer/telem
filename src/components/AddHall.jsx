@@ -53,7 +53,7 @@ export default function AddHall() {
         <div>
           <label>קמפוס</label>
           <select className="select-input" value={campusId} onChange={(e) => setCampusId(e.target.value)}>
-            <option value="">— בחר קמפוס —</option>
+            <option value="">בחר קמפוס —</option>
             {campuses.map((c) => <option key={c.id} value={c.id}>{c.name || c.id}</option>)}
           </select>
         </div>

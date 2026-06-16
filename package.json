@@ -16,6 +16,7 @@
     "@hebcal/core": "^5.10.1",
     "emailjs-com": "^3.2.0",
     "firebase": "^11.6.0",
+    "lucide-react": "^1.18.0",
     "react": "^19.0.0",
     "react-calendar": "^5.1.0",
     "react-dom": "^19.0.0",

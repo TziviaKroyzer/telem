@@ -1,12 +1,71 @@
 // src/pages/Home.jsx
 import React, { useEffect, useState } from "react";
-import HomeButton from "../components/HomeButton";
-// אם תרצי להחזיר לוגו, בטלי את ההערה והוסיפי <img .../> למטה
-// import logo from "../assets/logo.webp";
+import { useNavigate } from "react-router-dom";
+import {
+  MessageSquarePlus,
+  Building2,
+  FolderOpen,
+  Search,
+  UserCircle,
+  Settings,
+} from "lucide-react";
 
 import { onAuthStateChanged } from "firebase/auth";
 import { auth, db } from "../firebase";
 import { doc, getDoc } from "firebase/firestore";
+
+const cards = [
+  {
+    text: "מערכת קבצים",
+    sub: "גישה למסמכים וקבצים",
+    to: "/fileSystem",
+    icon: FolderOpen,
+  },
+  {
+    text: "אולמות",
+    sub: "ניהול והזמנת אולמות",
+    to: "/halls",
+    icon: Building2,
+  },
+  {
+    text: "הוספת הערה",
+    sub: "שליחת הערות ובקשות",
+    to: "/addComment",
+    icon: MessageSquarePlus,
+  },
+  {
+    text: "עריכה",
+    sub: "הגדרות וניהול מערכת",
+    to: "/admin",
+    icon: Settings,
+    adminOnly: true,
+  },
+  {
+    text: "פרופיל",
+    sub: "מידע אישי והגדרות",
+    to: "/profile",
+    icon: UserCircle,
+  },
+  {
+    text: "חיפוש",
+    sub: "חיפוש מידע ומסמכים",
+    to: "/searchPage",
+    icon: Search,
+  },
+];
+
+const HomeCard = ({ text, sub, to, icon: Icon }) => {
+  const navigate = useNavigate();
+  return (
+    <button className="home-card" onClick={() => navigate(to)}>
+      <span className="home-card-icon">
+        <Icon size={22} strokeWidth={1.5} />
+      </span>
+      <span className="home-card-title">{text}</span>
+      <span className="home-card-sub">{sub}</span>
+    </button>
+  );
+};
 
 const Home = () => {
   const [isAdmin, setIsAdmin] = useState(false);
@@ -24,117 +83,126 @@ const Home = () => {
     return () => unsub();
   }, []);
 
+  const visible = cards.filter((c) => !c.adminOnly || isAdmin);
+
   return (
     <main className="home-page">
       <style>{`
-        /* עוטף הדף – שקוף, התוכן מתחיל למעלה */
-        .home-page{
-          min-height: 100svh;
-          background: transparent !important;
+        .home-page {
+          min-height: 70vh;
           display: flex;
           flex-direction: column;
           align-items: center;
-          justify-content: flex-start;   /* ↑↑ זה מעלה את התוכן למעלה */
-          padding-block-start: clamp(24px, 4vw, 48px); /* יותר ריווח עליון */
-          padding-block-end: clamp(20px, 3vw, 36px);
-          padding-inline: clamp(12px, 3vw, 32px);
+          justify-content: flex-start;
+          padding: clamp(8px, 2vw, 20px) 16px 24px;
         }
 
-        .home-inner{
-          background: transparent !important;
-          box-shadow: none !important;
-          border: 0 !important;
-          width: min(100%, 1100px);
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          gap: 1rem;
+        /* --- Welcome header --- */
+        .home-welcome {
+          text-align: center;
+          margin-bottom: clamp(14px, 2.5vw, 28px);
         }
 
-        .home-logo{
-          max-width: 140px;
-          height: auto;
-          display: block;
-        }
-
-        .home-title{
-          margin: 0;
-          font-size: clamp(1.4rem, 3.2vw, 2rem);
-          color: #6ec8f1;
+        .home-welcome h1 {
+          font-size: clamp(1.4rem, 3.5vw, 2rem);
           font-weight: 800;
-          letter-spacing: .4px;
+          color: #1a2b4a;
+          margin: 0 0 5px;
+          letter-spacing: 0.5px;
         }
 
-        .buttons-container{
+        .home-welcome p {
+          font-size: clamp(0.8rem, 2vw, 0.95rem);
+          color: #6b7f9e;
+          margin: 0 0 10px;
+        }
+
+        .home-divider {
+          width: 40px;
+          height: 3px;
+          background: linear-gradient(90deg, #6ec8f1, #0288d1);
+          border-radius: 999px;
+          margin: 0 auto;
+        }
+
+        /* --- Cards grid --- */
+        .home-grid {
+          display: grid;
+          grid-template-columns: repeat(2, 1fr);
+          gap: clamp(8px, 1.8vw, 16px);
+          width: 100%;
+          max-width: 680px;
+        }
+
+        @media (min-width: 600px) {
+          .home-grid {
+            grid-template-columns: repeat(3, 1fr);
+          }
+        }
+
+        /* --- Individual card --- */
+        .home-card {
+          background: #ffffff;
+          border: 1px solid #e4edf6;
+          border-radius: 16px;
+          box-shadow: 0 3px 12px rgba(2, 136, 209, 0.07);
           display: flex;
-          flex-wrap: wrap;
+          flex-direction: column;
           align-items: center;
           justify-content: center;
-          gap: .6rem;
-          margin-top: .4rem;
+          gap: 7px;
+          padding: clamp(14px, 3vw, 24px) 12px;
+          cursor: pointer;
+          transition: transform 0.2s ease, box-shadow 0.2s ease;
+          -webkit-tap-highlight-color: transparent;
+          width: 100%;
+          text-align: center;
         }
-          .buttons-container {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr); /* 3 בעמודה */
-  gap: 1rem; /* ריווח בין הכפתורים */
-  width: 100%;
-  max-width: 800px;
-  margin-top: 1.2rem;
-}
 
-.buttons-container a {
-  text-decoration: none;
-}
+        .home-card:hover {
+          transform: translateY(-4px);
+          box-shadow: 0 10px 22px rgba(2, 136, 209, 0.14);
+        }
 
-.buttons-container button {
-  background: linear-gradient(135deg, #4fc3f7, #0288d1); /* מעבר צבע */
-  color: white;
-  font-size: 1.1rem;
-  font-weight: 600;
-  padding: 1rem 1.5rem;
-  border: none;
-  border-radius: 16px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 6px 12px rgba(0,0,0,0.15);
-  width: 100%; /* יתפסו את הרוחב של התא */
-  text-align: center;
-}
+        .home-card:active {
+          transform: translateY(-1px);
+        }
 
-.buttons-container button:hover {
-  transform: translateY(-3px) scale(1.04);
-  box-shadow: 0 8px 14px rgba(0,0,0,0.2);
-  background: linear-gradient(135deg, #29b6f6, #0277bd);
-}
-  .home-title {
-  margin: 0;
-  font-size: clamp(2rem, 5vw, 3rem); /* יותר גדול */
-  color: #0288d1; /* כחול חזק יותר */
-  font-weight: 900; /* מודגש מאוד */
-  letter-spacing: 1px;
-  text-shadow: 0 3px 6px rgba(0,0,0,0.25); /* צל עדין */
-  text-align: center;
-  margin-bottom: 1.5rem;
-}
+        .home-card-icon {
+          color: #0288d1;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 42px;
+          height: 42px;
+          background: #eaf6ff;
+          border-radius: 11px;
+        }
 
+        .home-card-title {
+          font-size: clamp(0.82rem, 2vw, 0.95rem);
+          font-weight: 700;
+          color: #1a2b4a;
+          line-height: 1.2;
+        }
 
+        .home-card-sub {
+          font-size: clamp(0.68rem, 1.6vw, 0.78rem);
+          color: #7a92b0;
+          line-height: 1.3;
+        }
       `}</style>
 
-      <div className="home-inner">
-        {/* אם תרצי לוגו כאן:
-        <img src={logo} alt="Logo" className="home-logo" />
-        */}
+      <div className="home-welcome">
+        <h1>ברוכים הבאים</h1>
+        <p>למערכת הדף הבית של מתחם חלים</p>
+        <div className="home-divider" />
+      </div>
 
-        <h1 className="home-title">דף הבית</h1>
-
-        <div className="buttons-container">
-          <HomeButton text="הוספת הערה" to="/addComment" />
-          <HomeButton text="אולמות" to="/halls" />
-          <HomeButton text="מערכת קבצים" to="/fileSystem" />
-          <HomeButton text="חיפוש" to="/searchPage" />
-          <HomeButton text="פרופיל" to="/profile" />
-          {isAdmin && <HomeButton text="עריכה" to="/admin" />}
-        </div>
+      <div className="home-grid">
+        {visible.map((c) => (
+          <HomeCard key={c.to} {...c} />
+        ))}
       </div>
     </main>
   );

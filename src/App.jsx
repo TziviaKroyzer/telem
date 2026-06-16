@@ -1,13 +1,14 @@
 // src/App.jsx
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   BrowserRouter as Router,
   Navigate,
   Routes,
   Route,
   Link,
-  useLocation,
 } from "react-router-dom";
+import { onAuthStateChanged, signOut } from "firebase/auth";
+import { auth } from "./firebase";
 
 import Authentication from "./pages/Authentication";
 import Home from "./pages/Home";
@@ -24,28 +25,46 @@ import FloatingHomeButton from "./components/FloatingHomeButton";
 import logo from "./assets/logo.webp";
 
 const App = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  // undefined = בודק (טעינה), null = לא מחובר, object = מחובר
+  const [user, setUser] = useState(undefined);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, setUser);
+    return unsubscribe;
+  }, []);
+
+  const handleLogout = () => signOut(auth);
+
+  if (user === undefined) {
+    return (
+      <div className="app-loading">
+        <span>טוען...</span>
+      </div>
+    );
+  }
+
+  const isAuthenticated = !!user;
 
   return (
     <Router>
       <div className="app-wrapper">
-        {/* ✅ לוגו תמידי עם קישור לבית */}
         <header className="header">
+          {isAuthenticated ? (
+            <button onClick={handleLogout} className="logout-btn">התנתק</button>
+          ) : (
+            <div className="header-spacer" />
+          )}
           <Link to="/">
             <img src={logo} alt="Logo" className="logo" />
           </Link>
+          <div className="header-spacer" />
         </header>
 
         <div className="app-container">
           <Routes>
             {/* Public */}
             {!isAuthenticated && (
-              <Route
-                path="/login"
-                element={
-                  <Login onLoginSuccess={() => setIsAuthenticated(true)} />
-                }
-              />
+              <Route path="/login" element={<Login />} />
             )}
 
             {/* Protected */}
@@ -70,30 +89,76 @@ const App = () => {
           </Routes>
         </div>
 
-        {/* כפתור חזרה גלובלי */}
         <FloatingHomeButton side="left" />
       </div>
 
-      {/* ✅ עיצוב הלוגו */}
       <style>
         {`
         .app-wrapper {
           text-align: center;
           direction: rtl;
+          min-height: 100vh;
+        }
+
+        .app-loading {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          min-height: 100vh;
+          font-size: 1.1rem;
+          color: #637186;
+          direction: rtl;
         }
 
         .header {
-          padding: 12px 0;
+          padding: 8px 16px;
           background-color: transparent;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+        }
+
+        @media (min-width: 520px) {
+          .header { padding: 12px 24px; }
+        }
+
+        .header-spacer {
+          width: 80px;
         }
 
         .logo {
-          height: 60px;
+          height: clamp(44px, 8vw, 60px);
           cursor: pointer;
+          display: block;
+        }
+
+        .logout-btn {
+          width: 80px;
+          min-height: 36px;
+          background: none;
+          border: 1.5px solid #e0e4ec;
+          border-radius: 8px;
+          color: #637186;
+          font-size: 0.88rem;
+          font-weight: 600;
+          cursor: pointer;
+          transition: border-color 0.15s, color 0.15s, background 0.15s;
+        }
+
+        .logout-btn:hover {
+          border-color: #e76b6b;
+          color: #e76b6b;
+          background: rgba(231,107,107,0.06);
         }
 
         .app-container {
-          padding: 16px;
+          padding: 12px;
+          overflow-x: hidden;
+          box-sizing: border-box;
+        }
+
+        @media (min-width: 520px) {
+          .app-container { padding: 16px; }
         }
       `}
       </style>

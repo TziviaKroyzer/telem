@@ -153,9 +153,37 @@ const AddComment = () => {
 
   return (
     <div className="add-comment-page">
+      <style>{`
+        .add-comment-page {
+          width: 100%;
+          max-width: 100%;
+          overflow-x: hidden;
+          box-sizing: border-box;
+        }
+        .page-title {
+          font-size: clamp(1.2rem, 4vw, 1.6rem);
+          font-weight: 700;
+          margin-bottom: 1rem;
+        }
+        .calendar-label {
+          font-size: clamp(.95rem, 3vw, 1.1rem);
+          margin-bottom: .5rem;
+        }
+        .add-comment-form {
+          display: flex;
+          flex-direction: column;
+          gap: 1rem;
+          width: 100%;
+        }
+        .calendar-section {
+          width: 100%;
+          overflow: hidden;
+        }
+      `}</style>
+
       <h2 className="page-title">הוספת הערה ליומן</h2>
-      <form onSubmit={handleSubmit} className="form">
-        <div>
+      <form onSubmit={handleSubmit} className="add-comment-form">
+        <div className="calendar-section">
           <h3 className="calendar-label">בחר תאריך ביומן:</h3>
           <Calendar value={date} onChange={setDate} />
         </div>
@@ -193,7 +221,7 @@ const AddComment = () => {
         <TextAreaInput value={noteText} onChange={setNoteText} />
         <FileUploadInput onChange={setFile} />
 
-        <button type="submit" className="btn btn--accent">
+        <button type="submit" className="btn btn--accent" style={{ alignSelf: "flex-start" }}>
           אישור
         </button>
       </form>

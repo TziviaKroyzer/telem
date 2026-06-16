@@ -270,40 +270,35 @@ const fetchItems = useCallback(async () => {
 
   // UI – עיצוב אחיד של האתר (.card / .btn / .input / .row / .stack)
   const breadcrumbUI = (
-    <div
-      className="row"
-      style={{ gap: 8, flexWrap: "wrap", alignItems: "center" }}
-    >
+    <div className="fs-breadcrumb-nav">
       {breadcrumb.map((b, i) => (
-  <React.Fragment key={b.id}>
-    <button
-      className="btn btn--ghost"
-      onClick={() => enterFolder(b.id)}
-      disabled={i === breadcrumb.length - 1}
-      title={b.name}
-      onDrop={(e) => i !== breadcrumb.length - 1 && handleDrop(e, b.id)}
-      onDragOver={(e) => e.preventDefault()}
-    >
-      {b.name}
-    </button>
-    {i < breadcrumb.length - 1 && (
-      <span style={{ margin: "0 6px" }}>{"/"}</span>
-    )}
-  </React.Fragment>
-))}
-
+        <React.Fragment key={b.id}>
+          <button
+            className="btn btn--ghost fs-crumb-btn"
+            onClick={() => enterFolder(b.id)}
+            disabled={i === breadcrumb.length - 1}
+            title={b.name}
+            onDrop={(e) => i !== breadcrumb.length - 1 && handleDrop(e, b.id)}
+            onDragOver={(e) => e.preventDefault()}
+          >
+            {b.name}
+          </button>
+          {i < breadcrumb.length - 1 && (
+            <span className="fs-crumb-sep">/</span>
+          )}
+        </React.Fragment>
+      ))}
     </div>
   );
 
   const toolbarUI = (
-    <div className="row" style={{ gap: 8, flexWrap: "wrap" }}>
-      <div className="row" style={{ gap: 8 }}>
+    <div className="fs-toolbar">
+      <div className="fs-search-row">
         <input
           className="input"
           placeholder="חיפוש קבצים ותיקיות…"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          style={{ minWidth: 260 }}
         />
         {search && (
           <button className="btn btn--ghost" onClick={() => setSearch("")}>
@@ -311,12 +306,12 @@ const fetchItems = useCallback(async () => {
           </button>
         )}
       </div>
-      <div className="row" style={{ gap: 8, marginInlineStart: "auto" }}>
+      <div className="fs-actions-row">
         <button className="btn" onClick={addFolder}>
-          הוסף תיקיה
+          תיקיה חדשה
         </button>
         <button className="btn btn--accent" onClick={uploadFile}>
-          הוסף קובץ
+          העלה קובץ
         </button>
       </div>
     </div>
@@ -325,40 +320,148 @@ const fetchItems = useCallback(async () => {
   return (
     <div className="stack" style={{ gap: "1rem" }}>
       <style>{`
+  .fs-toolbar {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+  }
+
+  @media (min-width: 600px) {
+    .fs-toolbar {
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+    }
+  }
+
+  .fs-search-row {
+    display: flex;
+    gap: 8px;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .fs-search-row .input {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .fs-actions-row {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+  }
+
+  .fs-breadcrumb-toolbar {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  @media (min-width: 600px) {
+    .fs-breadcrumb-toolbar {
+      flex-direction: row;
+      align-items: center;
+      gap: 12px;
+    }
+  }
+
+  /* הברדקראמב – שורה אחת תמיד, גלילה אופקית אם ארוך */
+  .fs-breadcrumb-nav {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    gap: 2px;
+    flex: 1;
+    min-width: 0;
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE */
+    padding-bottom: 2px;
+  }
+
+  .fs-breadcrumb-nav::-webkit-scrollbar {
+    display: none; /* Chrome/Safari */
+  }
+
+  .fs-crumb-btn {
+    white-space: nowrap;
+    flex-shrink: 0;
+    padding: .35rem .7rem !important;
+    min-height: 36px !important;
+    font-size: .88rem !important;
+  }
+
+  .fs-crumb-sep {
+    flex-shrink: 0;
+    color: #94a3b8;
+    font-size: .9rem;
+    padding: 0 2px;
+    user-select: none;
+  }
+
   .file-row {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
     flex-wrap: nowrap;
+    width: 100%;
+    min-width: 0;
   }
 
   .file-name {
     flex: 1;
     min-width: 0;
     overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 5px;
+    cursor: pointer;
+  }
+
+  .file-icon {
+    flex-shrink: 0;
+    font-size: 1.1rem;
+    line-height: 1;
+  }
+
+  .file-name-text {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: 0;
+    flex: 1;
+    font-weight: 600;
+  }
+
+  .file-size {
+    flex-shrink: 0;
+    font-size: .78rem;
+    color: #6b7a90;
+    white-space: nowrap;
+    padding-inline-start: 4px;
   }
 
   .file-actions {
     display: flex;
-    gap: 6px;
+    gap: 5px;
     flex-shrink: 0;
   }
 
-  /* במסכים קטנים */
-  @media (max-width: 600px) {
-    .file-row {
-      flex-direction: column;
-      align-items: flex-start;
-    }
-    .file-actions {
-      width: 100%;
-      justify-content: flex-end;
+  .file-actions .btn {
+    padding: .35rem .65rem;
+    font-size: .85rem;
+    min-height: 36px;
+  }
+
+  @media (min-width: 480px) {
+    .file-actions .btn {
+      padding: .5rem .85rem;
+      font-size: .9rem;
+      min-height: 40px;
     }
   }
 `}</style>
@@ -366,14 +469,7 @@ const fetchItems = useCallback(async () => {
       <h1>ניהול קבצים</h1>
 
       <div className="card">
-        <div
-          className="row"
-          style={{
-            justifyContent: "space-between",
-            alignItems: "center",
-            gap: 12,
-          }}
-        >
+        <div className="fs-breadcrumb-toolbar">
           {breadcrumbUI}
           {toolbarUI}
         </div>
@@ -396,54 +492,56 @@ const fetchItems = useCallback(async () => {
               onDrop={(e) => item.type === "folder" && handleDrop(e, item.id)}
               onDragOver={(e) => item.type === "folder" && e.preventDefault()}
             >
-             <div className="file-row">
-  <div
-    className="file-name"
-    onClick={() =>
-      item.type === "folder"
-        ? enterFolder(item.id)
-        : window.open(item.url, "_blank")
-    }
-  >
-    <span aria-hidden>
-      {item.type === "folder" ? "📁" : "📄"}
-    </span>
-    {renamingId === item.id ? (
-      <input
-        className="input"
-        autoFocus
-        value={newName}
-        onChange={(e) => setNewName(e.target.value)}
-        onKeyDown={(e) => {
-          if (e.key === "Enter") saveRename();
-          if (e.key === "Escape") cancelRename();
-        }}
-        style={{ minWidth: 220 }}
-      />
-    ) : (
-      <strong>{item.name}</strong>
-    )}
-    {item.type === "file" && item.size && (
-      <span className="muted" style={{ marginInlineStart: 8 }}>
-        {formatFileSize(item.size)}
-      </span>
-    )}
-  </div>
+              <div className="file-row">
+                <div
+                  className="file-name"
+                  onClick={() =>
+                    item.type === "folder"
+                      ? enterFolder(item.id)
+                      : window.open(item.url, "_blank")
+                  }
+                >
+                  <span className="file-icon" aria-hidden>
+                    {item.type === "folder" ? "📁" : "📄"}
+                  </span>
+                  {renamingId === item.id ? (
+                    <input
+                      className="input"
+                      autoFocus
+                      value={newName}
+                      onChange={(e) => setNewName(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") saveRename();
+                        if (e.key === "Escape") cancelRename();
+                      }}
+                      style={{ flex: 1, minWidth: 0 }}
+                    />
+                  ) : (
+                    <span className="file-name-text" title={item.name}>
+                      {item.name}
+                    </span>
+                  )}
+                  {item.type === "file" && item.size && (
+                    <span className="file-size">
+                      {formatFileSize(item.size)}
+                    </span>
+                  )}
+                </div>
 
-  <div className="file-actions">
-    {renamingId === item.id ? (
-      <>
-        <button className="btn" onClick={saveRename}>שמור</button>
-        <button className="btn btn--ghost" onClick={cancelRename}>בטל</button>
-      </>
-    ) : (
-      <>
-        <button className="btn" onClick={() => startRename(item)}>ערוך</button>
-        <button className="btn btn--danger" onClick={() => removeItem(item)}>מחק</button>
-      </>
-    )}
-  </div>
-</div>
+                <div className="file-actions">
+                  {renamingId === item.id ? (
+                    <>
+                      <button className="btn" onClick={saveRename}>שמור</button>
+                      <button className="btn btn--ghost" onClick={cancelRename}>בטל</button>
+                    </>
+                  ) : (
+                    <>
+                      <button className="btn" onClick={() => startRename(item)}>ערוך</button>
+                      <button className="btn btn--danger" onClick={() => removeItem(item)}>מחק</button>
+                    </>
+                  )}
+                </div>
+              </div>
 
             </div>
           ))

@@ -1,7 +1,23 @@
 import React, { useState } from 'react';
-import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth';
+import { initializeApp, getApps, getApp } from 'firebase/app';
+import { getAuth, createUserWithEmailAndPassword, signOut } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
 import { db } from '../firebase';
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCojHEmBzwWBvD_UbiJutLHn8lqtJD0zBU",
+  authDomain: "telem-8ad5a.firebaseapp.com",
+  projectId: "telem-8ad5a",
+  storageBucket: "telem-8ad5a.firebasestorage.app",
+  messagingSenderId: "608127468542",
+  appId: "1:608127468542:web:b761d856cb352644c2b6af",
+};
+
+function getSecondaryAuth() {
+  const secondaryApp = getApps().find(a => a.name === 'SecondaryApp')
+    ?? initializeApp(firebaseConfig, 'SecondaryApp');
+  return getAuth(secondaryApp);
+}
 
 function AddUser() {
   const [email, setEmail] = useState('');
@@ -17,9 +33,9 @@ function AddUser() {
     e.preventDefault();
     setMsg('');
     setBusy(true);
+    const secondaryAuth = getSecondaryAuth();
     try {
-      const auth = getAuth();
-      const cred = await createUserWithEmailAndPassword(auth, email, password);
+      await createUserWithEmailAndPassword(secondaryAuth, email, password);
       await setDoc(doc(db, 'users', email), {
         firstName, lastName, phone, role,
         failedAttempts: 0, locked: false,
@@ -30,6 +46,7 @@ function AddUser() {
       console.error(err);
       setMsg('שגיאה ביצירת משתמש');
     } finally {
+      await signOut(secondaryAuth).catch(() => {});
       setBusy(false);
     }
   };

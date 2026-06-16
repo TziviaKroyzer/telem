@@ -133,7 +133,7 @@ export default function SearchPage() {
               onChange={(e) => setSearchText(e.target.value)} placeholder="חפש לפי תוכן ההערה..." />
           </div>
 
-          <div className="row" style={{ gridColumn: "1 / -1", marginTop: 8 }}>
+          <div className="search-btn-row" style={{ gridColumn: "1 / -1", marginTop: 8 }}>
             <button type="submit" className="btn">חפש</button>
             <button type="button" className="btn btn--ghost" onClick={clearFilters}>נקה</button>
           </div>
@@ -186,21 +186,23 @@ export default function SearchPage() {
       <style>{`
         .search-result {
           background: #ffffff;
-          opacity: 0.9;
           border-radius: 10px;
-          padding: 1rem;
-          margin-bottom: 1rem;
-          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-          transition: background 0.3s ease;
+          padding: .85rem 1rem;
+          margin-bottom: .75rem;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+          transition: background 0.2s ease, box-shadow 0.2s ease;
+          cursor: pointer;
         }
         .search-result:hover {
           background: #f0f7fd;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.12);
         }
         .note-snippet {
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
           direction: rtl;
+          margin: 0;
         }
         .note-text-box {
           max-height: 9em;
@@ -211,10 +213,9 @@ export default function SearchPage() {
           padding: 0.5em;
           background: #f9f9f9;
           border-radius: 6px;
+          font-size: .95rem;
         }
-        .file-preview {
-          margin-top: 0.5rem;
-        }
+        .file-preview { margin-top: 0.5rem; }
         .file-image {
           max-width: 100%;
           max-height: 200px;
@@ -224,12 +225,20 @@ export default function SearchPage() {
         }
         .file-link {
           margin-top: 0.5rem;
-          display: inline-block;
+          display: inline-flex;
+          align-items: center;
+          gap: 4px;
           background: #f0f0f0;
-          padding: 8px 12px;
+          padding: 8px 14px;
           border-radius: 8px;
           color: #333;
           text-decoration: none;
+          min-height: 40px;
+        }
+        .search-btn-row {
+          display: flex;
+          gap: 8px;
+          flex-wrap: wrap;
         }
       `}</style>
     </div>
