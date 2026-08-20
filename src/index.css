@@ -195,6 +195,29 @@ p {
 
 .input.hidden { display: none !important; }
 
+.field-hint {
+  margin-top: 5px;
+  font-size: .75rem;
+  font-weight: 600;
+  color: #8A8272;
+  line-height: 1.35;
+}
+
+.field-error {
+  margin-top: 5px;
+  font-size: .78rem;
+  font-weight: 700;
+  color: var(--danger);
+  line-height: 1.35;
+}
+
+.input.is-invalid,
+.select-input.is-invalid,
+.textarea-input.is-invalid,
+.nice-select-btn.is-invalid {
+  border-color: var(--danger);
+}
+
 .nice-select {
   position: relative;
   width: 100%;

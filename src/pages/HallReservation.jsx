@@ -30,6 +30,7 @@ const HallReservation = () => {
   const [notesByDate, setNotesByDate] = useState({});
   const [markedDates, setMarkedDates] = useState(() => new Set());
   const [notice, setNotice] = useState(null);
+  const [formErrors, setFormErrors] = useState({});
 
   // שימוש ב-toLocaleDateString("sv-SE") לכל התאריכים כדי למנוע בעיות timezone
   const formatDate = (date) => date.toLocaleDateString("sv-SE");
@@ -119,8 +120,16 @@ const HallReservation = () => {
 
   const handleReserve = () => setShowReserveModal(true);
 
+  /**
+   * שומר שריון לאולם בתאריך הנבחר, אחרי בדיקת שעות תקינות.
+   */
   const confirmReservation = async () => {
-    if (!startTime || !endTime) return setNotice({ title: "חסר פרט", message: "נא לבחור שעת התחלה וסיום" });
+    const next = {
+      startTime: startTime ? "" : "נא לבחור שעת התחלה",
+      endTime: endTime ? "" : "נא לבחור שעת סיום",
+    };
+    setFormErrors(next);
+    if (next.startTime || next.endTime) return;
 
     const start = new Date(`2000-01-01T${startTime}`);
     const end = new Date(`2000-01-01T${endTime}`);
@@ -382,9 +391,9 @@ const HallReservation = () => {
               <div>
                 <label>שעת התחלה</label>
                 <select
-                  className="select-input"
+                  className={"select-input" + (formErrors.startTime ? " is-invalid" : "")}
                   value={startTime}
-                  onChange={(e) => setStartTime(e.target.value)}
+                  onChange={(e) => { setStartTime(e.target.value); setFormErrors((p) => ({ ...p, startTime: "" })); }}
                 >
                   <option value="">בחר</option>
                   {[
@@ -405,14 +414,16 @@ const HallReservation = () => {
                     </option>
                   ))}
                 </select>
+                <div className="field-hint">שעת תחילת השימוש באולם</div>
+                {formErrors.startTime ? <div className="field-error">{formErrors.startTime}</div> : null}
               </div>
 
               <div>
                 <label>שעת סיום</label>
                 <select
-                  className="select-input"
+                  className={"select-input" + (formErrors.endTime ? " is-invalid" : "")}
                   value={endTime}
-                  onChange={(e) => setEndTime(e.target.value)}
+                  onChange={(e) => { setEndTime(e.target.value); setFormErrors((p) => ({ ...p, endTime: "" })); }}
                 >
                   <option value="">בחר</option>
                   {[
@@ -432,6 +443,8 @@ const HallReservation = () => {
                     </option>
                   ))}
                 </select>
+                <div className="field-hint">חייבת להיות אחרי שעת ההתחלה</div>
+                {formErrors.endTime ? <div className="field-error">{formErrors.endTime}</div> : null}
               </div>
 
               <div style={{ gridColumn: "1 / -1" }}>
@@ -441,8 +454,9 @@ const HallReservation = () => {
                   rows={3}
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  placeholder="הכנס תיאור לשריון"
+                  placeholder="לדוגמה: ישיבת צוות, חוג, אירוע"
                 />
+                <div className="field-hint">לא חובה בשריון חד-פעמי. חובה בשריון עד סוף החודש.</div>
               </div>
             </div>
 

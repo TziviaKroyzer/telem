@@ -3,11 +3,13 @@ import { collection, getDocs, doc, updateDoc, getDoc } from "firebase/firestore"
 import { db } from "../firebase";
 import { Pencil, Trash2, Check, X, Unlock } from "lucide-react";
 import SelectInput from "./SelectInput";
+import { fieldError, phoneDigits } from "../utils/validation";
 
 function UserList() {
   const [users, setUsers] = useState([]);
   const [editEmail, setEditEmail] = useState(null);
   const [editData, setEditData] = useState({ firstName: "", lastName: "", phone: "", role: "user" });
+  const [editErrors, setEditErrors] = useState({});
   const [busy, setBusy] = useState(false);
 
   const fetchUsers = async () => {
@@ -36,11 +38,24 @@ function UserList() {
       phone: u.phone || "",
       role: u.role || "user",
     });
+    setEditErrors({});
   };
-  const handleEditChange = (e) => setEditData({ ...editData, [e.target.name]: e.target.value });
+  const handleEditChange = (e) => {
+    const { name, value } = e.target;
+    setEditData({ ...editData, [name]: name === "phone" ? phoneDigits(value) : value });
+  };
 
   const saveEdit = async () => {
     if (!editEmail) return;
+    const next = {
+      firstName: fieldError("required", editData.firstName, "שם פרטי"),
+      lastName: fieldError("required", editData.lastName, "שם משפחה"),
+      phone: editData.phone
+        ? fieldError("phone", editData.phone, "טלפון")
+        : "",
+    };
+    setEditErrors(next);
+    if (Object.values(next).some(Boolean)) return;
     await updateDoc(doc(db, "users", editEmail), { ...editData });
     setEditEmail(null);
     fetchUsers();
@@ -88,15 +103,19 @@ function UserList() {
                 <div className="form-grid form-grid--3" style={{ width: "100%" }}>
                   <div>
                     <label>שם פרטי</label>
-                    <input className="input" name="firstName" value={editData.firstName} onChange={handleEditChange}/>
+                    <input className={"input" + (editErrors.firstName ? " is-invalid" : "")} name="firstName" value={editData.firstName} onChange={handleEditChange}/>
+                    {editErrors.firstName ? <div className="field-error">{editErrors.firstName}</div> : null}
                   </div>
                   <div>
                     <label>שם משפחה</label>
-                    <input className="input" name="lastName" value={editData.lastName} onChange={handleEditChange}/>
+                    <input className={"input" + (editErrors.lastName ? " is-invalid" : "")} name="lastName" value={editData.lastName} onChange={handleEditChange}/>
+                    {editErrors.lastName ? <div className="field-error">{editErrors.lastName}</div> : null}
                   </div>
                   <div>
                     <label>טלפון</label>
-                    <input className="input" name="phone" value={editData.phone} onChange={handleEditChange}/>
+                    <input className={"input" + (editErrors.phone ? " is-invalid" : "")} name="phone" inputMode="numeric" placeholder="0501234567" value={editData.phone} onChange={handleEditChange}/>
+                    <div className="field-hint">לדוגמה: 0501234567</div>
+                    {editErrors.phone ? <div className="field-error">{editErrors.phone}</div> : null}
                   </div>
                   <div>
                     <SelectInput

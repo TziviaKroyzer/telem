@@ -1,19 +1,27 @@
-// src/firebase.js
 import { initializeApp, getApps, getApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 import { getStorage } from "firebase/storage";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyCojHEmBzwWBvD_UbiJutLHn8lqtJD0zBU",
-  authDomain: "telem-8ad5a.firebaseapp.com",
-  projectId: "telem-8ad5a",
-  storageBucket: "telem-8ad5a.firebasestorage.app",
-  messagingSenderId: "608127468542",
-  appId: "1:608127468542:web:b761d856cb352644c2b6af",
+/**
+ * קונפיגורציית Firebase מתוך משתני סביבה של Vite.
+ * הערכים עצמם נשמרים ב-.env ולא בקוד המקור.
+ */
+export const firebaseConfig = {
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
 };
 
-// מונע initializeApp כפול בזמן פיתוח
+if (!firebaseConfig.apiKey) {
+  console.error(
+    "חסרים משתני סביבה של Firebase. העתיקי את .env.example ל-.env ומלאי את הערכים."
+  );
+}
+
 const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
 
 export const db = getFirestore(app);

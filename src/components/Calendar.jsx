@@ -56,12 +56,22 @@ function hebrewDay(dateObj) {
   }
 }
 
-function hebrewMonthYear(dateObj) {
+function hebrewMonthName(dateObj) {
   try {
     const mid = new Date(dateObj.getFullYear(), dateObj.getMonth(), 15);
-    const parts = stripNiqqud(new HDate(mid).render("he")).split(" ").filter(Boolean);
-    if (parts.length >= 3) return `${parts[1]} ${parts[2]}`;
-    return parts.slice(1).join(" ");
+    const hd = new HDate(mid);
+    let name = "";
+    try {
+      name = stripNiqqud(hd.getMonthName("he") || hd.getMonthName() || "");
+    } catch {
+      name = "";
+    }
+    if (!name) {
+      const parts = stripNiqqud(hd.render("he")).split(" ").filter(Boolean);
+      name = parts.length >= 2 ? parts[1] : "";
+    }
+    name = name.replace(/[0-9]/g, "").replace(/,/g, "").trim();
+    return name ? `חודש ${name}` : "";
   } catch {
     return "";
   }
@@ -123,6 +133,13 @@ function holidayNames(dateObj) {
   }
 }
 
+/**
+ * יומן עברי-לועזי לבחירת תאריך.
+ * @param {Date|null} date התאריך הנבחר
+ * @param {(d: Date) => void} setDate עדכון התאריך (לחיצה על יום)
+ * @param {Set<string>|string[]} markedDates תאריכים עם סימון (YYYY-MM-DD)
+ * @param {string} [markLabel] תווית לסימון בליגנדה
+ */
 const JewishCalendar = ({
   date,
   setDate,
@@ -163,7 +180,7 @@ const JewishCalendar = ({
                 year: "numeric",
               })}
             </span>
-            <span className="cal-nav-heb">{hebrewMonthYear(navDate)}</span>
+            <span className="cal-nav-heb">{hebrewMonthName(navDate)}</span>
           </span>
         )}
         tileClassName={({ date: tileDate, view }) => {

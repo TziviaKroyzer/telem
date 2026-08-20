@@ -68,6 +68,9 @@ export default function FileSystem() {
     trail.unshift({ id: "root", name: "ראשי" });
     return trail;
   };
+/**
+ * טוען קבצים ותיקיות לפי התיקיה הנוכחית, או לפי חיפוש שם.
+ */
 const fetchItems = useCallback(async () => {
   setLoadingItems(true);
   try {
@@ -720,6 +723,7 @@ const fetchItems = useCallback(async () => {
               }}
               placeholder="שם התיקיה"
             />
+            <div className="field-hint">למשל: דוחות, תמונות, טפסים</div>
             <div className="fs-dialog-actions">
               <button className="btn btn--ghost" type="button" onClick={() => setFolderOpen(false)}>ביטול</button>
               <button className="btn btn--accent" type="button" onClick={saveFolder}>יצירה</button>

@@ -62,6 +62,9 @@ export default function UserCommentsList() {
       .finally(() => setLoading(false));
   }, [filter, userEmail]);
 
+  /**
+   * מסמן הערה כבוצעה / לא בוצעה ומסיר אותה מהרשימה לפי הפילטר הפעיל.
+   */
   const toggleDone = async (commentId, currentDone) => {
     const db = getFirestore();
     try {

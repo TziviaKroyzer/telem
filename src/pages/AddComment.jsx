@@ -9,6 +9,7 @@ import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { collection, getDocs, addDoc, query, where } from "firebase/firestore";
 import { db } from "../firebase";
 import { getAuth } from "firebase/auth";
+import { fieldError } from "../utils/validation";
 
 const AddComment = () => {
   const [date, setDate] = useState(new Date());
@@ -28,6 +29,7 @@ const AddComment = () => {
   const [showDayModal, setShowDayModal] = useState(false);
   const [loadingDayComments, setLoadingDayComments] = useState(false);
   const [markedDates, setMarkedDates] = useState(() => new Set());
+  const [errors, setErrors] = useState({});
 
   useEffect(() => {
     const fetchCampuses = async () => {
@@ -113,13 +115,20 @@ const AddComment = () => {
     }
   };
 
+  /**
+   * שומר הערה חדשה ב-Firestore (ומעלה קובץ ל-Storage אם צורף).
+   */
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!selectedUser || !campus || !noteType || !noteText || !date) {
-      alert("נא למלא את כל השדות החובה לפני שמירה.");
-      return;
-    }
+    const next = {
+      campus: fieldError("required", campus, "קמפוס"),
+      selectedUser: fieldError("required", selectedUser, "משתמש"),
+      noteType: fieldError("required", noteType, "סוג הערה"),
+      noteText: fieldError("required", noteText, "תוכן הערה"),
+    };
+    setErrors(next);
+    if (Object.values(next).some(Boolean)) return;
 
     setShowModal(true);
 
@@ -180,6 +189,7 @@ const AddComment = () => {
       setSelectedItems([]);
       setNotifyUsers([]);
       setFile(null);
+      setErrors({});
     } catch (error) {
       console.error("שגיאה בשמירת ההערה:", error);
     }
@@ -387,7 +397,10 @@ const AddComment = () => {
               value: campus.id,
             }))}
             value={campus}
-            onChange={setCampus}
+            onChange={(v) => { setCampus(v); setErrors((p) => ({ ...p, campus: "" })); }}
+            invalid={Boolean(errors.campus)}
+            error={errors.campus}
+            hint="בחרי את הקמפוס שאליו שייכת ההערה"
           />
 
           <SelectInput
@@ -397,7 +410,10 @@ const AddComment = () => {
               value: user.id,
             }))}
             value={selectedUser}
-            onChange={setSelectedUser}
+            onChange={(v) => { setSelectedUser(v); setErrors((p) => ({ ...p, selectedUser: "" })); }}
+            invalid={Boolean(errors.selectedUser)}
+            error={errors.selectedUser}
+            hint="המשתמש שיראה את המשימה בפרופיל"
           />
 
           <SelectInput
@@ -407,10 +423,16 @@ const AddComment = () => {
               value: type.id,
             }))}
             value={noteType}
-            onChange={setNoteType}
+            onChange={(v) => { setNoteType(v); setErrors((p) => ({ ...p, noteType: "" })); }}
+            invalid={Boolean(errors.noteType)}
+            error={errors.noteType}
           />
 
-          <TextAreaInput value={noteText} onChange={setNoteText} />
+          <TextAreaInput
+            value={noteText}
+            onChange={(v) => { setNoteText(v); setErrors((p) => ({ ...p, noteText: "" })); }}
+            error={errors.noteText}
+          />
           <FileUploadInput onChange={setFile} />
 
           <div className="add-comment-submit-row">

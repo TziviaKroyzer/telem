@@ -1,0 +1,70 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function userEmail() {
+      return request.auth.token.email;
+    }
+
+    function isAdmin() {
+      return signedIn()
+        && exists(/databases/$(database)/documents/users/$(userEmail()))
+        && get(/databases/$(database)/documents/users/$(userEmail())).data.role == 'admin';
+    }
+
+    // מסמכי משתמשים מזוהים לפי אימייל
+    match /users/{email} {
+      allow read: if signedIn();
+      allow create: if isAdmin();
+      allow update: if isAdmin()
+        || (signedIn() && userEmail() == email)
+        || (
+          request.auth == null
+          && request.resource.data.diff(resource.data).affectedKeys()
+            .hasOnly(['failedAttempts', 'locked', 'lastFailedAt'])
+        );
+      allow delete: if isAdmin();
+    }
+
+    match /comments/{id} {
+      allow read: if signedIn();
+      allow create: if signedIn();
+      allow update: if signedIn() && (
+        isAdmin()
+        || resource.data.user == userEmail()
+        || resource.data.createdBy == '/users/' + userEmail()
+      );
+      allow delete: if isAdmin();
+    }
+
+    match /campuses/{id} {
+      allow read: if signedIn();
+      allow write: if isAdmin();
+    }
+
+    match /halls/{id} {
+      allow read: if signedIn();
+      allow write: if isAdmin();
+    }
+
+    match /commentType/{id} {
+      allow read: if signedIn();
+      allow write: if isAdmin();
+    }
+
+    match /reservations/{id} {
+      allow read: if signedIn();
+      allow create: if signedIn();
+      allow update, delete: if isAdmin()
+        || (signedIn() && resource.data.createdBy == '/users/' + userEmail());
+    }
+
+    match /files/{id} {
+      allow read: if signedIn();
+      allow write: if signedIn();
+    }
+  }
+}

@@ -2,12 +2,14 @@ import React, { useState, useEffect } from "react";
 import { db } from "../firebase";
 import { collection, addDoc, getDocs } from "firebase/firestore";
 import SelectInput from "./SelectInput";
+import { fieldError } from "../utils/validation";
 
 function AddCampus() {
   const [name, setName] = useState("");
   const [address, setAddress] = useState("");
   const [contactPerson, setContactPerson] = useState(""); // אימייל של אחראי
   const [users, setUsers] = useState([]);
+  const [errors, setErrors] = useState({});
 
   useEffect(() => {
     (async () => {
@@ -19,17 +21,20 @@ function AddCampus() {
 
   const onSubmit = async (e) => {
     e.preventDefault();
-    if (!name.trim()) return alert("נא למלא שם קמפוס");
+    const next = { name: fieldError("required", name, "שם קמפוס") };
+    setErrors(next);
+    if (next.name) return;
 
     await addDoc(collection(db, "campuses"), {
       name: name.trim(),
       address: address.trim(),
-      contactPerson: contactPerson || null, // שמרי אימייל/ID לפי מה שמתאים לך
+      contactPerson: contactPerson || null,
     });
 
     setName("");
     setAddress("");
     setContactPerson("");
+    setErrors({});
     alert("קמפוס נוסף בהצלחה");
   };
 
@@ -39,11 +44,13 @@ function AddCampus() {
       <form onSubmit={onSubmit} className="form-grid form-grid--3" style={{ marginTop: ".5rem" }}>
         <div>
           <label>שם קמפוס</label>
-          <input className="input" value={name} onChange={(e) => setName(e.target.value)} />
+          <input className={"input" + (errors.name ? " is-invalid" : "")} placeholder="לדוגמה: קמפוס א" value={name} onChange={(e) => setName(e.target.value)} />
+          {errors.name ? <div className="field-error">{errors.name}</div> : null}
         </div>
         <div>
           <label>כתובת</label>
-          <input className="input" value={address} onChange={(e) => setAddress(e.target.value)} />
+          <input className="input" placeholder="רחוב, עיר (לא חובה)" value={address} onChange={(e) => setAddress(e.target.value)} />
+          <div className="field-hint">לא חובה</div>
         </div>
         <div>
           <SelectInput

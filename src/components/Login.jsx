@@ -7,6 +7,8 @@ import {
 } from "firebase/auth";
 import { doc, getDoc, updateDoc, serverTimestamp } from "firebase/firestore";
 import { auth, db } from "../firebase";
+import { fieldError } from "../utils/validation";
+import { getFirebaseErrorMessage } from "../utils/firebaseErrors";
 
 function EyeIcon({ off = false }) {
   return (
@@ -32,13 +34,27 @@ const Login = ({ onLoginSuccess = () => {} }) => {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false); // <-- חדש
   const [error, setError] = useState("");
+  const [fieldErrors, setFieldErrors] = useState({});
   const [loading, setLoading] = useState(false);
 
+  /**
+   * התחברות עם אימייל וסיסמה, כולל בדיקת נעילה וחסימה במסמך המשתמש.
+   */
   const handleLogin = async (e) => {
     e.preventDefault();
 
+    const nextErrors = {
+      email: fieldError("email", email, "אימייל"),
+      password: fieldError("password", password, "סיסמה"),
+    };
+    setFieldErrors(nextErrors);
+    if (nextErrors.email || nextErrors.password) {
+      setError("");
+      return;
+    }
+
     if (!navigator.onLine) {
-      setError("אין חיבור אינטרנט. נסי שוב כשיהיה חיבור יציב.");
+      setError("בעיית חיבור לרשת, נסה שוב");
       return;
     }
     if (loading) return;
@@ -98,7 +114,7 @@ const Login = ({ onLoginSuccess = () => {} }) => {
       console.error(err);
 
       if (err.code === "auth/too-many-requests") {
-        setError("בוצעו יותר מדי ניסיונות התחברות. ניתן לבצע איפוס סיסמה כעת.");
+        setError(getFirebaseErrorMessage(err));
         setLoading(false);
         return;
       }
@@ -134,30 +150,30 @@ const Login = ({ onLoginSuccess = () => {} }) => {
         return;
       }
 
-      if (err.code === "auth/user-not-found") {
-        setError("המשתמש לא קיים.");
-        setLoading(false);
-        return;
-      }
-      if (err.code === "auth/invalid-email") {
-        setError("כתובת אימייל לא תקינה.");
+      if (err.code === "auth/user-not-found" || err.code === "auth/invalid-email") {
+        setError(getFirebaseErrorMessage(err));
         setLoading(false);
         return;
       }
 
-      setError("שגיאה בהתחברות. בדוק את הפרטים שלך.");
+      setError(getFirebaseErrorMessage(err));
       setLoading(false);
     }
   };
 
   const handlePasswordReset = async () => {
-    if (!email) return setError("הכנס אימייל לאיפוס סיסמה.");
+    const emailErr = fieldError("email", email, "אימייל");
+    if (emailErr) {
+      setFieldErrors((prev) => ({ ...prev, email: emailErr }));
+      setError("");
+      return;
+    }
     try {
       await sendPasswordResetEmail(auth, email);
       setError("אם החשבון קיים – נשלחה אליך הודעה לאיפוס סיסמה. אם לא מצאת, בדוק בתיקיית הספאם.");
     } catch (err) {
       console.error(err);
-      setError(err.code === "auth/invalid-email" ? "כתובת אימייל לא תקינה." : "שגיאה בשליחת אימייל לאיפוס סיסמה.");
+      setError(getFirebaseErrorMessage(err));
     }
   };
 
@@ -228,6 +244,8 @@ const Login = ({ onLoginSuccess = () => {} }) => {
     border-color: #12203A;
     box-shadow: 0 0 0 4px rgba(18,32,58,.08);
   }
+
+  .login-form input.is-invalid { border-color: #C4534E; }
 
   .login-form input:-webkit-autofill,
   .login-form input:-webkit-autofill:hover,
@@ -344,16 +362,20 @@ const Login = ({ onLoginSuccess = () => {} }) => {
             למערכת
           </h2>
 
-          <form onSubmit={handleLogin} className="login-form">
+          <form onSubmit={handleLogin} className="login-form" noValidate>
             <label>
               אימייל
               <input
                 type="email"
                 dir="ltr"
+                autoComplete="email"
+                placeholder="name@example.com"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
+                onChange={(e) => { setEmail(e.target.value); setFieldErrors((p) => ({ ...p, email: "" })); }}
+                className={fieldErrors.email ? "is-invalid" : ""}
               />
+              <div className="field-hint">כתובת האימייל שאיתה נרשמת למערכת</div>
+              {fieldErrors.email ? <div className="field-error">{fieldErrors.email}</div> : null}
             </label>
 
             <label>
@@ -362,9 +384,11 @@ const Login = ({ onLoginSuccess = () => {} }) => {
                 <input
                   type={showPassword ? "text" : "password"}
                   dir="ltr"
+                  autoComplete="current-password"
+                  placeholder="לפחות 6 תווים"
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
+                  onChange={(e) => { setPassword(e.target.value); setFieldErrors((p) => ({ ...p, password: "" })); }}
+                  className={fieldErrors.password ? "is-invalid" : ""}
                 />
                 <button
                   type="button"
@@ -375,6 +399,8 @@ const Login = ({ onLoginSuccess = () => {} }) => {
                   {showPassword ? <EyeIcon off /> : <EyeIcon />}
                 </button>
               </div>
+              <div className="field-hint">לפחות 6 תווים</div>
+              {fieldErrors.password ? <div className="field-error">{fieldErrors.password}</div> : null}
             </label>
 
             {error && <p className="error-message">{error}</p>}

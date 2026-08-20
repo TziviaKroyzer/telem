@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import { db } from "../firebase";
 import { collection, addDoc, getDocs } from "firebase/firestore";
 import SelectInput from "./SelectInput";
+import { fieldError } from "../utils/validation";
 
 export default function AddHall() {
   const [name, setName] = useState("");
@@ -11,6 +12,7 @@ export default function AddHall() {
   const [campuses, setCampuses] = useState([]);
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState("");
+  const [errors, setErrors] = useState({});
 
   useEffect(() => {
     (async () => {
@@ -21,22 +23,32 @@ export default function AddHall() {
 
   const onSubmit = async (e) => {
     e.preventDefault();
-    setMsg(""); setBusy(true);
+    const next = { name: fieldError("required", name, "שם אולם") };
+    setErrors(next);
+    if (next.name) {
+      setMsg("");
+      return;
+    }
+    setMsg("");
+    setBusy(true);
     try {
-      if (!name.trim()) return setMsg("נא למלא שם אולם");
-
       await addDoc(collection(db, "halls"), {
         name: name.trim(),
         address: address.trim() || null,
         campus: campusId ? `/campuses/${campusId}` : null,
       });
 
-      setName(""); setAddress(""); setCampusId("");
+      setName("");
+      setAddress("");
+      setCampusId("");
+      setErrors({});
       setMsg("האולם נוסף בהצלחה");
     } catch (err) {
       console.error(err);
       setMsg("שגיאה בהוספת אולם");
-    } finally { setBusy(false); }
+    } finally {
+      setBusy(false);
+    }
   };
 
   return (
@@ -45,11 +57,12 @@ export default function AddHall() {
       <form onSubmit={onSubmit} className="form-grid form-grid--3" style={{ marginTop: ".5rem" }}>
         <div>
           <label>שם אולם</label>
-          <input className="input" value={name} onChange={(e) => setName(e.target.value)} />
+          <input className={"input" + (errors.name ? " is-invalid" : "")} placeholder="לדוגמה: אולם ג" value={name} onChange={(e) => setName(e.target.value)} />
+          {errors.name ? <div className="field-error">{errors.name}</div> : null}
         </div>
         <div>
           <label>כתובת</label>
-          <input className="input" value={address} onChange={(e) => setAddress(e.target.value)} />
+          <input className="input" placeholder="מיקום (לא חובה)" value={address} onChange={(e) => setAddress(e.target.value)} />
         </div>
         <div>
           <SelectInput

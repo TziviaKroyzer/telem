@@ -9,6 +9,9 @@ export default function SelectInput({
   placeholder = "בחרי...",
   allowEmpty = false,
   compact = false,
+  invalid = false,
+  error = "",
+  hint = "",
 }) {
   const [open, setOpen] = useState(false);
   const rootRef = useRef(null);
@@ -36,7 +39,7 @@ export default function SelectInput({
       {label ? <label>{label}</label> : null}
       <button
         type="button"
-        className={"nice-select-btn" + (!selected ? " is-placeholder" : "")}
+        className={"nice-select-btn" + (!selected ? " is-placeholder" : "") + (invalid ? " is-invalid" : "")}
         aria-expanded={open}
         onClick={() => setOpen((v) => !v)}
       >
@@ -69,6 +72,8 @@ export default function SelectInput({
           ))}
         </ul>
       )}
+      {hint ? <div className="field-hint">{hint}</div> : null}
+      {error ? <div className="field-error">{error}</div> : null}
     </div>
   );
 }
