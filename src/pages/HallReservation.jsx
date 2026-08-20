@@ -7,6 +7,7 @@ import {
   where,
   collection,
   addDoc,
+  getDoc,
   getDocs,
   runTransaction,
 } from "firebase/firestore";
@@ -36,9 +37,25 @@ const HallReservation = () => {
   const [markedDates, setMarkedDates] = useState(() => new Set());
   const [notice, setNotice] = useState(null);
   const [formErrors, setFormErrors] = useState({});
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [currentUserEmail, setCurrentUserEmail] = useState(null);
 
   // שימוש ב-toLocaleDateString("sv-SE") לכל התאריכים כדי למנוע בעיות timezone
   const formatDate = (date) => date.toLocaleDateString("sv-SE");
+
+  useEffect(() => {
+    (async () => {
+      const currentUser = getAuth().currentUser;
+      if (!currentUser?.email) return;
+      setCurrentUserEmail(currentUser.email);
+      try {
+        const snap = await getDoc(doc(db, "users", currentUser.email));
+        setIsAdmin(snap.exists() && snap.data()?.role === "admin");
+      } catch {
+        setIsAdmin(false);
+      }
+    })();
+  }, []);
 
   useEffect(() => {
     if (!hallId) return;
@@ -68,9 +85,12 @@ const HallReservation = () => {
       const reservations = snapshot.docs.map((d) => {
         const data = d.data();
         return {
+          id: d.id,
           startTime: data.startTime,
           endTime: data.endTime,
           description: data.description,
+          createdBy: data.createdBy,
+          date: formattedDate,
         };
       });
 
@@ -98,9 +118,12 @@ const HallReservation = () => {
     const reservations = reservationsSnapshot.docs.map((d) => {
       const data = d.data();
       return {
+        id: d.id,
         startTime: data.startTime,
         endTime: data.endTime,
         description: data.description,
+        createdBy: data.createdBy,
+        date: formattedDate,
       };
     });
     setReservationsByDate((prev) => ({
@@ -223,9 +246,12 @@ const HallReservation = () => {
       updated[reservation.date] = [
         ...arr,
         {
+          id: reservation.id,
           startTime: reservation.startTime,
           endTime: reservation.endTime,
           description: reservation.description,
+          createdBy: reservation.createdBy,
+          date: reservation.date,
         },
       ];
       return updated;
@@ -286,7 +312,7 @@ const HallReservation = () => {
         hallId,
         createdBy: `/users/${currentUser?.email || "unknown"}`,
       };
-      const reservationRef = doc(collection(db, "reservations"));
+      let reservationRef = doc(collection(db, "reservations"));
       const lockRef = doc(db, "hallDayLocks", `${hallId}_${reservation.date}`);
 
       try {
@@ -321,13 +347,13 @@ const HallReservation = () => {
       } catch (e) {
         if (e?.message === "OVERLAP") return failOverlap(e.conflict || reservation);
         if (e?.code === "permission-denied") {
-          await addDoc(collection(db, "reservations"), payload);
+          reservationRef = await addDoc(collection(db, "reservations"), payload);
         } else {
           throw e;
         }
       }
 
-      rememberLocalReservation(reservation);
+      rememberLocalReservation({ ...reservation, id: reservationRef.id, createdBy: payload.createdBy });
       return { ok: true };
     } catch (e) {
       console.error("שגיאה בשמירת השריון:", e);
@@ -335,6 +361,56 @@ const HallReservation = () => {
         setNotice({ title: "שגיאה", message: "לא הצלחנו לשמור את השריון. נסו שוב." });
       }
       return { ok: false };
+    }
+  };
+
+  const canDeleteReservation = (ev) =>
+    isAdmin || (currentUserEmail && ev.createdBy === `/users/${currentUserEmail}`);
+
+  /**
+   * מוחק שריון קיים, וכן מסיר את הטווח המתאים מ-hallDayLocks כדי לא להשאיר נעילת שעות רפאים.
+   */
+  const deleteReservation = async (ev) => {
+    if (!window.confirm("למחוק את השריון?")) return;
+
+    try {
+      const reservationRef = doc(db, "reservations", ev.id);
+      const lockRef = doc(db, "hallDayLocks", `${hallId}_${ev.date}`);
+
+      await runTransaction(db, async (tx) => {
+        const lockSnap = await tx.get(lockRef);
+        tx.delete(reservationRef);
+        if (lockSnap.exists()) {
+          const ranges = (lockSnap.data().ranges || []).filter(
+            (r) => r.reservationId !== ev.id
+          );
+          tx.update(lockRef, { ranges });
+        }
+      });
+
+      setReservationsByDate((prev) => {
+        const updated = { ...prev };
+        updated[ev.date] = (updated[ev.date] || []).filter((r) => r.id !== ev.id);
+        if (!updated[ev.date].length) {
+          setMarkedDates((prevMarked) => {
+            const next = new Set(prevMarked);
+            next.delete(ev.date);
+            return next;
+          });
+        }
+        return updated;
+      });
+
+      setNotice({ title: "השריון נמחק", message: "השריון נמחק בהצלחה." });
+    } catch (e) {
+      console.error("שגיאה במחיקת השריון:", e);
+      setNotice({
+        title: "שגיאה",
+        message:
+          e?.code === "permission-denied"
+            ? "אין לך הרשאה למחוק שריון זה."
+            : "לא הצלחנו למחוק את השריון. נסו שוב.",
+      });
     }
   };
 
@@ -391,6 +467,26 @@ const HallReservation = () => {
           padding: 10px 12px;
           text-align: right;
         }
+        .reserve-list-item {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 10px;
+        }
+        .reserve-delete-btn {
+          flex-shrink: 0;
+          border: 1px solid #E7A0A0;
+          background: #FDF2F2;
+          color: #C0392B;
+          border-radius: 8px;
+          padding: 4px 10px;
+          font-size: 12.5px;
+          font-weight: 600;
+          cursor: pointer;
+        }
+        .reserve-delete-btn:hover {
+          background: #FBE4E4;
+        }
       `}</style>
 
       <div className="reserve-hero">
@@ -418,9 +514,22 @@ const HallReservation = () => {
                 {reservationsByDate[formattedDate]?.length ? (
                   <ul className="reserve-list">
                     {reservationsByDate[formattedDate].map((ev, i) => (
-                      <li key={i}>
-                        <strong>{ev.startTime}–{ev.endTime}</strong>
-                        {ev.description ? ` · ${ev.description}` : ""}
+                      <li key={ev.id || i} className="reserve-list-item">
+                        <span>
+                          <strong>{ev.startTime}–{ev.endTime}</strong>
+                          {ev.description ? ` · ${ev.description}` : ""}
+                        </span>
+                        {ev.id && canDeleteReservation(ev) ? (
+                          <button
+                            type="button"
+                            className="reserve-delete-btn"
+                            title="מחיקת שריון"
+                            aria-label="מחיקת שריון"
+                            onClick={() => deleteReservation(ev)}
+                          >
+                            מחק
+                          </button>
+                        ) : null}
                       </li>
                     ))}
                   </ul>
