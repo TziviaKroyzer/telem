@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { collection, getDocs, doc, updateDoc, getDoc } from "firebase/firestore";
 import { db } from "../firebase";
+import { Pencil, Trash2, Check, X, Unlock } from "lucide-react";
+import SelectInput from "./SelectInput";
 
 function UserList() {
   const [users, setUsers] = useState([]);
@@ -74,76 +76,81 @@ function UserList() {
 
   return (
     <section>
-      <style>{`
-        .admin-list{ list-style:none; margin:12px 0 0; padding:0; display:grid; gap:12px; }
-        .admin-row{
-          background: rgba(255,255,255,.9);
-          border:1px solid #e6eef6;
-          border-radius:16px;
-          padding:12px 16px;
-          display:flex; align-items:center; justify-content:space-between; gap:12px;
-          box-shadow:0 6px 18px rgba(15,23,42,.06);
-          transition: box-shadow .15s ease, transform .12s ease;
-        }
-        .admin-row:hover{ box-shadow:0 10px 26px rgba(15,23,42,.10); transform: translateY(-1px); }
-        .admin-actions{ display:flex; gap:10px; flex-wrap:wrap; }
-      `}</style>
-
       <h2>רשימת משתמשים</h2>
 
-      <ul className="admin-list">
-        {users.map((u) => (
-          <li key={u.id} className="admin-row">
-            {editEmail === u.id ? (
-              <div className="form-grid form-grid--3" style={{ width: "100%" }}>
-                <div>
-                  <label>שם פרטי</label>
-                  <input className="input" name="firstName" value={editData.firstName} onChange={handleEditChange}/>
+      {users.length === 0 ? (
+        <div className="admin-empty">אין משתמשים להצגה</div>
+      ) : (
+        <ul className="admin-rows">
+          {users.map((u) => (
+            <li key={u.id} className="admin-row">
+              {editEmail === u.id ? (
+                <div className="form-grid form-grid--3" style={{ width: "100%" }}>
+                  <div>
+                    <label>שם פרטי</label>
+                    <input className="input" name="firstName" value={editData.firstName} onChange={handleEditChange}/>
+                  </div>
+                  <div>
+                    <label>שם משפחה</label>
+                    <input className="input" name="lastName" value={editData.lastName} onChange={handleEditChange}/>
+                  </div>
+                  <div>
+                    <label>טלפון</label>
+                    <input className="input" name="phone" value={editData.phone} onChange={handleEditChange}/>
+                  </div>
+                  <div>
+                    <SelectInput
+                      label="תפקיד"
+                      value={editData.role}
+                      onChange={(role) => setEditData({ ...editData, role })}
+                      options={[
+                        { value: "user", label: "משתמש רגיל" },
+                        { value: "admin", label: "מנהל" },
+                      ]}
+                    />
+                  </div>
+                  <div className="admin-actions" style={{ gridColumn: "1 / -1" }}>
+                    <button className="admin-icon-btn admin-icon-btn--ok" title="שמירה" aria-label="שמירה" onClick={saveEdit}>
+                      <Check size={16} strokeWidth={1.7} />
+                    </button>
+                    <button className="admin-icon-btn" title="ביטול" aria-label="ביטול" onClick={() => setEditEmail(null)}>
+                      <X size={16} strokeWidth={1.7} />
+                    </button>
+                  </div>
                 </div>
-                <div>
-                  <label>שם משפחה</label>
-                  <input className="input" name="lastName" value={editData.lastName} onChange={handleEditChange}/>
-                </div>
-                <div>
-                  <label>טלפון</label>
-                  <input className="input" name="phone" value={editData.phone} onChange={handleEditChange}/>
-                </div>
-                <div>
-                  <label>תפקיד</label>
-                  <select className="select-input" name="role" value={editData.role} onChange={handleEditChange}>
-                    <option value="user">משתמש רגיל</option>
-                    <option value="admin">מנהל</option>
-                  </select>
-                </div>
-                <div className="row" style={{ gridColumn: "1 / -1" }}>
-                  <button className="btn" onClick={saveEdit}>שמור</button>
-                  <button className="btn btn--ghost" onClick={() => setEditEmail(null)}>ביטול</button>
-                </div>
-              </div>
-            ) : (
-              <>
-                <div>
-                  <strong>{u.firstName} {u.lastName}</strong> ({u.id})
-                  {" · "}ניסיונות כושלים: {u.failedAttempts}
-                  {u.locked ? " · 🔒 נעול" : ""}
-                </div>
-                <div className="admin-actions">
-                  <button className="btn btn--danger" onClick={() => handleDelete(u.id)}>מחק</button>
-                  <button className="btn" onClick={() => startEdit(u)}>ערוך</button>
-                  <button
-                    className="btn btn--accent"
-                    onClick={() => unlockUser(u.id)}
-                    disabled={!u.locked || busy}
-                    title={u.locked ? "שחרור נעילה" : "המשתמש לא נעול"}
-                  >
-                    שחרר נעילה
-                  </button>
-                </div>
-              </>
-            )}
-          </li>
-        ))}
-      </ul>
+              ) : (
+                <>
+                  <div className="admin-row-main">
+                    <span className="admin-row-title">{u.firstName} {u.lastName}</span>
+                    <span className="admin-row-sub">
+                      {u.id}
+                      {u.failedAttempts ? ` · ${u.failedAttempts} ניסיונות כושלים` : ""}
+                    </span>
+                    {u.locked ? <span className="admin-chip">נעול</span> : null}
+                  </div>
+                  <div className="admin-actions">
+                    <button
+                      className="admin-icon-btn"
+                      title={u.locked ? "שחרור נעילה" : "המשתמש לא נעול"}
+                      aria-label="שחרור נעילה"
+                      onClick={() => unlockUser(u.id)}
+                      disabled={!u.locked || busy}
+                    >
+                      <Unlock size={16} strokeWidth={1.6} />
+                    </button>
+                    <button className="admin-icon-btn" title="עריכה" aria-label="עריכה" onClick={() => startEdit(u)}>
+                      <Pencil size={16} strokeWidth={1.6} />
+                    </button>
+                    <button className="admin-icon-btn admin-icon-btn--danger" title="מחיקה" aria-label="מחיקה" onClick={() => handleDelete(u.id)}>
+                      <Trash2 size={16} strokeWidth={1.6} />
+                    </button>
+                  </div>
+                </>
+              )}
+            </li>
+          ))}
+        </ul>
+      )}
     </section>
   );
 }

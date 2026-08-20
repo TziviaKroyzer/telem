@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { db } from "../firebase";
 import { collection, addDoc, getDocs } from "firebase/firestore";
+import SelectInput from "./SelectInput";
 
 function AddCampus() {
   const [name, setName] = useState("");
@@ -33,7 +34,7 @@ function AddCampus() {
   };
 
   return (
-    <div className="card">
+    <>
       <h2>הוספת קמפוס חדש</h2>
       <form onSubmit={onSubmit} className="form-grid form-grid--3" style={{ marginTop: ".5rem" }}>
         <div>
@@ -45,19 +46,17 @@ function AddCampus() {
           <input className="input" value={address} onChange={(e) => setAddress(e.target.value)} />
         </div>
         <div>
-          <label>בחר אחראי</label>
-          <select
-            className="select-input"
+          <SelectInput
+            label="בחר אחראי"
+            allowEmpty
+            placeholder="ללא"
             value={contactPerson}
-            onChange={(e) => setContactPerson(e.target.value)}
-          >
-            <option value="">ללא —</option>
-            {users.map((u) => (
-              <option key={u.id} value={u.id}>
-                {(u.firstName ? `${u.firstName} ` : "") + (u.lastName || u.id)}
-              </option>
-            ))}
-          </select>
+            onChange={setContactPerson}
+            options={users.map((u) => ({
+              value: u.id,
+              label: (u.firstName ? `${u.firstName} ` : "") + (u.lastName || u.id),
+            }))}
+          />
         </div>
 
         <div className="row" style={{ gridColumn: "1 / -1" }}>
@@ -66,7 +65,7 @@ function AddCampus() {
           </button>
         </div>
       </form>
-    </div>
+    </>
   );
 }
 

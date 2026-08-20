@@ -27,6 +27,7 @@ const AddComment = () => {
   const [dayComments, setDayComments] = useState([]);
   const [showDayModal, setShowDayModal] = useState(false);
   const [loadingDayComments, setLoadingDayComments] = useState(false);
+  const [markedDates, setMarkedDates] = useState(() => new Set());
 
   useEffect(() => {
     const fetchCampuses = async () => {
@@ -79,9 +80,25 @@ const AddComment = () => {
     fetchUsers();
   }, []);
 
+  useEffect(() => {
+    const fetchMarkedDates = async () => {
+      try {
+        const snapshot = await getDocs(collection(db, "comments"));
+        const dates = snapshot.docs
+          .map((d) => d.data().date)
+          .filter(Boolean);
+        setMarkedDates(new Set(dates));
+      } catch (error) {
+        console.error("שגיאה בסימון תאריכים ביומן:", error);
+      }
+    };
+    fetchMarkedDates();
+  }, []);
+
   const handleDateChange = async (newDate) => {
-    setDate(newDate);
-    const dateStr = newDate.toISOString().split("T")[0];
+    const next = Array.isArray(newDate) ? newDate[0] : newDate;
+    setDate(next);
+    const dateStr = next.toLocaleDateString("sv-SE");
     setLoadingDayComments(true);
     setShowDayModal(true);
     try {
@@ -141,11 +158,16 @@ const AddComment = () => {
         fileName: file ? file.name : null,
         fileUrl, // כאן שומרים את ה-URL של הקובץ שהועלה
         done: false,
-        date: date.toISOString().split("T")[0], // רק תאריך בלי שעה
+        date: date.toLocaleDateString("sv-SE"),
       };
 
       // שמירה עם מפתח אוטומטי שנוצר ע"י Firebase
       await addDoc(collection(db, "comments"), commentData);
+      setMarkedDates((prev) => {
+        const next = new Set(prev);
+        next.add(commentData.date);
+        return next;
+      });
 
       console.log("ההערה נשמרה בהצלחה!");
 
@@ -176,34 +198,94 @@ const AddComment = () => {
       <style>{`
         .add-comment-page {
           width: 100%;
-          max-width: 100%;
-          overflow-x: hidden;
+          max-width: 1080px;
+          margin: 0 auto;
           box-sizing: border-box;
         }
+
+        .add-comment-hero {
+          display: flex;
+          align-items: flex-end;
+          justify-content: space-between;
+          gap: 20px;
+          flex-wrap: wrap;
+          padding-bottom: 18px;
+        }
+
+        .add-comment-badge {
+          display: inline-flex;
+          align-items: center;
+          gap: 7px;
+          font-weight: 600;
+          font-size: 11.5px;
+          color: #8A8272;
+          margin-bottom: 10px;
+        }
+
+        .add-comment-badge span {
+          width: 6px; height: 6px; border-radius: 999px; background: #35B6E8;
+        }
+
         .page-title {
-          font-size: clamp(1.2rem, 4vw, 1.6rem);
-          font-weight: 700;
-          margin-bottom: 1rem;
+          margin: 0;
+          font-family: "Heebo", var(--font-sans);
+          font-weight: 900;
+          font-size: clamp(1.6rem, 4.5vw, 2.2rem);
+          letter-spacing: -.8px;
+          color: #12203A;
         }
-        .calendar-label {
-          font-size: clamp(.95rem, 3vw, 1.1rem);
-          margin-bottom: .5rem;
-        }
+
         .add-comment-form {
           display: flex;
           flex-direction: column;
-          gap: 1rem;
+          gap: 22px;
           width: 100%;
         }
+
         .calendar-section {
           width: 100%;
-          overflow: hidden;
         }
+
+        .calendar-label {
+          font-size: .95rem;
+          font-weight: 800;
+          color: #12203A;
+          margin: 0 0 10px;
+        }
+
+        .add-comment-fields {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 16px 18px;
+          background: var(--bg-card);
+          border: 1px solid var(--line);
+          border-radius: 24px;
+          box-shadow: 0 18px 40px rgba(18, 32, 58, .07);
+          padding: 22px;
+          text-align: right;
+          overflow: visible;
+        }
+
+        .add-comment-fields > :nth-child(n+4) {
+          grid-column: 1 / -1;
+        }
+
+        @media (max-width: 620px) {
+          .add-comment-fields { grid-template-columns: 1fr; }
+          .add-comment-fields > :nth-child(n+4) { grid-column: auto; }
+        }
+
+        .add-comment-submit-row {
+          display: flex;
+          gap: 10px;
+        }
+
+        .add-comment-submit-row .btn { flex: 1; }
 
         .day-modal-backdrop {
           position: fixed;
           inset: 0;
-          background: rgba(0,0,0,0.45);
+          background: rgba(18,32,58,0.45);
           display: flex;
           align-items: center;
           justify-content: center;
@@ -212,33 +294,33 @@ const AddComment = () => {
         }
 
         .day-modal {
-          background: #fff;
-          border-radius: 16px;
+          background: var(--bg-card);
+          border-radius: var(--radius-lg);
           padding: 1.25rem 1.5rem;
           width: 100%;
           max-width: 480px;
           max-height: 70vh;
           overflow-y: auto;
-          box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+          box-shadow: 0 8px 32px rgba(18,32,58,0.18);
           direction: rtl;
           text-align: right;
         }
 
         .day-modal h3 {
           font-size: 1.1rem;
-          font-weight: 700;
+          font-weight: 800;
           margin: 0 0 1rem;
-          color: #1a2b4a;
+          color: #12203A;
         }
 
         .day-comment-item {
-          background: #f7fafd;
-          border: 1px solid #e0eaf3;
-          border-radius: 10px;
+          background: #F7FBFD;
+          border: 1px solid #EDE9E3;
+          border-radius: var(--radius);
           padding: 0.75rem 1rem;
           margin-bottom: 0.6rem;
           font-size: 0.92rem;
-          color: #2d3a4e;
+          color: #12203A;
           white-space: pre-wrap;
           word-break: break-word;
         }
@@ -246,25 +328,27 @@ const AddComment = () => {
         .day-comment-done {
           display: inline-block;
           margin-top: 0.35rem;
-          font-size: 0.78rem;
-          color: #fff;
-          background: #4caf50;
-          border-radius: 6px;
-          padding: 1px 8px;
+          font-size: 0.75rem;
+          font-weight: 700;
+          color: #2F7D55;
+          background: #EDF7F1;
+          border-radius: 999px;
+          padding: 3px 10px;
         }
 
         .day-comment-pending {
           display: inline-block;
           margin-top: 0.35rem;
-          font-size: 0.78rem;
-          color: #fff;
-          background: #f4a63f;
-          border-radius: 6px;
-          padding: 1px 8px;
+          font-size: 0.75rem;
+          font-weight: 700;
+          color: #B06A12;
+          background: #FEF6E7;
+          border-radius: 999px;
+          padding: 3px 10px;
         }
 
         .day-modal-empty {
-          color: #7a92b0;
+          color: #8A8272;
           font-size: 0.95rem;
           text-align: center;
           padding: 1rem 0;
@@ -277,49 +361,62 @@ const AddComment = () => {
         }
       `}</style>
 
-      <h2 className="page-title">הוספת הערה ליומן</h2>
+      <div className="add-comment-hero">
+        <div>
+          <div className="add-comment-badge"><span />הערות</div>
+          <h2 className="page-title">הערה חדשה</h2>
+        </div>
+      </div>
+
       <form onSubmit={handleSubmit} className="add-comment-form">
         <div className="calendar-section">
-          <h3 className="calendar-label">בחר תאריך ביומן:</h3>
-          <Calendar date={date} setDate={handleDateChange} />
+          <h3 className="calendar-label">בחרי תאריך ביומן</h3>
+          <Calendar
+            date={date}
+            setDate={handleDateChange}
+            markedDates={markedDates}
+            markLabel="יש הערות"
+          />
         </div>
 
-        <SelectInput
-          label="קמפוס"
-          options={campusOptions.map((campus) => ({
-            label: campus.name,
-            value: campus.id,
-          }))}
-          value={campus}
-          onChange={setCampus}
-        />
+        <div className="add-comment-fields">
+          <SelectInput
+            label="קמפוס"
+            options={campusOptions.map((campus) => ({
+              label: campus.name,
+              value: campus.id,
+            }))}
+            value={campus}
+            onChange={setCampus}
+          />
 
-        <SelectInput
-          label="עדכון עבור משתמש"
-          options={usersList.map((user) => ({
-            label: user.name,
-            value: user.id,
-          }))}
-          value={selectedUser}
-          onChange={setSelectedUser}
-        />
+          <SelectInput
+            label="עדכון עבור משתמש"
+            options={usersList.map((user) => ({
+              label: user.name,
+              value: user.id,
+            }))}
+            value={selectedUser}
+            onChange={setSelectedUser}
+          />
 
-        <SelectInput
-          label="סוג הערה"
-          options={commentType.map((type) => ({
-            label: type.name,
-            value: type.id,
-          }))}
-          value={noteType}
-          onChange={setNoteType}
-        />
+          <SelectInput
+            label="סוג הערה"
+            options={commentType.map((type) => ({
+              label: type.name,
+              value: type.id,
+            }))}
+            value={noteType}
+            onChange={setNoteType}
+          />
 
-        <TextAreaInput value={noteText} onChange={setNoteText} />
-        <FileUploadInput onChange={setFile} />
+          <TextAreaInput value={noteText} onChange={setNoteText} />
+          <FileUploadInput onChange={setFile} />
 
-        <button type="submit" className="btn btn--accent" style={{ alignSelf: "flex-start" }}>
-          אישור
-        </button>
+          <div className="add-comment-submit-row">
+            <button type="submit" className="btn">שמור הערה</button>
+          </div>
+        </div>
       </form>
 
       {showModal && <ConfirmationModal onClose={closeModal} />}

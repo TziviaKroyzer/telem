@@ -1,4 +1,3 @@
-// src/components/UserNameHeader.jsx
 import React, { useEffect, useState } from "react";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { getFirestore, doc, getDoc } from "firebase/firestore";
@@ -38,10 +37,8 @@ export default function UserNameHeader({ fallbackName = "אורח/ת" }) {
   }, [fallbackName]);
 
   return (
-    <div className="user-header">
-      <h2>
-        שלום, <span className="user-name">{name}</span>
-      </h2>
-    </div>
+    <h1 className="page-title">
+      שלום, {name}
+    </h1>
   );
 }

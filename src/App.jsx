@@ -5,12 +5,10 @@ import {
   Navigate,
   Routes,
   Route,
-  Link,
 } from "react-router-dom";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "./firebase";
 
-import Authentication from "./pages/Authentication";
 import Home from "./pages/Home";
 import AddComment from "./pages/AddComment";
 import Halls from "./pages/Halls";
@@ -22,7 +20,7 @@ import AdminPanel from "./pages/AdminPanel";
 import Profile from "./pages/Profile";
 
 import FloatingHomeButton from "./components/FloatingHomeButton";
-import logo from "./assets/logo.webp";
+import BrandLogo from "./components/BrandLogo";
 
 const App = () => {
   // undefined = בודק (טעינה), null = לא מחובר, object = מחובר
@@ -33,23 +31,13 @@ const App = () => {
     return unsubscribe;
   }, []);
 
-  if (user === undefined) {
-    return (
-      <div className="app-loading">
-        <span>טוען...</span>
-      </div>
-    );
-  }
-
-  const isAuthenticated = !!user;
+  const isAuthenticated = Boolean(user);
 
   return (
     <Router>
       <div className="app-wrapper">
         <header className="header">
-          <Link to="/">
-            <img src={logo} alt="Logo" className="logo" />
-          </Link>
+          <BrandLogo />
         </header>
 
         <div className="app-container">
@@ -87,7 +75,7 @@ const App = () => {
       <style>
         {`
         .app-wrapper {
-          text-align: center;
+          text-align: right;
           direction: rtl;
           min-height: 100vh;
         }
@@ -103,31 +91,32 @@ const App = () => {
         }
 
         .header {
-          padding: 8px 16px;
-          background-color: transparent;
+          padding: 12px 20px 6px;
+          background: transparent;
           display: flex;
           align-items: center;
           justify-content: center;
         }
 
         @media (min-width: 520px) {
-          .header { padding: 12px 24px; }
-        }
-
-        .logo {
-          height: clamp(44px, 8vw, 60px);
-          cursor: pointer;
-          display: block;
+          .header { padding: 16px 28px 8px; }
         }
 
         .app-container {
-          padding: 12px;
-          overflow-x: hidden;
+          padding: 8px 16px 32px;
+          overflow-x: visible;
           box-sizing: border-box;
+          width: 100%;
+          max-width: 1360px;
+          margin-inline: auto;
         }
 
         @media (min-width: 520px) {
-          .app-container { padding: 16px; }
+          .app-container { padding: 8px 32px 40px; }
+        }
+
+        @media (min-width: 1100px) {
+          .app-container { padding: 8px 48px 48px; }
         }
       `}
       </style>

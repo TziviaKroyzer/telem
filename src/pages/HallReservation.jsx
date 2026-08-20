@@ -11,6 +11,7 @@ import {
 } from "firebase/firestore";
 import { db } from "../firebase";
 import { getAuth } from "firebase/auth";
+import AppNotice from "../components/AppNotice";
 
 const HallReservation = () => {
   const location = useLocation();
@@ -27,9 +28,24 @@ const HallReservation = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [reservationsByDate, setReservationsByDate] = useState({});
   const [notesByDate, setNotesByDate] = useState({});
+  const [markedDates, setMarkedDates] = useState(() => new Set());
+  const [notice, setNotice] = useState(null);
 
   // שימוש ב-toLocaleDateString("sv-SE") לכל התאריכים כדי למנוע בעיות timezone
   const formatDate = (date) => date.toLocaleDateString("sv-SE");
+
+  useEffect(() => {
+    if (!hallId) return;
+    (async () => {
+      try {
+        const q = query(collection(db, "reservations"), where("hallId", "==", hallId));
+        const snapshot = await getDocs(q);
+        setMarkedDates(new Set(snapshot.docs.map((d) => d.data().date).filter(Boolean)));
+      } catch (e) {
+        setMarkedDates(new Set());
+      }
+    })();
+  }, [hallId]);
 
   useEffect(() => {
     const fetchReservations = async () => {
@@ -104,11 +120,11 @@ const HallReservation = () => {
   const handleReserve = () => setShowReserveModal(true);
 
   const confirmReservation = async () => {
-    if (!startTime || !endTime) return alert("נא לבחור שעת התחלה וסיום");
+    if (!startTime || !endTime) return setNotice({ title: "חסר פרט", message: "נא לבחור שעת התחלה וסיום" });
 
     const start = new Date(`2000-01-01T${startTime}`);
     const end = new Date(`2000-01-01T${endTime}`);
-    if (end <= start) return alert("שעת הסיום חייבת להיות אחרי שעת ההתחלה");
+    if (end <= start) return setNotice({ title: "שעות לא תקינות", message: "שעת הסיום חייבת להיות אחרי שעת ההתחלה" });
 
     const reservation = {
       date: formattedDate,
@@ -116,11 +132,13 @@ const HallReservation = () => {
       endTime,
       description: description || "אין",
     };
-    await saveReservationToFirestore(reservation);
+    const saved = await saveReservationToFirestore(reservation);
+    if (!saved) return;
 
-    alert(
-      `האולם "${hallName}" שוריין בתאריך ${formattedDate} משעה ${startTime} עד ${endTime}\nתיאור: ${reservation.description}`
-    );
+    setNotice({
+      title: "האולם שוריין",
+      message: `האולם "${hallName}" שוריין בתאריך ${formattedDate} משעה ${startTime} עד ${endTime}\nתיאור: ${reservation.description}`,
+    });
 
     setDescription("");
     setShowReserveModal(false);
@@ -130,7 +148,7 @@ const HallReservation = () => {
 
   const reserveFullMonth = async () => {
     if (!selectedDate || !startTime || !endTime || !description) {
-      alert("נא למלא את כל השדות (תאריך, שעות ותיאור)");
+      setNotice({ title: "חסר פרט", message: "נא למלא את כל השדות (תאריך, שעות ותיאור)" });
       return;
     }
 
@@ -161,17 +179,19 @@ const HallReservation = () => {
       return updated;
     });
 
-    alert(
-      `האולם "${hallName}" שוריין בכל ימי ה-${selectedDate.toLocaleDateString(
-        "he-IL",
-        { weekday: "long" }
-      )} החודש:\n` +
+    setNotice({
+      title: "האולם שוריין",
+      message:
+        `האולם "${hallName}" שוריין בכל ימי ה-${selectedDate.toLocaleDateString(
+          "he-IL",
+          { weekday: "long" }
+        )} החודש:\n` +
         reservations
           .map(
             (r) => `${r.date} (${r.startTime}–${r.endTime}) - ${r.description}`
           )
-          .join("\n")
-    );
+          .join("\n"),
+    });
 
     setShowReserveModal(false);
     setStartTime("");
@@ -182,7 +202,10 @@ const HallReservation = () => {
   const saveReservationToFirestore = async (reservation) => {
     try {
       const currentUser = getAuth().currentUser;
-      if (!currentUser) return alert("אין משתמש מחובר, לא ניתן לשמור שריון.");
+      if (!currentUser) {
+        setNotice({ title: "לא מחובר", message: "אין משתמש מחובר, לא ניתן לשמור שריון." });
+        return false;
+      }
 
       const hallRef = doc(db, "halls", hallId);
       await addDoc(collection(db, "reservations"), {
@@ -206,8 +229,17 @@ const HallReservation = () => {
         ];
         return updated;
       });
+      if (reservation.date) {
+        setMarkedDates((prev) => {
+          const next = new Set(prev);
+          next.add(reservation.date);
+          return next;
+        });
+      }
+      return true;
     } catch (e) {
       console.error("שגיאה בשמירת השריון:", e);
+      return false;
     }
   };
 
@@ -218,10 +250,65 @@ const HallReservation = () => {
   }, [hallId]);
 
   return (
-    <div className="stack" style={{ gap: "1rem" }}>
-      <h1 className="page-title">הזמנת אולם: {hallName}</h1>
+    <div className="reserve-page">
+      <style>{`
+        .reserve-page {
+          width: 100%;
+          max-width: 940px;
+          margin: 0 auto;
+        }
+        .reserve-hero { padding-bottom: 16px; }
+        .reserve-badge {
+          display: inline-flex;
+          align-items: center;
+          gap: 7px;
+          font-weight: 600;
+          font-size: 11.5px;
+          color: #8A8272;
+          margin-bottom: 10px;
+        }
+        .reserve-badge span { width: 6px; height: 6px; border-radius: 999px; background: #35B6E8; }
+        .reserve-actions {
+          display: flex;
+          gap: 8px;
+          flex-wrap: wrap;
+          margin-top: 12px;
+        }
+        .reserve-actions .btn {
+          flex: 1;
+          min-width: 100px;
+        }
+        @media (min-width: 480px) {
+          .reserve-actions .btn { flex: 0 1 auto; }
+        }
+        .reserve-list {
+          list-style: none;
+          padding: 0;
+          margin: 0 0 1rem;
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+        }
+        .reserve-list li {
+          background: #F7FBFD;
+          border: 1px solid var(--line);
+          border-radius: 12px;
+          padding: 10px 12px;
+          text-align: right;
+        }
+      `}</style>
 
-      <JewishCalendar date={selectedDate} setDate={handleDateClick} />
+      <div className="reserve-hero">
+        <div className="reserve-badge"><span />הזמנת אולם</div>
+        <h1 className="page-title">{hallName || "הזמנת אולם"}</h1>
+      </div>
+
+      <JewishCalendar
+        date={selectedDate}
+        setDate={handleDateClick}
+        markedDates={markedDates}
+        markLabel="יש הזמנות"
+      />
 
       {/* מודאל פרטי היום הנבחר + כפתור לשריון מתוך המודאל */}
       {showModal && (
@@ -234,10 +321,11 @@ const HallReservation = () => {
               <>
                 <h4>שריונים:</h4>
                 {reservationsByDate[formattedDate]?.length ? (
-                  <ul>
+                  <ul className="reserve-list">
                     {reservationsByDate[formattedDate].map((ev, i) => (
                       <li key={i}>
-                        {ev.startTime}–{ev.endTime}: {ev.description}
+                        <strong>{ev.startTime}–{ev.endTime}</strong>
+                        {ev.description ? ` · ${ev.description}` : ""}
                       </li>
                     ))}
                   </ul>
@@ -247,7 +335,7 @@ const HallReservation = () => {
 
                 <h4>אירועים:</h4>
                 {notesByDate[formattedDate]?.length ? (
-                  <ul>
+                  <ul className="reserve-list">
                     {notesByDate[formattedDate].map((n, i) => (
                       <li key={i}>{n.noteText}</li>
                     ))}
@@ -376,21 +464,13 @@ const HallReservation = () => {
         </div>
       )}
 
-      <style>{`
-        .reserve-actions {
-          display: flex;
-          gap: 8px;
-          flex-wrap: wrap;
-          margin-top: 12px;
-        }
-        .reserve-actions .btn {
-          flex: 1;
-          min-width: 100px;
-        }
-        @media (min-width: 480px) {
-          .reserve-actions .btn { flex: 0 1 auto; }
-        }
-      `}</style>
+      {notice && (
+        <AppNotice
+          title={notice.title}
+          message={notice.message}
+          onClose={() => setNotice(null)}
+        />
+      )}
     </div>
   );
 };

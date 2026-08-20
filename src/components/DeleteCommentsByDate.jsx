@@ -33,54 +33,49 @@ function DeleteCommentsByDate() {
         .delete-comments-card {
           display: flex;
           flex-direction: column;
-          align-items: center;
-        
-         
+          align-items: stretch;
+          gap: 4px;
         }
         .delete-comments-title {
-          font-size: 1.2rem;
-          color: #0588d8;
+          font-size: 1.05rem;
+          color: #12203A;
           font-weight: 800;
-          margin-bottom: 2rem;
+          margin: 0 0 8px;
+        }
+        .delete-comments-hint {
+          font-size: .88rem;
+          color: #8A8272;
+          margin: 0 0 16px;
         }
         .delete-comments-inputs {
           display: flex;
           align-items: center;
-          gap: 14px;
-        }
-        .delete-comments-btn {
-          background-color: #0588d8;
-          color: white;
-          border: none;
-          border-radius: 10px;
-          padding: 8px 20px;
-          font-size: 1rem;
-          font-weight: 500;
-          cursor: pointer;
-          margin-right: 8px;
-          transition: background 0.2s;
-        }
-        .delete-comments-btn:hover {
-          background-color: #0673b7;
+          gap: 12px;
+          flex-wrap: wrap;
         }
         .delete-comments-card input[type="date"] {
-          font-size: 1rem;
-          border-radius: 6px;
-          border: 1.5px solid #aae2fd;
-          padding: 7px 14px;
+          font-family: inherit;
+          font-size: .95rem;
+          border-radius: 999px;
+          border: 1.5px solid #EDE9E3;
+          background: #FBFAF8;
+          padding: 0 16px;
+          min-height: 46px;
+          color: #12203A;
         }
       `}</style>
       <div className="delete-comments-title">
         מחיקת כל ההערות עד תאריך
       </div>
+      <p className="delete-comments-hint">פעולה זו תמחק הערות וקבצים מצורפים עד התאריך שנבחר.</p>
       <div className="delete-comments-inputs">
-        <button className="delete-comments-btn" onClick={handleDeleteComments}>
-          מחק עד תאריך
-        </button>
         <input type="date"
           value={deleteDate}
           onChange={e => setDeleteDate(e.target.value)}
         />
+        <button className="btn btn--danger" onClick={handleDeleteComments}>
+          מחק עד תאריך
+        </button>
       </div>
     </div>
   );

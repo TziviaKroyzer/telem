@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { collection, getDocs, doc, deleteDoc, updateDoc } from "firebase/firestore";
 import { db } from "../firebase";
+import { Pencil, Trash2, Check, X } from "lucide-react";
 
 function CampusList() {
   const [campuses, setCampuses] = useState([]);
@@ -38,66 +39,63 @@ function CampusList() {
 
   return (
     <section>
-      <style>{`
-        .admin-list{ list-style:none; margin:12px 0 0; padding:0; display:grid; gap:12px; }
-        .admin-row{
-          background: rgba(255,255,255,.9);
-          border:1px solid #e6eef6;
-          border-radius:16px;
-          padding:12px 16px;
-          display:flex; align-items:center; justify-content:space-between; gap:12px;
-          box-shadow:0 6px 18px rgba(15,23,42,.06);
-          transition: box-shadow .15s ease, transform .12s ease;
-        }
-        .admin-row:hover{ box-shadow:0 10px 26px rgba(15,23,42,.10); transform: translateY(-1px); }
-        .admin-actions{ display:flex; gap:10px; flex-wrap:wrap; }
-      `}</style>
-
       <h2>רשימת קמפוסים קיימים</h2>
 
-      <ul className="admin-list">
-        {campuses.map((c) => (
-          <li key={c.id} className="admin-row">
-            {editId === c.id ? (
-              <div className="form-grid form-grid--3" style={{ width: "100%" }}>
-                <div>
-                  <label>שם</label>
-                  <input
-                    className="input"
-                    name="name"
-                    value={editData.name}
-                    onChange={handleEditChange}
-                  />
+      {campuses.length === 0 ? (
+        <div className="admin-empty">אין קמפוסים להצגה</div>
+      ) : (
+        <ul className="admin-rows">
+          {campuses.map((c) => (
+            <li key={c.id} className="admin-row">
+              {editId === c.id ? (
+                <div className="form-grid form-grid--3" style={{ width: "100%" }}>
+                  <div>
+                    <label>שם</label>
+                    <input
+                      className="input"
+                      name="name"
+                      value={editData.name}
+                      onChange={handleEditChange}
+                    />
+                  </div>
+                  <div>
+                    <label>כתובת</label>
+                    <input
+                      className="input"
+                      name="address"
+                      value={editData.address}
+                      onChange={handleEditChange}
+                    />
+                  </div>
+                  <div className="admin-actions" style={{ alignItems: "end" }}>
+                    <button className="admin-icon-btn admin-icon-btn--ok" title="שמירה" aria-label="שמירה" onClick={saveEdit}>
+                      <Check size={16} strokeWidth={1.7} />
+                    </button>
+                    <button className="admin-icon-btn" title="ביטול" aria-label="ביטול" onClick={() => setEditId(null)}>
+                      <X size={16} strokeWidth={1.7} />
+                    </button>
+                  </div>
                 </div>
-                <div>
-                  <label>כתובת</label>
-                  <input
-                    className="input"
-                    name="address"
-                    value={editData.address}
-                    onChange={handleEditChange}
-                  />
-                </div>
-                <div className="row" style={{ alignItems: "end" }}>
-                  <button className="btn" onClick={saveEdit}>שמור</button>
-                  <button className="btn btn--ghost" onClick={() => setEditId(null)}>ביטול</button>
-                </div>
-              </div>
-            ) : (
-              <>
-                <div>
-                  <strong>{c.name}</strong>
-                  {c.address ? ` · ${c.address}` : ""}
-                </div>
-                <div className="admin-actions">
-                  <button className="btn" onClick={() => startEdit(c)}>ערוך</button>
-                  <button className="btn btn--danger" onClick={() => remove(c.id)}>מחק</button>
-                </div>
-              </>
-            )}
-          </li>
-        ))}
-      </ul>
+              ) : (
+                <>
+                  <div className="admin-row-main">
+                    <span className="admin-row-title">{c.name}</span>
+                    {c.address ? <span className="admin-row-sub">{c.address}</span> : null}
+                  </div>
+                  <div className="admin-actions">
+                    <button className="admin-icon-btn" title="עריכה" aria-label="עריכה" onClick={() => startEdit(c)}>
+                      <Pencil size={16} strokeWidth={1.6} />
+                    </button>
+                    <button className="admin-icon-btn admin-icon-btn--danger" title="מחיקה" aria-label="מחיקה" onClick={() => remove(c.id)}>
+                      <Trash2 size={16} strokeWidth={1.6} />
+                    </button>
+                  </div>
+                </>
+              )}
+            </li>
+          ))}
+        </ul>
+      )}
     </section>
   );
 }

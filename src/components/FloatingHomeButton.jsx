@@ -25,29 +25,26 @@ export default function FloatingHomeButton({
           position: fixed;
           bottom: ${bottom}px;
           z-index: 9999;
-          width: 48px;
-          height: 48px;
-          border-radius: 14px;
+          width: 52px;
+          height: 52px;
+          border-radius: 16px;
           border: none;
-          background: #ffffff;
-          color: #0288d1;
+          background: #12203A;
+          color: #fff;
           cursor: pointer;
-          box-shadow: 0 4px 16px rgba(2, 136, 209, 0.22), 0 1px 4px rgba(0,0,0,0.08);
+          box-shadow: 0 10px 24px rgba(18, 32, 58, 0.28);
           display: flex;
           align-items: center;
           justify-content: center;
           transition: transform .15s ease, box-shadow .2s ease, background .2s ease;
-          backdrop-filter: blur(8px);
-          -webkit-backdrop-filter: blur(8px);
         }
         .fab-home:hover {
-          background: #e8f4fd;
-          box-shadow: 0 6px 22px rgba(2, 136, 209, 0.32);
+          background: #1D3358;
+          box-shadow: 0 14px 28px rgba(18, 32, 58, 0.34);
           transform: translateY(-2px);
         }
         .fab-home:active {
           transform: translateY(0);
-          box-shadow: 0 2px 8px rgba(2, 136, 209, 0.18);
         }
       `}</style>
       <button

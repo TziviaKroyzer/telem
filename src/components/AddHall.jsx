@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { db } from "../firebase";
 import { collection, addDoc, getDocs } from "firebase/firestore";
+import SelectInput from "./SelectInput";
 
 export default function AddHall() {
   const [name, setName] = useState("");
@@ -39,7 +40,7 @@ export default function AddHall() {
   };
 
   return (
-    <div className="card">
+    <>
       <h2>הוספת אולם חדש</h2>
       <form onSubmit={onSubmit} className="form-grid form-grid--3" style={{ marginTop: ".5rem" }}>
         <div>
@@ -51,11 +52,14 @@ export default function AddHall() {
           <input className="input" value={address} onChange={(e) => setAddress(e.target.value)} />
         </div>
         <div>
-          <label>קמפוס</label>
-          <select className="select-input" value={campusId} onChange={(e) => setCampusId(e.target.value)}>
-            <option value="">בחר קמפוס —</option>
-            {campuses.map((c) => <option key={c.id} value={c.id}>{c.name || c.id}</option>)}
-          </select>
+          <SelectInput
+            label="קמפוס"
+            allowEmpty
+            placeholder="בחר קמפוס"
+            value={campusId}
+            onChange={setCampusId}
+            options={campuses.map((c) => ({ value: c.id, label: c.name || c.id }))}
+          />
         </div>
         <div className="row" style={{ gridColumn: "1 / -1" }}>
           <button className="btn btn--accent" type="submit" disabled={busy}>
@@ -64,6 +68,6 @@ export default function AddHall() {
           <span className="muted">{msg}</span>
         </div>
       </form>
-    </div>
+    </>
   );
 }

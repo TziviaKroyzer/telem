@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState, useCallback } from "react";
-import { Pencil, Trash2, Check, X } from "lucide-react";
+import { Search, Pencil, Trash2, Check, X } from "lucide-react";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import {
   addDoc,
@@ -38,6 +38,9 @@ export default function FileSystem() {
   const [newName, setNewName] = useState("");
   const [loadingItems, setLoadingItems] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [folderOpen, setFolderOpen] = useState(false);
+  const [folderName, setFolderName] = useState("");
+  const [deleteItem, setDeleteItem] = useState(null);
 
 
 
@@ -59,7 +62,7 @@ export default function FileSystem() {
       const snap = await getDoc(doc(db, "files", current));
       if (!snap.exists()) break;
       const data = snap.data();
-      trail.unshift({ id: snap.id, name: data.name || "—" });
+      trail.unshift({ id: snap.id, name: data.name || "" });
       current = data.parentId;
     }
     trail.unshift({ id: "root", name: "ראשי" });
@@ -118,18 +121,26 @@ const fetchItems = useCallback(async () => {
   };
 
 
-  const addFolder = async () => {
+  const addFolder = () => {
     if (!user) return alert("אין משתמש מחובר");
-    const name = prompt("שם תיקיה חדש:");
-    if (!name || !name.trim()) return;
+    setFolderName("");
+    setFolderOpen(true);
+  };
+
+  const saveFolder = async () => {
+    if (!user) return;
+    const name = folderName.trim();
+    if (!name) return;
     await addDoc(collection(db, "files"), {
-      name: name.trim(),
+      name,
       type: "folder",
       parentId: currentFolder,
       userId: user.uid,
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
     });
+    setFolderOpen(false);
+    setFolderName("");
     fetchItems();
   };
 
@@ -241,9 +252,14 @@ const fetchItems = useCallback(async () => {
     await deleteDoc(doc(db, "files", itemId));
   };
 
-  const removeItem = async (item) => {
-    if (!window.confirm(`למחוק את "${item.name}"?`)) return;
-    await deleteRecursively(item.id);
+  const removeItem = (item) => {
+    setDeleteItem(item);
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteItem) return;
+    await deleteRecursively(deleteItem.id);
+    setDeleteItem(null);
     fetchItems();
   };
 
@@ -295,12 +311,15 @@ const fetchItems = useCallback(async () => {
   const toolbarUI = (
     <div className="fs-toolbar">
       <div className="fs-search-row">
-        <input
-          className="input"
-          placeholder="חיפוש קבצים ותיקיות…"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
+        <div className="fs-search-wrap">
+          <Search size={18} strokeWidth={2} />
+          <input
+            className="input"
+            placeholder="חיפוש קבצים ותיקיות…"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </div>
         {search && (
           <button className="btn btn--ghost" onClick={() => setSearch("")}>
             נקה
@@ -319,22 +338,27 @@ const fetchItems = useCallback(async () => {
   );
 
   return (
-    <div className="stack" style={{ gap: "1rem" }}>
+    <div className="fs-page">
       <style>{`
+  .fs-page {
+    width: 100%;
+    margin: 0 auto;
+  }
+
+  .fs-hero { padding-bottom: 18px; }
+
   .fs-toolbar {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 12px;
     width: 100%;
   }
 
-  @media (min-width: 600px) {
+  @media (min-width: 720px) {
     .fs-toolbar {
       flex-direction: row;
       justify-content: space-between;
       align-items: center;
-      flex: 1;
-      width: auto;
     }
   }
 
@@ -345,61 +369,70 @@ const fetchItems = useCallback(async () => {
     min-width: 0;
   }
 
-  .fs-search-row .input {
+  .fs-search-wrap {
     flex: 1;
     min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #FBFAF8;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 0 14px;
+    min-height: 48px;
+  }
+
+  .fs-search-wrap svg { color: #8A8272; flex-shrink: 0; }
+
+  .fs-search-wrap .input {
+    flex: 1;
+    min-width: 0;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+    padding: 0;
+    min-height: 44px;
   }
 
   .fs-actions-row {
     display: flex;
     gap: 8px;
     justify-content: flex-end;
+    flex-shrink: 0;
   }
 
   .fs-breadcrumb-toolbar {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 14px;
   }
 
-  @media (min-width: 600px) {
-    .fs-breadcrumb-toolbar {
-      flex-direction: row;
-      align-items: center;
-      gap: 12px;
-    }
-  }
-
-  /* הברדקראמב – שורה אחת תמיד, גלילה אופקית אם ארוך */
   .fs-breadcrumb-nav {
     display: flex;
     flex-direction: row;
     align-items: center;
     flex-wrap: nowrap;
     overflow-x: auto;
-    gap: 2px;
-    flex: 1;
+    gap: 4px;
     min-width: 0;
-    scrollbar-width: none; /* Firefox */
-    -ms-overflow-style: none; /* IE */
-    padding-bottom: 2px;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
   }
 
-  .fs-breadcrumb-nav::-webkit-scrollbar {
-    display: none; /* Chrome/Safari */
-  }
+  .fs-breadcrumb-nav::-webkit-scrollbar { display: none; }
 
   .fs-crumb-btn {
     white-space: nowrap;
     flex-shrink: 0;
-    padding: .35rem .7rem !important;
-    min-height: 36px !important;
+    padding: .4rem .85rem !important;
+    min-height: 38px !important;
     font-size: .88rem !important;
+    border-radius: 999px !important;
   }
 
   .fs-crumb-sep {
     flex-shrink: 0;
-    color: #94a3b8;
+    color: #C9C3B7;
     font-size: .9rem;
     padding: 0 2px;
     user-select: none;
@@ -409,7 +442,7 @@ const fetchItems = useCallback(async () => {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    gap: 8px;
+    gap: 16px;
     flex-wrap: nowrap;
     width: 100%;
     min-width: 0;
@@ -421,14 +454,18 @@ const fetchItems = useCallback(async () => {
     overflow: hidden;
     display: flex;
     align-items: center;
-    gap: 5px;
+    gap: 12px;
     cursor: pointer;
   }
 
   .file-icon {
     flex-shrink: 0;
-    font-size: 1.1rem;
-    line-height: 1;
+    width: 22px;
+    height: 22px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
   }
 
   .file-name-text {
@@ -438,69 +475,156 @@ const fetchItems = useCallback(async () => {
     min-width: 0;
     flex: 1;
     font-weight: 600;
+    font-size: .95rem;
+    color: #12203A;
   }
 
   .file-size {
     flex-shrink: 0;
     font-size: .78rem;
-    color: #6b7a90;
+    color: #8A8272;
     white-space: nowrap;
-    padding-inline-start: 4px;
   }
 
   .file-actions {
     display: flex;
-    gap: 5px;
+    align-items: center;
+    gap: 4px;
     flex-shrink: 0;
   }
 
-  .file-actions .icon-btn {
+  .file-action {
+    background: none;
+    border: 0;
+    cursor: pointer;
+    color: #9A9386;
+    width: 34px;
+    height: 34px;
+    min-height: 34px;
+    padding: 0;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .file-action:hover { color: #12203A; background: #F4F2ED; }
+  .file-action--danger:hover { color: #C4534E; background: #FDF2F0; }
+  .file-action--save:hover { color: #2F7D55; background: #EDF7F1; }
+
+  .fs-item {
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 14px 16px;
+  }
+
+  .fs-toolbar-card {
+    padding: 16px 18px 18px;
+    margin-bottom: 18px;
+  }
+
+  .fs-list { display: flex; flex-direction: column; }
+
+  .fs-list-panel {
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    overflow: hidden;
+  }
+
+  .fs-row-item {
+    padding: 13px 18px;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    border-bottom: 1px solid #F2EFE9;
+  }
+
+  .fs-row-item:last-child { border-bottom: 0; }
+
+  .fs-row-item:hover { background: #FBFAF8; }
+
+  .fs-empty {
+    text-align: center;
+    padding: 40px 16px;
+    color: #8A8272;
+  }
+
+  .fs-dialog-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(18,32,58,.45);
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 36px;
-    height: 36px;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: background .15s, transform .1s;
-    background: #fff;
-    flex-shrink: 0;
+    z-index: 1200;
+    padding: 16px;
   }
 
-  .icon-btn--edit  { color: #6ec8f1; border: 1.5px solid #6ec8f1; }
-  .icon-btn--edit:hover  { background: #eaf6ff; transform: scale(1.1); }
+  .fs-dialog {
+    width: 100%;
+    max-width: 420px;
+    background: #FFFEFB;
+    border: 1px solid #EDE9E3;
+    border-radius: 24px;
+    box-shadow: 0 18px 40px rgba(18,32,58,.16);
+    padding: 1.4rem 1.5rem 1.25rem;
+    direction: rtl;
+    text-align: right;
+  }
 
-  .icon-btn--delete { color: #e76b6b; border: 1.5px solid #e76b6b; }
-  .icon-btn--delete:hover { background: #fdecea; transform: scale(1.1); }
+  .fs-dialog h3 {
+    margin: 0 0 8px;
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: #12203A;
+  }
 
-  .icon-btn--save  { color: #4caf50; border: 1.5px solid #4caf50; }
-  .icon-btn--save:hover  { background: #e8f5e9; transform: scale(1.1); }
+  .fs-dialog p {
+    margin: 0 0 16px;
+    font-size: .92rem;
+    color: #8A8272;
+  }
 
-  .icon-btn--cancel { color: #94a3b8; border: 1.5px solid #94a3b8; }
-  .icon-btn--cancel:hover { background: #f1f5f9; transform: scale(1.1); }
+  .fs-dialog .input {
+    border-radius: 14px;
+    background: #FBFAF8;
+    margin-bottom: 16px;
+  }
+
+  .fs-dialog-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+  }
 `}</style>
 
-      <h1>ניהול קבצים</h1>
+      <div className="fs-hero">
+        <div className="page-badge"><span />מסמכים</div>
+        <h1 className="page-title">ניהול קבצים</h1>
+      </div>
 
-      <div className="card">
+      <div className="fs-item fs-toolbar-card">
         <div className="fs-breadcrumb-toolbar">
           {breadcrumbUI}
           {toolbarUI}
         </div>
       </div>
 
-      <div className="stack" style={{ gap: 8 }}>
+      <div className="fs-list">
   {loadingItems ? (
-    <div className="card center">טוען קבצים...</div>
+    <div className="fs-item fs-empty">טוען קבצים...</div>
   ) : uploading ? (
-    <div className="card center accent">טוען קובץ...</div>
+    <div className="fs-item fs-empty">טוען קובץ...</div>
   ) : items.length === 0 ? (
-    <div className="card empty center">אין קבצים או תיקיות</div>
+    <div className="fs-item fs-empty">אין קבצים או תיקיות</div>
         ) : (
-          items.map((item) => (
+          <div className="fs-list-panel">
+          {items.map((item) => (
             <div
               key={item.id}
-              className="card"
+              className="fs-row-item"
               draggable
               onDragStart={(e) => e.dataTransfer.setData("text/plain", item.id)}
               onDrop={(e) => item.type === "folder" && handleDrop(e, item.id)}
@@ -509,14 +633,23 @@ const fetchItems = useCallback(async () => {
               <div className="file-row">
                 <div
                   className="file-name"
-                  onClick={() =>
-                    item.type === "folder"
-                      ? enterFolder(item.id)
-                      : window.open(item.url, "_blank")
-                  }
+                  onClick={() => {
+                    if (renamingId === item.id) return;
+                    if (item.type === "folder") enterFolder(item.id);
+                    else window.open(item.url, "_blank");
+                  }}
                 >
                   <span className="file-icon" aria-hidden>
-                    {item.type === "folder" ? "📁" : "📄"}
+                    {item.type === "folder" ? (
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8A8272" strokeWidth="1.4" strokeLinejoin="round">
+                        <path d="M3 8h6.2l1.6 2H21v9.2a.8.8 0 0 1-.8.8H3.8A.8.8 0 0 1 3 19.2V8z" />
+                      </svg>
+                    ) : (
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8A8272" strokeWidth="1.4" strokeLinejoin="round">
+                        <path d="M7 3.8h7.2L20 9.6V20.2a.8.8 0 0 1-.8.8H7.8A.8.8 0 0 1 7 20.2V3.8z" />
+                        <path d="M14.2 3.8V9.6H20" />
+                      </svg>
+                    )}
                   </span>
                   {renamingId === item.id ? (
                     <input
@@ -545,20 +678,20 @@ const fetchItems = useCallback(async () => {
                 <div className="file-actions">
                   {renamingId === item.id ? (
                     <>
-                      <button className="icon-btn icon-btn--save" title="שמור" onClick={saveRename}>
-                        <Check size={18} strokeWidth={2.2} />
+                      <button className="file-action file-action--save" title="שמירה" aria-label="שמירה" onClick={saveRename}>
+                        <Check size={16} strokeWidth={1.7} />
                       </button>
-                      <button className="icon-btn icon-btn--cancel" title="בטל" onClick={cancelRename}>
-                        <X size={18} strokeWidth={2.2} />
+                      <button className="file-action" title="ביטול" aria-label="ביטול" onClick={cancelRename}>
+                        <X size={16} strokeWidth={1.7} />
                       </button>
                     </>
                   ) : (
                     <>
-                      <button className="icon-btn icon-btn--edit" title="ערוך שם" onClick={() => startRename(item)}>
-                        <Pencil size={17} strokeWidth={2} />
+                      <button className="file-action" title="שינוי שם" aria-label="שינוי שם" onClick={() => startRename(item)}>
+                        <Pencil size={16} strokeWidth={1.6} />
                       </button>
-                      <button className="icon-btn icon-btn--delete" title="מחק" onClick={() => removeItem(item)}>
-                        <Trash2 size={17} strokeWidth={2} />
+                      <button className="file-action file-action--danger" title="מחיקה" aria-label="מחיקה" onClick={() => removeItem(item)}>
+                        <Trash2 size={16} strokeWidth={1.6} />
                       </button>
                     </>
                   )}
@@ -566,9 +699,47 @@ const fetchItems = useCallback(async () => {
               </div>
 
             </div>
-          ))
+          ))}
+          </div>
         )}
       </div>
+
+      {folderOpen && (
+        <div className="fs-dialog-overlay" onClick={() => setFolderOpen(false)}>
+          <div className="fs-dialog" onClick={(e) => e.stopPropagation()}>
+            <h3>תיקיה חדשה</h3>
+            <p>בחרי שם לתיקיה</p>
+            <input
+              className="input"
+              autoFocus
+              value={folderName}
+              onChange={(e) => setFolderName(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") saveFolder();
+                if (e.key === "Escape") setFolderOpen(false);
+              }}
+              placeholder="שם התיקיה"
+            />
+            <div className="fs-dialog-actions">
+              <button className="btn btn--ghost" type="button" onClick={() => setFolderOpen(false)}>ביטול</button>
+              <button className="btn btn--accent" type="button" onClick={saveFolder}>יצירה</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {deleteItem && (
+        <div className="fs-dialog-overlay" onClick={() => setDeleteItem(null)}>
+          <div className="fs-dialog" onClick={(e) => e.stopPropagation()}>
+            <h3>מחיקה</h3>
+            <p>למחוק את "{deleteItem.name}"?</p>
+            <div className="fs-dialog-actions">
+              <button className="btn btn--ghost" type="button" onClick={() => setDeleteItem(null)}>ביטול</button>
+              <button className="btn btn--danger" type="button" onClick={confirmDelete}>מחיקה</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

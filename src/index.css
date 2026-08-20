@@ -2,26 +2,27 @@
 
 /* 1) Tokens */
 :root {
-  /* צבעים */
-  --brand: #6EC8F1;
-  --brand-600: #58BAE4;
-  --brand-700: #3fa8d6;
-  --accent: #F4A63F;
-  --ink: #0f172a;
-  --ink-2: #334155;
-  --line: #e2e8f0;
-  --bg-page: #EAF6FF;
-  --bg-card: #ffffff;
-  --success: #16a34a;
-  --danger: #dc2626;
-  --warning: #d97706;
+  /* צבעים  כיוון עיצוב "1C" (מיתוגי) */
+  --brand: #12203A;
+  --brand-600: #1D3358;
+  --brand-700: #0B1626;
+  --accent: #F5B93B;
+  --ink: #12203A;
+  --ink-2: #6C6659;
+  --line: #EDE9E3;
+  --bg-page: #FBFAF8;
+  --bg-card: #FFFFFF;
+  --success: #2F7D55;
+  --danger: #C4534E;
+  --warning: #B06A12;
 
   /* טיפוגרפיה */
   --font-sans: "Heebo", "Rubik", "Assistant", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 
   /* רדיוסים וריווחים */
-  --radius: 14px;
-  --radius-lg: 18px;
+  --radius: 12px;
+  --radius-lg: 20px;
+  --radius-pill: 999px;
   --space-1: .25rem;
   --space-2: .5rem;
   --space-3: .75rem;
@@ -36,7 +37,7 @@
   --shadow-lg: 0 10px 28px rgba(0, 0, 0, .12);
 
   /* קונטיינר */
-  --container: min(100%, 980px);
+  --container: min(100%, 1360px);
   margin-top: 20px;
 }
 
@@ -59,6 +60,7 @@ body {
   font-family: var(--font-sans);
   font-size: 16px;
   line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
 }
 
 /* 3) קונטיינר גלובלי */
@@ -66,6 +68,33 @@ body {
   width: var(--container);
   margin-inline: auto;
   padding: var(--space-4);
+}
+
+.page-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-weight: 600;
+  font-size: 11.5px;
+  letter-spacing: .04em;
+  color: #8A8272;
+  margin-bottom: 12px;
+}
+
+.page-badge span {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--accent);
+}
+
+.page-title {
+  margin: 0;
+  font-family: "Heebo", var(--font-sans);
+  font-weight: 900;
+  font-size: clamp(1.6rem, 4.5vw, 2.2rem);
+  letter-spacing: -.8px;
+  color: var(--ink);
 }
 
 @media (min-width: 600px) {
@@ -102,20 +131,20 @@ p {
   border: 1px solid transparent;
   background: var(--brand);
   color: #fff;
-  padding: .65rem 1rem;
+  padding: .65rem 1.3rem;
   min-height: 44px;
-  border-radius: 12px;
-  font-weight: 600;
-  font-size: 1rem;
+  border-radius: var(--radius-pill);
+  font-weight: 700;
+  font-size: .95rem;
   cursor: pointer;
-  box-shadow: var(--shadow-sm);
+  box-shadow: none;
   transition: transform .12s ease, background .2s ease, box-shadow .2s ease;
   -webkit-tap-highlight-color: transparent;
 }
 
 .btn:hover {
   background: var(--brand-600);
-  box-shadow: var(--shadow-md);
+  box-shadow: 0 8px 20px rgba(18,32,58,.2);
   transform: translateY(-1px);
 }
 
@@ -127,23 +156,28 @@ p {
 }
 
 .btn--ghost {
-  background: #fff;
+  background: transparent;
   color: var(--ink);
-  border-color: var(--line);
+  border-color: var(--brand);
+  border-width: 1.5px;
+  box-shadow: none;
 }
 
-.btn--accent { background: var(--accent); }
+.btn--ghost:hover { background: rgba(18,32,58,.05); box-shadow: none; }
+
+.btn--accent { background: var(--accent); color: var(--ink); }
+.btn--accent:hover { background: #E5A82C; }
 .btn--danger { background: var(--danger); }
-.btn--pill   { border-radius: 999px; }
+.btn--pill   { border-radius: var(--radius-pill); }
 
 /* 6) שדות טפסים */
 .input,
 .select-input,
 .textarea-input {
   width: 100%;
-  background: #f9fbfd;
+  background: #fff;
   border: 1px solid var(--line);
-  border-radius: 10px;
+  border-radius: var(--radius);
   padding: .65rem .9rem;
   font-size: 1rem;
   color: var(--ink);
@@ -156,10 +190,103 @@ p {
 .select-input:focus,
 .textarea-input:focus {
   border-color: var(--brand);
-  box-shadow: 0 0 0 3px rgba(110, 200, 241, .25);
+  box-shadow: 0 0 0 3px rgba(18, 32, 58, .12);
 }
 
 .input.hidden { display: none !important; }
+
+.nice-select {
+  position: relative;
+  width: 100%;
+}
+
+.nice-select--compact {
+  width: auto;
+  min-width: 148px;
+}
+
+.nice-select-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: .65rem .9rem;
+  min-height: 44px;
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--ink);
+  cursor: pointer;
+  text-align: right;
+  transition: border-color .15s ease, box-shadow .15s ease;
+}
+
+.nice-select--compact .nice-select-btn {
+  min-height: 42px;
+  padding: .45rem 12px .45rem 10px;
+  font-size: .88rem;
+  border-radius: 999px;
+  background: #FBFAF8;
+}
+
+.nice-select-btn.is-placeholder { color: #8A8272; font-weight: 600; }
+.nice-select-btn svg { flex: none; color: #8A8272; transition: transform .15s ease; }
+.nice-select-btn svg.is-open { transform: rotate(180deg); }
+
+.nice-select-btn:hover { border-color: #D6D0C4; }
+.nice-select-btn:focus {
+  outline: none;
+  border-color: var(--brand);
+  box-shadow: 0 0 0 3px rgba(18, 32, 58, .12);
+}
+
+.nice-select-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  left: auto;
+  min-width: 100%;
+  width: max-content;
+  max-width: min(320px, 86vw);
+  margin: 0;
+  padding: 8px;
+  list-style: none;
+  background: #FFFEFB;
+  border: 1px solid #EDE9E3;
+  border-radius: 18px;
+  box-shadow: 0 18px 40px rgba(18, 32, 58, .12);
+  z-index: 80;
+  max-height: 280px;
+  overflow-y: auto;
+}
+
+.nice-select-menu li { margin: 0; }
+
+.nice-select-menu button {
+  width: 100%;
+  display: block;
+  background: none;
+  border: 0;
+  border-radius: 12px;
+  padding: 10px 12px;
+  min-height: 40px;
+  font-family: inherit;
+  font-size: .92rem;
+  font-weight: 600;
+  color: #12203A;
+  text-align: right;
+  cursor: pointer;
+}
+
+.nice-select-menu button:hover { background: #F4F2ED; }
+.nice-select-menu button.is-active {
+  background: #FEF6E7;
+  color: #12203A;
+}
 
 label {
   display: block;
@@ -256,6 +383,34 @@ label {
   .modal { padding: var(--space-6); }
 }
 
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(18, 32, 58, .45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1200;
+  padding: var(--space-4);
+}
+
+.modal-content {
+  width: min(92vw, 380px);
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  padding: var(--space-6);
+  text-align: center;
+}
+
+.modal-title {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--ink);
+}
+
 /* 10) עזרי פריסה */
 .stack {
   display: flex;
@@ -317,8 +472,7 @@ label {
 .section,
 .container,
 .card,
-.calendar-wrapper,
-.react-calendar {
+.calendar-wrapper {
   background: transparent !important;
   border: 0 !important;
   box-shadow: none !important;
@@ -340,392 +494,384 @@ label {
 
 .divider { height: 1px; background: var(--line); opacity: .6; }
 
-/* Profile */
-.filters {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 12px;
-  flex-wrap: wrap;
-}
-
-.filters button {
-  padding: 6px 14px;
-  border-radius: 8px;
-  border: none;
-  cursor: pointer;
-  min-height: 40px;
-}
-
-.filters .active { background: var(--accent); color: white; }
-
-.comments-list {
-  list-style: none;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.comments-list li {
-  background: #FFFFFF;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px 12px;
-  border: 1px solid #ddd;
-  border-radius: 10px;
-  overflow: hidden;
-  max-width: 100%;
-  gap: 8px;
-}
-
-.comments-list li span {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  flex: 1;
-  min-width: 0;
-  display: inline-block;
-}
-
-.comments-list li.done span { text-decoration: line-through; color: gray; }
-
-.comments-list li button.pending-btn {
-  background: var(--brand);
-  color: white;
-  border: none;
-  border-radius: 6px;
-  padding: 6px 10px;
-  cursor: pointer;
-  flex-shrink: 0;
-  min-height: 36px;
-}
-
-.comments-list li button.done-btn {
-  background: #e53935;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  padding: 6px 10px;
-  cursor: pointer;
-  flex-shrink: 0;
-  min-height: 36px;
-}
-
-.popup-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-  padding: 16px;
-}
-
-.popup-content {
-  background: white;
-  padding: 20px;
-  border-radius: 12px;
-  max-width: 480px;
-  width: 100%;
-  box-sizing: border-box;
-  overflow-wrap: break-word;
-  text-align: right;
-  max-height: 85vh;
-  overflow-y: auto;
-}
-
-.popup-content button {
-  margin-top: 12px;
-  padding: 8px 16px;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  background: var(--brand);
-  color: white;
-  min-height: 40px;
-}
+/* Profile list styles live in UserCommentsList.jsx */
 
 .user-header { margin-bottom: 16px; }
 .user-name   { font-weight: 700; }
 
 /* ===========================================================
-   Calendar – Neo / Rounded Skin (RTL, Responsive)
+   Calendar
    =========================================================== */
 
-.calendar-wrapper {
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
+.cal {
+  width: 100%;
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  box-shadow: 0 18px 40px rgba(18, 32, 58, .07);
+  padding: 16px 14px 14px;
+  overflow: hidden;
+}
+
+@media (min-width: 560px) {
+  .cal { padding: 24px 24px 18px; }
+}
+
+.cal-widget.react-calendar,
+.cal-widget {
   width: 100%;
   max-width: 100%;
-  overflow: hidden;
-  box-sizing: border-box;
+  background: transparent;
+  border: 0;
+  font-family: var(--font-sans);
+  line-height: 1.2;
 }
 
-.calendar-container {
-  width: min(100%, 960px);
-  background: var(--bg-card);
-  border: 1px solid var(--line);
-  border-radius: 16px;
-  padding: var(--space-3);
+.cal-widget .react-calendar__navigation {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.cal-widget .react-calendar__navigation button {
+  min-height: 42px;
+  min-width: 42px;
+  border: 0;
+  background: #F4F2ED;
+  color: var(--ink);
+  border-radius: 14px;
+  padding: 0;
+  font-size: 1rem;
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: background .15s ease, transform .12s ease;
+}
+
+.cal-widget .react-calendar__navigation button:enabled:hover,
+.cal-widget .react-calendar__navigation button:enabled:focus {
+  background: #EBE7DF;
+  transform: translateY(-1px);
+}
+
+.cal-widget .react-calendar__navigation button:disabled {
+  opacity: .4;
+}
+
+.cal-widget .react-calendar__navigation__label,
+.cal-widget .react-calendar__navigation__label:disabled {
+  flex: 1;
+  pointer-events: none;
+  background: transparent !important;
+  font-weight: 800;
+  min-width: 0;
+  opacity: 1 !important;
+  color: #12203A;
+}
+
+.cal-widget .react-calendar__navigation__label:hover,
+.cal-widget .react-calendar__navigation__label:focus {
+  background: transparent !important;
+  transform: none;
+}
+
+.cal-widget .react-calendar__navigation__prev2-button,
+.cal-widget .react-calendar__navigation__next2-button {
+  display: none;
+}
+
+.cal-nav-title {
+  display: flex;
   flex-direction: column;
-}
-
-@media (min-width: 520px) {
-  .calendar-container {
-    padding: var(--space-5);
-    border-radius: 20px;
-  }
-}
-
-@media (min-width: 720px) {
-  .calendar-container { padding: var(--space-6); }
-}
-
-.calendar-card {
-  display: flex;
   align-items: center;
-  justify-content: center;
-  width: min(100%, 960px);
-  background: var(--bg-card);
-  border: 1px solid var(--line);
-  border-radius: 20px;
-  box-shadow: var(--shadow-lg);
+  gap: 2px;
 }
 
-/* בסיס ל-ReactCalendar */
-.calendar--kz {
-  width: 100%;
+.cal-nav-greg {
+  font-size: clamp(1.15rem, 2.6vw, 1.5rem);
+  font-weight: 900;
+  letter-spacing: -.5px;
+  color: #12203A;
+  line-height: 1.15;
+}
+
+.cal-nav-heb {
+  font-size: .82rem;
+  font-weight: 700;
+  color: #12203A;
+}
+
+.cal-widget .react-calendar__month-view__weekdays {
+  text-align: center;
+  margin-bottom: 4px;
+}
+
+.cal-widget .react-calendar__month-view__weekdays__weekday {
+  padding: 6px 0 8px;
+}
+
+.cal-widget .react-calendar__month-view__weekdays__weekday abbr {
+  text-decoration: none;
+  font-size: .8rem;
+  font-weight: 800;
+  color: #12203A;
+  background: none;
+  border: 0;
+  box-shadow: none;
+  min-height: 0;
+  padding: 0;
+}
+
+.cal-widget .react-calendar__month-view__weekdays__weekday:nth-child(7) abbr {
+  color: #C4849E;
+}
+
+.cal-widget .react-calendar__month-view__days {
+  display: grid !important;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+}
+
+.cal-widget .react-calendar__tile {
   background: transparent !important;
   border: 0 !important;
   box-shadow: none !important;
-  font-family: var(--font-sans);
-}
-
-/* ניווט עליון */
-.calendar--kz .react-calendar__navigation {
+  border-radius: 14px;
+  padding: 2px 1px 6px !important;
   display: flex;
-  width: 100%;
+  flex-direction: column;
   align-items: center;
-  justify-content: space-between;
-  border-bottom: 1px dashed rgba(0, 0, 0, .06);
-  margin-bottom: var(--space-3);
-  gap: 4px;
+  justify-content: flex-start;
+  min-height: 76px;
+  aspect-ratio: unset;
+  color: var(--ink);
 }
 
-@media (min-width: 520px) {
-  .calendar--kz .react-calendar__navigation {
-    margin-bottom: var(--space-4);
-    gap: 0;
-  }
+@media (min-width: 560px) {
+  .cal-widget .react-calendar__tile { min-height: 96px; padding: 6px 2px 10px !important; }
 }
 
-.calendar--kz .react-calendar__navigation button {
-  min-height: 40px;
-  flex: 1;
-  padding: 0 .5rem;
+.cal-widget .react-calendar__tile:enabled:hover {
+  background: rgba(18, 32, 58, .04) !important;
+}
+
+.cal-widget .react-calendar__tile:disabled {
+  opacity: .35;
+}
+
+.cal-widget .react-calendar__tile--now,
+.cal-widget .react-calendar__tile--active,
+.cal-widget .react-calendar__tile--hasActive {
+  background: transparent !important;
+  color: inherit;
+}
+
+.cal-widget .react-calendar__month-view__days__day--neighboringMonth {
+  opacity: .32;
+}
+
+.cal-widget .react-calendar__tile abbr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+}
+
+.cal-tile {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  position: relative;
+}
+
+.cal-day {
+  width: 36px;
+  height: 36px;
   border-radius: 999px;
-  border: 1px solid var(--line);
-  background: #f7fbff;
-  color: var(--ink);
-  font-weight: 600;
-  font-size: clamp(.75rem, 2vw, .95rem);
-  box-shadow: var(--shadow-sm);
-  transition: background .2s ease, transform .12s ease, box-shadow .2s ease;
-}
-
-.calendar--kz .react-calendar__navigation button:hover {
-  background: #eef7ff;
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-md);
-}
-
-/* כותרת הניווט */
-.react-calendar__navigation__label {
-  font-weight: 600;
-  flex: 1;
-  color: var(--ink);
-}
-
-/* כותרות ימי השבוע */
-.calendar--kz .react-calendar__month-view__weekdays {
-  text-align: center;
-  padding: 0;
-  font-weight: 700;
-  color: var(--ink);
-  width: 100%;
-}
-
-.calendar--kz .react-calendar__month-view__weekdays__weekday {
-  padding: .3rem 0;
-}
-
-.calendar--kz .react-calendar__month-view__weekdays__weekday abbr {
-  text-decoration: none;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: .2rem .3rem;
-  background: #f2f7fb;
-  width: 100%;
-  min-height: 32px;
-  border: 1px solid var(--line);
-  box-shadow: var(--shadow-sm);
-  font-size: clamp(.7rem, 1.8vw, .9rem);
-}
-
-@media (min-width: 520px) {
-  .calendar--kz .react-calendar__month-view__weekdays__weekday abbr {
-    min-height: 38px;
-    font-size: .88rem;
-  }
-}
-
-/* שנים/עשורים */
-.react-calendar__year-view__months {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: row;
-  flex-wrap: wrap;
-}
-
-.react-calendar__decade-view__years {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: row;
-  flex-wrap: wrap;
-}
-
-/* רשת הימים */
-.calendar--kz .react-calendar__viewContainer {
-  background: transparent;
-}
-
-/* אריחי ימים – responsive squares */
-.calendar--kz .react-calendar__month-view__days {
-  display: grid !important;
-  grid-template-columns: repeat(7, 1fr);
-}
-
-.calendar--kz .react-calendar__tile {
-  aspect-ratio: 1 / 1;
-  padding: clamp(.2rem, 1vw, .5rem);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  background: #ffffff;
-  border: 1px solid var(--line);
-  box-shadow: var(--shadow-sm);
-}
-
-.calendar--kz .react-calendar__tile:enabled:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
-  background: #f7fbff;
-}
-
-/* תוכן האריח */
-.calendar--kz .tile-content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: .15rem;
-  text-align: center;
-  width: 100%;
-}
-
-.calendar--kz .tile-content .greg-day {
-  font-size: clamp(.7rem, 2.2vw, 1.2rem);
   font-weight: 800;
+  font-size: 1rem;
   line-height: 1;
   color: var(--ink);
 }
 
-.calendar--kz .tile-content .heb-date {
-  font-size: clamp(.55rem, 1.5vw, .8rem);
-  color: var(--ink-2);
-  line-height: 1.1;
+@media (min-width: 560px) {
+  .cal-day { width: 42px; height: 42px; font-size: 1.12rem; }
 }
 
-/* נקודת אירוע */
-.calendar--kz .tile-content .event-dot {
-  width: clamp(5px, 1.2vw, 8px);
-  height: clamp(5px, 1.2vw, 8px);
+.cal-heb {
+  font-size: .72rem;
+  font-weight: 600;
+  color: #8A8272;
+  line-height: 1;
+}
+
+.cal-event {
+  max-width: 100%;
+  padding: 0 2px;
+  font-size: .58rem;
+  font-weight: 700;
+  color: #B06A12;
+  line-height: 1.15;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@media (max-width: 479px) {
+  .cal-event { display: none; }
+}
+
+.cal-widget .react-calendar__tile.is-today .cal-day {
+  background: #fff;
+  color: #12203A !important;
+  box-shadow: 0 0 0 2.5px var(--accent);
+}
+
+.cal-widget .react-calendar__tile.is-today .cal-heb {
+  color: #12203A;
+  font-weight: 700;
+}
+
+.cal-widget .react-calendar__tile.is-shabbat {
+  background: rgba(232, 70, 124, .06) !important;
+}
+
+.cal-widget .react-calendar__tile.is-shabbat .cal-day,
+.cal-widget .react-calendar__tile.is-shabbat .cal-heb {
+  color: #C4849E;
+}
+
+.cal-widget .react-calendar__tile.is-holiday .cal-day {
+  color: #B06A12;
+}
+
+.cal-widget .react-calendar__tile.is-marked .cal-tile::after {
+  content: "";
+  width: 6px;
+  height: 6px;
   border-radius: 999px;
-  background: #fa224d75;
-  box-shadow: 0 0 0 2px #fff;
+  background: #35B6E8;
+  margin-top: 2px;
 }
 
-/* רשימת אירועים – מוסתרת בנייד, מוצגת מטאבלט */
-.calendar--kz .tile-content .events {
-  display: none;
-  margin-top: .15rem;
-  font-size: .65rem;
-  line-height: 1.2;
+.cal-widget .react-calendar__tile--active .cal-day,
+.cal-widget .react-calendar__tile--hasActive .cal-day {
+  background: var(--brand);
+  color: #fff !important;
+  box-shadow: 0 8px 16px rgba(18, 32, 58, .22);
+}
+
+.cal-widget .react-calendar__tile--active.is-today .cal-day,
+.cal-widget .react-calendar__tile--hasActive.is-today .cal-day {
+  background: var(--brand);
+  color: #fff !important;
+  box-shadow: 0 0 0 3px #fff, 0 0 0 6px var(--accent);
+}
+
+.cal-widget .react-calendar__tile--active .cal-heb,
+.cal-widget .react-calendar__tile--hasActive .cal-heb {
   color: var(--ink-2);
 }
 
-@media (min-width: 680px) {
-  .calendar--kz .tile-content .events { display: block; }
-}
-
-/* מצב נבחר */
-.calendar--kz .react-calendar__tile--active {
-  background-color: var(--brand);
-  color: #fff;
-  border-color: transparent;
-  box-shadow: 0 6px 18px rgba(63, 168, 214, .25);
-}
-
-.calendar--kz .react-calendar__tile--hasActive {
-  background: linear-gradient(135deg, var(--brand) 0%, var(--brand-600) 100%);
-  color: #fff;
-}
-
-/* היום */
-.calendar--kz .react-calendar__tile.is-today {
-  background-color: var(--accent);
-}
-
-/* שבת/חג */
-.calendar--kz .react-calendar__tile.is-shabbat {
-  background-color: #f3758e;
-  border-color: #ff8fa7;
-}
-
-.calendar--kz .react-calendar__tile.is-holiday {
-  background-color: #fa224d75;
-  border-color: #fa224d75;
-}
-
-/* נגישות מקלדת */
-.calendar--kz .react-calendar__tile:focus {
+.cal-widget .react-calendar__tile:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 3px rgba(110, 200, 241, .35);
+  box-shadow: 0 0 0 3px rgba(18, 32, 58, .18);
 }
 
-/* תצוגות שנה/עשור/מאה */
-.calendar--kz .react-calendar__year-view .react-calendar__tile,
-.calendar--kz .react-calendar__decade-view .react-calendar__tile,
-.calendar--kz .react-calendar__century-view .react-calendar__tile {
+.cal-widget .react-calendar__year-view .react-calendar__tile,
+.cal-widget .react-calendar__decade-view .react-calendar__tile,
+.cal-widget .react-calendar__century-view .react-calendar__tile {
+  min-height: 52px;
   border-radius: 14px;
-  margin: .25rem;
-  padding: .75rem .5rem;
-  width: auto;
-  min-height: 44px;
+  font-weight: 700;
+}
+
+.cal-footer {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+}
+
+.cal-selected {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px 12px;
+  font-size: .9rem;
+  color: var(--ink-2);
+}
+
+.cal-selected strong {
+  color: var(--ink);
+  font-size: 1rem;
+}
+
+.cal-selected--hint { color: #8A8272; }
+
+.cal-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+}
+
+.cal-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: .72rem;
+  font-weight: 600;
+  color: #8A8272;
+}
+
+.cal-legend-swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  display: inline-block;
+}
+
+.cal-legend-today { box-shadow: inset 0 0 0 2px var(--accent); background: #FEF6E7; }
+.cal-legend-shabbat { background: #F8D7E5; }
+.cal-legend-holiday { background: var(--accent); }
+.cal-legend-mark { background: #35B6E8; }
+
+.file-upload {
   display: flex;
   align-items: center;
   justify-content: center;
-  aspect-ratio: unset;
+  gap: 8px;
+  min-height: 52px;
+  padding: 10px 14px;
+  border: 1.5px dashed #D6D0C4;
+  border-radius: var(--radius);
+  background: #fff;
+  color: #8A8272;
+  font-weight: 600;
+  font-size: .9rem;
+  cursor: pointer;
+  transition: border-color .15s ease, background .15s ease, color .15s ease;
+}
+
+.file-upload:hover {
+  border-color: var(--brand);
+  color: var(--ink);
+  background: #F7FBFD;
+}
+
+.file-upload.has-file {
+  border-style: solid;
+  border-color: var(--brand);
+  color: var(--ink);
 }
 
 /* לוגו */
@@ -740,6 +886,6 @@ label {
 }
 
 .logo {
-  height: clamp(44px, 8vw, 60px);
+  height: clamp(48px, 9vw, 68px);
   cursor: pointer;
 }

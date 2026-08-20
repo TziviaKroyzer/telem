@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { initializeApp, getApps, getApp } from 'firebase/app';
+import { initializeApp, getApps } from 'firebase/app';
 import { getAuth, createUserWithEmailAndPassword, signOut } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
 import { db } from '../firebase';
+import SelectInput from './SelectInput';
 
 const firebaseConfig = {
   apiKey: "AIzaSyCojHEmBzwWBvD_UbiJutLHn8lqtJD0zBU",
@@ -52,7 +53,7 @@ function AddUser() {
   };
 
   return (
-    <div className="card" style={{marginBottom:'1rem'}}>
+    <>
       <h2>הוספת משתמש</h2>
       <form onSubmit={handleSubmit} className="form-grid form-grid--2">
         <div>
@@ -76,19 +77,23 @@ function AddUser() {
           <input className="input" value={phone} onChange={e=>setPhone(e.target.value)} />
         </div>
         <div>
-          <label>תפקיד</label>
-          <select className="select-input" value={role} onChange={e=>setRole(e.target.value)}>
-            <option value="user">משתמש רגיל</option>
-            <option value="admin">מנהל</option>
-          </select>
+          <SelectInput
+            label="תפקיד"
+            value={role}
+            onChange={setRole}
+            options={[
+              { value: "user", label: "משתמש רגיל" },
+              { value: "admin", label: "מנהל" },
+            ]}
+          />
         </div>
 
         <div className="row" style={{gridColumn:'1 / -1', marginTop:'.25rem'}}>
-          <button className="btn" type="submit" disabled={busy}>{busy? "יוצר..." : "הוסף"}</button>
+          <button className="btn btn--accent" type="submit" disabled={busy}>{busy? "יוצר..." : "הוסף"}</button>
           <span className="muted">{msg}</span>
         </div>
       </form>
-    </div>
+    </>
   );
 }
 
