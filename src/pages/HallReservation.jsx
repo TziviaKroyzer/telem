@@ -8,10 +8,15 @@ import {
   collection,
   addDoc,
   getDocs,
+  runTransaction,
 } from "firebase/firestore";
 import { db } from "../firebase";
 import { getAuth } from "firebase/auth";
 import AppNotice from "../components/AppNotice";
+import {
+  findOverlappingReservation,
+  overlapMessage,
+} from "../utils/reservationOverlap";
 
 const HallReservation = () => {
   const location = useLocation();
@@ -142,7 +147,7 @@ const HallReservation = () => {
       description: description || "אין",
     };
     const saved = await saveReservationToFirestore(reservation);
-    if (!saved) return;
+    if (!saved.ok) return;
 
     setNotice({
       title: "האולם שוריין",
@@ -172,34 +177,37 @@ const HallReservation = () => {
       current.setDate(current.getDate() + 7);
     }
 
+    const savedDays = [];
+    const skippedDays = [];
     for (const r of reservations) {
-      await saveReservationToFirestore({
-        ...r,
-        description: r.description || "אין",
-      });
+      const result = await saveReservationToFirestore(
+        { ...r, description: r.description || "אין" },
+        { notify: false }
+      );
+      if (result.ok) savedDays.push(r);
+      else skippedDays.push(r);
     }
 
-    setReservationsByDate((prev) => {
-      const updated = { ...prev };
-      for (const { date, startTime, endTime, description } of reservations) {
-        if (!updated[date]) updated[date] = [];
-        updated[date].push({ startTime, endTime, description });
-      }
-      return updated;
-    });
+    if (!savedDays.length) {
+      setNotice({
+        title: "האולם תפוס",
+        message: "לא ניתן לשריין: בכל הימים שנבחרו האולם כבר תפוס בשעות האלה.",
+      });
+      return;
+    }
+
+    const weekday = selectedDate.toLocaleDateString("he-IL", { weekday: "long" });
+    const savedLines = savedDays
+      .map((r) => `${r.date} (${r.startTime}–${r.endTime}) - ${r.description}`)
+      .join("\n");
+    const skippedLines = skippedDays.length
+      ? `\n\nדולגו כי האולם תפוס:\n` +
+        skippedDays.map((r) => `${r.date} (${r.startTime}–${r.endTime})`).join("\n")
+      : "";
 
     setNotice({
-      title: "האולם שוריין",
-      message:
-        `האולם "${hallName}" שוריין בכל ימי ה-${selectedDate.toLocaleDateString(
-          "he-IL",
-          { weekday: "long" }
-        )} החודש:\n` +
-        reservations
-          .map(
-            (r) => `${r.date} (${r.startTime}–${r.endTime}) - ${r.description}`
-          )
-          .join("\n"),
+      title: skippedDays.length ? "שריון חלקי" : "האולם שוריין",
+      message: `האולם "${hallName}" שוריין בימי ${weekday} החודש:\n${savedLines}${skippedLines}`,
     });
 
     setShowReserveModal(false);
@@ -208,47 +216,125 @@ const HallReservation = () => {
     setDescription("");
   };
 
-  const saveReservationToFirestore = async (reservation) => {
+  const rememberLocalReservation = (reservation) => {
+    setReservationsByDate((prev) => {
+      const updated = { ...prev };
+      const arr = updated[reservation.date] || [];
+      updated[reservation.date] = [
+        ...arr,
+        {
+          startTime: reservation.startTime,
+          endTime: reservation.endTime,
+          description: reservation.description,
+        },
+      ];
+      return updated;
+    });
+    if (reservation.date) {
+      setMarkedDates((prev) => {
+        const next = new Set(prev);
+        next.add(reservation.date);
+        return next;
+      });
+    }
+  };
+
+  /**
+   * שומר שריון רק אם אין חפיפה עם הזמנה קיימת לאותו אולם באותו יום.
+   * @param {{date: string, startTime: string, endTime: string, description: string}} reservation
+   * @param {{notify?: boolean}} [options]
+   */
+  const saveReservationToFirestore = async (reservation, { notify = true } = {}) => {
+    const failOverlap = (conflict) => {
+      if (notify) {
+        setNotice({
+          title: "האולם תפוס",
+          message: overlapMessage(conflict),
+        });
+      }
+      return { ok: false, conflict };
+    };
+
     try {
       const currentUser = getAuth().currentUser;
       if (!currentUser) {
-        setNotice({ title: "לא מחובר", message: "אין משתמש מחובר, לא ניתן לשמור שריון." });
-        return false;
+        if (notify) {
+          setNotice({ title: "לא מחובר", message: "אין משתמש מחובר, לא ניתן לשמור שריון." });
+        }
+        return { ok: false };
       }
 
+      const existingSnap = await getDocs(
+        query(
+          collection(db, "reservations"),
+          where("hallId", "==", hallId),
+          where("date", "==", reservation.date)
+        )
+      );
+      const existing = existingSnap.docs.map((d) => d.data());
+      const conflict = findOverlappingReservation(
+        existing,
+        reservation.startTime,
+        reservation.endTime
+      );
+      if (conflict) return failOverlap(conflict);
+
       const hallRef = doc(db, "halls", hallId);
-      await addDoc(collection(db, "reservations"), {
+      const payload = {
         ...reservation,
         hall: hallRef,
         hallId,
         createdBy: `/users/${currentUser?.email || "unknown"}`,
-      });
+      };
+      const reservationRef = doc(collection(db, "reservations"));
+      const lockRef = doc(db, "hallDayLocks", `${hallId}_${reservation.date}`);
 
-      // עדכון מיידי ליום הנוכחי
-      setReservationsByDate((prev) => {
-        const updated = { ...prev };
-        const arr = updated[reservation.date] || [];
-        updated[reservation.date] = [
-          ...arr,
-          {
-            startTime: reservation.startTime,
-            endTime: reservation.endTime,
-            description: reservation.description,
-          },
-        ];
-        return updated;
-      });
-      if (reservation.date) {
-        setMarkedDates((prev) => {
-          const next = new Set(prev);
-          next.add(reservation.date);
-          return next;
+      try {
+        await runTransaction(db, async (tx) => {
+          const lockSnap = await tx.get(lockRef);
+          const ranges = lockSnap.exists() ? lockSnap.data().ranges || [] : [];
+          const lockConflict = findOverlappingReservation(
+            ranges,
+            reservation.startTime,
+            reservation.endTime
+          );
+          if (lockConflict) {
+            const err = new Error("OVERLAP");
+            err.conflict = lockConflict;
+            throw err;
+          }
+          tx.set(reservationRef, payload);
+          tx.set(lockRef, {
+            hallId,
+            date: reservation.date,
+            ranges: [
+              ...ranges,
+              {
+                startTime: reservation.startTime,
+                endTime: reservation.endTime,
+                description: reservation.description,
+                reservationId: reservationRef.id,
+              },
+            ],
+          });
         });
+      } catch (e) {
+        if (e?.message === "OVERLAP") return failOverlap(e.conflict || reservation);
+        if (e?.code === "permission-denied") {
+          await addDoc(collection(db, "reservations"), payload);
+        } else {
+          throw e;
+        }
       }
-      return true;
+
+      rememberLocalReservation(reservation);
+      return { ok: true };
     } catch (e) {
       console.error("שגיאה בשמירת השריון:", e);
-      return false;
+      if (notify) {
+        setNotice({ title: "שגיאה", message: "לא הצלחנו לשמור את השריון. נסו שוב." });
+      }
+      return { ok: false };
     }
   };
 

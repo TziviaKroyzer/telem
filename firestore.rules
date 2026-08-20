@@ -62,6 +62,11 @@ service cloud.firestore {
         || (signedIn() && resource.data.createdBy == '/users/' + userEmail());
     }
 
+    // נעילת שעות לפי אולם+תאריך, כדי למנוע שריון כפול באותו זמן
+    match /hallDayLocks/{id} {
+      allow read, write: if signedIn();
+    }
+
     match /files/{id} {
       allow read: if signedIn();
       allow write: if signedIn();
